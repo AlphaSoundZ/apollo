@@ -1,175 +1,160 @@
 <?php
 session_start();
 require 'config.php';
-$data = json_decode(file_get_contents("php://input"));
-$task = $data->task;
+global $rdata;
+$rdata = json_decode(file_get_contents("php://input"));
 // Start desired function
 try {
-  $task();
+    $task = $rdata->task;
+    $task();
 } catch (Exception $e) {
-  $data['message'] = $e->getMessage();
-	message();
-	echo json_encode($data);
+    $data['message'] = $e->getMessage();
+    message('');
+    echo json_encode($rdata);
 	exit;
 }
 
-function check_rfid() {
-  message();
-  echo $data['response'];
-  global $data, $pdo, $usercardtype;
-
-  // check usercard
-  $stmt = $pdo->prepare("SELECT * FROM rfid_devices WHERE rfid_code = ?");
-  $rfid_exist = $stmt->execute([$rfid_code])->fetch();
-
-  if ($rfid_exist) {
-    $rfid_assigned = $pdo->query("SELECT * FROM user WHERE rfid_code = '".$rfid_exist['device_id']."'")->fetch();
-    if ($rfid_exist['device_type'] == $usercardtype) {
-      if ($rfid_assigned) {
-        message(3);
-        return false;
-      }
-      if (check_user()) {
-        message(1);
-        return true;
-    }}
-    else {
-      message(4);
-      return false;
-}}}
-
-function check_user() {
-  $stmt = $pdo->prepare("SELECT * FROM user WHERE vorname = ? AND name = ?");
-  $user_exist = $stmt->execute([$vorname, $nachname])->fetch();
-  if ($userexist) {
-    message(2);
-    return false;
-  }
-  else {
-    return true;
-}}
-
-
-if (check_user() AND check_rfid()) {
-  if ($data['response'] == 1) {
-    createuser();
-  }
-  else if (empty($data['response'])) {
-    createuser();
-    createusercard();
-  }
+function _push() {
+    global $vorname, $nachname, $klasse, $rfid_code, $rdata;
+    $vorname = $rdata->vorname;
+    $nachname = $rdata->nachname;
+    $klasse = $rdata->klasse;
+    $rfid_code = $rdata->rfid_code;
+    $adduser = new _adduser($vorname, $nachname, $klasse, $rfid_code);
+    $bruh = $adduser->run();
 }
-
-
-
-
-  global $data, $pdo, $usercardtype, $rfid_code_len;
-  $vorname = $data->vorname;
-  $nachname = $data->nachname;
-  $klasse = $data->klasse;
-  $rfid_code = $data->rfid_code;
-
-  // Nach Existenz in DB von Usercard und User prüfen
-  $stmt = $pdo->prepare("SELECT * FROM rfid_devices WHERE rfid_code = ?");
-  $stmt->execute([$rfid_code]);
-  $Usercard_EZ = $stmt->fetch();
-  $Usercard_E = false;
-  $stmt = $pdo->prepare("SELECT * FROM user WHERE vorname = ? AND name = ?");
-  $stmt->execute([$vorname, $nachname]);
-  $User_E = $stmt->fetch();
-
-  // Wenn Usercard exisitert, dann nach Zuweisung prüfen
-  if ($Usercard_EZ) {
-    $stmt = $pdo->prepare("SELECT * FROM user WHERE ? = rfid_code");
-    $stmt->execute([$Usercard_EZ['device_id']]);
-    $Usercard_EZ = $stmt->fetch();
-    $Usercard_E = true;
-  }
-  if (rfid_form($rfid_code)) {
-    if (empty($Usercard_EZ) AND $Usercard_E == false) {
-      // Erstelle Usercard
-      echo "Usercard wird erstellt.<br>";
-      $stmt = $pdo->prepare("INSERT INTO rfid_devices (device_type, rfid_code) VALUES (?, ?)");
-      $stmt->execute([$usercardtype, $rfid_code]);
-    }
-      // Nach Id von Usercard suchen
-      $stmt = "SELECT * FROM rfid_devices WHERE rfid_code = ?";
-      $stmt = $pdo->prepare($stmt);
-      $stmt->execute([$rfid_code]);
-      $Usercard_id = $stmt->fetch();
-      // User erstellen
-      echo "User wird erstellt.<br>";
-      $user_insert = "INSERT INTO user (vorname, name, klasse, rfid_code) VALUES (?, ?, ?, ?)";
-      $pdo->prepare($user_insert)->execute([$vorname, $nachname, $klasse, $Usercard_id['device_id']]);
-    }
-    else {
-      error(1);
-    }
-  }
-}
-else {
-  error(0);
-}
-
-function message($messageID) {
-  global $data;
-  switch ($messageID) {
-  case 0:
-      $data['message'] = $data['message']."User wird erstellt. ";
-      $data['response'] = '0';
-      break;
-  case 1:
-      $data['message'] = $data['message']."Nur Zuweisung der Usercard. ";
-      $data['response'] = '1';
-      break;
-  case 2:
-      $data['message'] = $data['message']."User existiert schon. ";
-      $data['response'] = '2';
-      break;
-  case 3:
-      $data['message'] = $data['message']."Usercard ist bereits ".$Usercard_EZ['vorname']." ".$Usercard_EZ['name']." zugewiesen. ";
-      $data['response'] = '3';
-      break;
-  case 4:
-      $data['message'] = $data['message']."RFID Code gehört zu einem Device. ";
-      $data['response'] = '4';
-      break;
-  default:
-     $data['message'] = $data['message']."Unexpected Error ";
-     $data['response'] = '8';
-}}
-
 
 function _adduser() {
-  global $data, $pdo;
-  $klassen_auswahl = "Klasse";
-?>
-  <!DOCTYPE html>
-  <html>
-  <head>
-    <title>Add User</title>
-  </head>
-  <body>
+    global $data, $pdo;
+    $klassen_auswahl = "Klasse";
+  ?>
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Add User</title>
+    </head>
+    <body>
+  
+    <p class="main_text">Add user</p>
+    <form>
+      <input type="text" class="main_textfield" name="vorname" placeholder="Vorname" onblur="checkText('input.vorname')" onfocus="updateerrormsg();" id="input.vorname"></input><br><br><br><br>
+      <input type="text" class="main_textfield" name="nachname" placeholder="Nachname" onblur="checkText('input.nachname')" onfocus="updateerrormsg();" id="input.nachname"></input><br><br><br>
+      <select id="input.klasse" onblur="checkText('input.klasse')" onfocus="updateerrormsg();">
+      <?php
+        $klassen = "SELECT * FROM klassen ORDER BY id";
+        echo "<option value='nothing_selected'>Klasse</option>";
+        foreach ($pdo->query($klassen) as $row) {
+          echo "<option value='".$row['id']."'>".$row['klassen_name']."</option>";
+        }
+      ?>
+    </select>
+    <br>
+    <input type="text" class="main_textfield" name="rfid_code" placeholder="RFID Code" id="input.rfid_code" onblur="checkText('input.rfid_code')" onfocus="updateerrormsg();"></input><br><br><br> <!-- Idee: Man klickt in das Feld und dann hält man das Gerät, welches eingescannt werden soll an das Lesegerät. Sobald das Lesegerät den Code hat, wird er einfach kopiert und anschließend automatisch eingefügt. Dann kann man sich das mit einer extra seite zum scannen etc. sparen und es spart deutlich zeit, weil man nicht jedesmal auf eine seite geleitet wird, sondern es einache eingefügt wird. -->
+    <br>
+    <div><p class="main_warningmsg" id="warning"></p>
+    <input type="submit" class="main_submit" value="Add" id="input.submit" onclick="validateForm(event);"></input>
+    </form>
+    </body>
+    </html>
+  <?php }
 
-  <p class="main_text">Add user</p>
-  <form>
-    <input type="text" class="main_textfield" name="vorname" placeholder="Vorname" onblur="checkText('input.vorname')" onfocus="updateerrormsg();" id="input.vorname"></input><br><br><br><br>
-    <input type="text" class="main_textfield" name="nachname" placeholder="Nachname" onblur="checkText('input.nachname')" onfocus="updateerrormsg();" id="input.nachname"></input><br><br><br>
-    <select id="input.klasse" onblur="checkText('input.klasse')" onfocus="updateerrormsg();">
-    <?php
-      $klassen = "SELECT * FROM klassen ORDER BY id";
-      echo "<option value='nothing_selected'>Klasse</option>";
-      foreach ($pdo->query($klassen) as $row) {
-        echo "<option value='".$row['id']."'>".$row['klassen_name']."</option>";
-      }
-    ?>
-  </select>
-  <br>
-  <input type="text" class="main_textfield" name="rfid_code" placeholder="RFID Code" id="input.rfid_code" onblur="checkText('input.rfid_code')" onfocus="updateerrormsg();"></input><br><br><br> <!-- Idee: Man klickt in das Feld und dann hält man das Gerät, welches eingescannt werden soll an das Lesegerät. Sobald das Lesegerät den Code hat, wird er einfach kopiert und anschließend automatisch eingefügt. Dann kann man sich das mit einer extra seite zum scannen etc. sparen und es spart deutlich zeit, weil man nicht jedesmal auf eine seite geleitet wird, sondern es einache eingefügt wird. -->
-  <br>
-  <div><p class="main_warningmsg" id="warning"></p>
-  <input type="submit" class="main_submit" value="Add" id="input.submit" onclick="validateForm(event);"></input>
-  </form>
-  </body>
-  </html>
-<?php } ?>
+
+
+class _adduser {
+    function __construct($vorname, $name, $klasse, $rfid_code) {
+        $this->vorname = $vorname;
+        $this->nachname = $name;
+        $this->klasse = $klasse;
+        $this->rfid_code = $rfid_code;
+        $this->data["message"] = NULL;
+        $this->data["response"] = NULL;
+    }
+    function check() {
+        global $pdo, $usercardtype, $rfid_assigned;
+        $check_response = [];
+        // check if user exists:
+        $stmt = $pdo->prepare("SELECT * FROM user WHERE vorname = ? AND name = ?");
+        $stmt->execute([$this->vorname, $this->nachname]);
+        $user_exists = $stmt->fetch();
+        if ($user_exists) {
+            $check_response["createUser"] = false;
+            $check_response["messageId"] = 2;
+        }
+        else {
+            $check_response["createUser"] = true;
+            $stmt = $pdo->prepare("SELECT * FROM rfid_devices WHERE rfid_code = ?");
+            $stmt->execute([$this->rfid_code]);
+            $rfid_exists = $stmt->fetch();
+            if ($rfid_exists) {
+                if ($rfid_exists['device_type'] == $usercardtype) {
+                    $stmt = $pdo->prepare("SELECT * FROM user WHERE rfid_code = ?");
+                    $stmt->execute([$rfid_exists['device_id']]);
+                    $rfid_assigned = $stmt->fetch();
+                    if ($rfid_assigned) {
+                        $check_response["messageId"] = 3;
+                    }
+                    else {
+                        $check_response["createUsercard"] = false;
+                        $check_response["messageId"] = 1;
+                    }}
+                else {
+                    $check_response["messageId"] = 4;
+                }}
+            else {
+                $check_response["createUsercard"] = true;
+                $check_response["messageId"] = 0;
+            }
+        }
+
+        switch($check_response["messageId"]) {
+            case 0:
+                $this->data['message'] = $this->data['message']."User + Usercard wird erstellt. ";
+                $this->data['response'] = '0';
+                break;
+            case 1:
+                $this->data['message'] = $this->data['message']."Usercard existiert schon und wird zugewiesen. ";
+                $this->data['response'] = '1';
+                break;
+            case 2:
+                $this->data['message'] = $this->data['message']."User existiert schon. ";
+                $this->data['response'] = '2';
+                break;
+            case 3:
+                $this->data['message'] = $this->data['message']."Usercard ist bereits ".$rfid_assigned['vorname']." ".$rfid_assigned['name']." zugewiesen. ";
+                $this->data['response'] = '3';
+                break;
+            case 4:
+                $this->data['message'] = $this->data['message']."RFID Code gehört zu einem Device. ";
+                $this->data['response'] = '4';
+                break;
+            default:
+               $this->data['message'] = $this->data['message']."Unexpected Error ";
+               $this->data['response'] = '8';
+            }
+        return $check_response;
+    }
+    function run() {
+        global $data;
+        if ($this->check()["messageId"] < 2) {
+            echo "success";
+            if ($this->data["response"] == '0') {
+                $this->createUsercard();
+            }
+            $this->createUser();
+        }
+        else {
+            // Failed to create;
+            echo "fail<br>";
+            echo "message (".$this->data["response"]."): ".$this->data["message"];
+        }
+    }
+    protected function createUser() {
+        echo "creating user...";
+        // Create the user
+    }
+    protected function createUsercard() {
+        echo "creating usercard...";
+        // Create the usercard
+    }
+}
+?>

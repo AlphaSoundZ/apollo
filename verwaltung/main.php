@@ -61,7 +61,7 @@ function onload() {
 	document.getElementById("main-default").style.display = 'none';
 	var hashValue = window.location.hash.substr(1);
 	if (hashValue) {
-		if (hashValue && 'login' && hashValue != 'logout' && hashValue != 'allusers') {
+		if (hashValue != 'login' && hashValue != 'logout' && hashValue != 'allusers') {
 			var file = '_'+hashValue+'.php';
 			task(0, file, '_'+hashValue);
 		} else if (hashValue == 'allusers') {
@@ -94,7 +94,7 @@ function validateForm(event) {
 }
 
 function task(event, file, task) {
-	if (event != '0') {
+	if (event != 0) {
 		event.preventDefault();
 	}
 	var data = {};

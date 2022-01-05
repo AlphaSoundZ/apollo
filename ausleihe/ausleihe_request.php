@@ -48,7 +48,7 @@ if (!empty($rfid1 AND $rfid2)) {
           }
           else {
             CreateDeviceObject(2);
-            message();}}
+            message('');}}
         else {
           message(6);
           CreateDeviceObject(2);
@@ -86,7 +86,7 @@ elseif(!empty($rfid1)) {
           }
           else {
             CreateDeviceObject(1);
-            message();
+            message('');
         }}
         else {
           CreateDeviceObject(1);
