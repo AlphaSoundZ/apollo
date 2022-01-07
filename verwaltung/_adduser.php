@@ -102,13 +102,6 @@ class adduser {
 
 
 
-
-
-
-
-
-
-
 function _push() {
     global $vorname, $nachname, $klasse, $rfid_code, $rdata;
     $vorname = $rdata->vorname;
