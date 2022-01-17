@@ -3,78 +3,19 @@ session_start();
 require 'config.php';
 global $rdata, $data, $pdo;
 $rdata = json_decode(file_get_contents("php://input"));
-try {
-    $task = $rdata->task;
-    $task();
-} catch (Exception $e) {
-    $data['message'] = $e->getMessage();
-    message('');
-    echo json_encode($rdata);
-	exit;
-}
+global $rdata;
+$vorname = $rdata->vorname;
+$nachname = $rdata->nachname;
+$klasse = $rdata->klasse;
+$rfid_code = $rdata->rfid_code;
+$adduser = new adduser($vorname, $nachname, $klasse, $rfid_code);
+$check = $adduser->prepare();
+echo $check["response"]["user"]["message"]." ".$check["response"]["usercard"]["message"]." ";
+$response = $adduser->execute();
+echo ($response) ? "Anfrage wurde erfolgreich bearbeitet!" : "Bei der Anfrage ist etwas schiefgelaufen!";
 
-function _adduser() 
-{
-    global $pdo;
-    $klassen_auswahl = "Klasse";
-    ?>
-    <!DOCTYPE html>
-    <html lang="de">
-        <head>
-            <meta charset="UTF-8">
-            <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Add User</title>
-        </head>
-        <body>
-            <p class="main_text">Add user</p>
-            <form>
-                <input type="text" class="main_textfield" name="vorname" placeholder="Vorname" onblur="checkText('input.vorname')" onfocus="updateerrormsg();" id="input.vorname"></input><br><br><br><br>
-                <input type="text" class="main_textfield" name="nachname" placeholder="Nachname" onblur="checkText('input.nachname')" onfocus="updateerrormsg();" id="input.nachname"></input><br><br><br>
-                <select id="input.klasse" onblur="checkText('input.klasse')" onfocus="updateerrormsg();">
-                    <?php
-                    $klassen = "SELECT * FROM klassen ORDER BY id";
-                    echo "<option value='nothing_selected'>Klasse</option>";
-                    foreach ($pdo->query($klassen) as $row) {
-                    echo "<option value='".$row['id']."'>".$row['klassen_name']."</option>";
-                    } ?>
-                </select>
-                <br>
-                <input type="text" class="main_textfield" name="rfid_code" placeholder="RFID Code" id="input.rfid_code" onblur="checkText('input.rfid_code')" onfocus="updateerrormsg();"></input><br><br><br> <!-- Idee: Man klickt in das Feld und dann hält man das Gerät, welches eingescannt werden soll an das Lesegerät. Sobald das Lesegerät den Code hat, wird er einfach kopiert und anschließend automatisch eingefügt. Dann kann man sich das mit einer extra seite zum scannen etc. sparen und es spart deutlich zeit, weil man nicht jedesmal auf eine seite geleitet wird, sondern es einache eingefügt wird. -->
-                <br>
-                <p class="main_warningmsg" id="warning"></p>
-                <input type="submit" class="main_submit" value="Add" id="input.submit" onclick="validateForm(event);"></input>
-            </form>
-        </body>
-    </html> 
-    <?php
-}
 
-/*
-$vorname = 'Paull bruh 420';
-$nachname = 'Peter';
-$klasse = '2';
-$rfid_code = 'testrfidcode';
-*/
-function _push() {
-    global $rdata;
-    $vorname = $rdata->vorname;
-    $nachname = $rdata->nachname;
-    $klasse = $rdata->klasse;
-    $rfid_code = $rdata->rfid_code;
-    $adduser = new adduser($vorname, $nachname, $klasse, $rfid_code);
-    $check = $adduser->prepare();
-    echo $check["response"]["user"]["message"]." ".$check["response"]["usercard"]["message"]." ";
-    $response = $adduser->execute();
-    echo ($response) ? "Anfrage wurde erfolgreich bearbeitet!" : "Bei der Anfrage ist etwas schiefgelaufen!";
-    /*echo $check["message"];
-    if (in_array("test", $adduser->data)) 
-    {
-        $adduser->execute();
-    }*/
-}
-
-class adduser 
+class adduser
 {
     function __construct($firstname, $lastname, $class, $rfid_code) 
     {

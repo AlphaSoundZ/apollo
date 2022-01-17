@@ -13,7 +13,7 @@
 		<a href="index.php" id="logout"><button onclick="task(event, 'request.php', '_logout');" class="navbuttonright">logout</button></a>
 		<a href="http://localhost/ausleihe/indexnew.html" target="_blank"><button class="navbutton">ausleihe</button></a>
 		<a href="#allusers" id="allusers_id"><button class="navbutton" onclick="task(event, 'tabletest.php', '_allusers');">all users</button></a>
-		<a href="#tables" id="tables_id"><button class="navbutton" onclick="task(event, '_tables.php', '');">tables</button></a>
+		<a href="#tables" id="tables_id"><button class="navbutton" onclick="task(event, '_configur.php', '');">import & reset</button></a>
 		<a href="user_add.php" id="adduser_id"><button class="navbuttonleft" onclick="task(event, '_adduser.php', '_adduser');">add user</button></a>
 	</section>
 	<?php
@@ -160,8 +160,10 @@ function checkText(id) {
     }
   }
   else {
-    if (_eCheck()) {document.getElementById("warning").innerHTML = "";}
-    if (id != "input.klasse") {input.value = input.value.charAt(0).toUpperCase() + input.value.slice(1);}
+	  if (id != "input.rfid_code") {
+		  if (_eCheck()) {document.getElementById("warning").innerHTML = "";}
+		  if (id != "input.klasse") {input.value = input.value.charAt(0).toUpperCase() + input.value.slice(1);}
+	  }
   }
 }
 
@@ -189,7 +191,6 @@ function _eCheck() {
       klasse.value == 'nothing_selected') {return false;}
       else {return true;}
 }
-
 </script>
 <style>
 

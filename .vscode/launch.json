@@ -11,11 +11,5 @@
             "url": "http://localhost:8080",
             "webRoot": "${workspaceFolder}"
         }
-        {
-            // Duration in milliseconds for the cursor to travel from one character position (or line) to the next.
-            "smoothtype.duration": 80,
-            // Ask before restarting after a command is successfully run.
-            "smoothtype.autoReload": false
-          }
     ]
 }

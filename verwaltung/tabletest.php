@@ -9,7 +9,7 @@ $search = $data->search;
 
 
 if (!empty($search) && $search[0] == "%") {
-  $dataselect = substr($search, 1);
+  $dataselect = "select * from ".substr($search, 1);
   runselect();
   // $columnnames = array(columns...);
   // $columncount = count($columnnames);
