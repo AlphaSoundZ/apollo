@@ -1,0 +1,11 @@
+Einstellungen auf dem Smartboard:
+Gehen sind in die Windowseinstellungen indem sie WINDOWS+I drücken.
+Danach gehen sie in die Einstellungen und suchen nach Projektionseinstellungen.
+Ändern sie, falls noch nicht bereits eingestellt, von Immer Aus (empfohlen) auf Überall verfügbar.
+
+Eintellungen auf dem Gerät, wo eine Projektion gestartet werden soll:
+Drücken sie die Tastenkombination WINDOWS+K.
+Anschließend wählen sie das zu projizierende Gerät in dem Popup-Menü unten rechts aus.
+
+Einstellungen auf dem Smartboard:
+Klicken sie auf Annehmen / Bestätigen.

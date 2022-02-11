@@ -12,7 +12,7 @@ $klassen_auswahl = "Klasse";
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Add User</title>
+        <title>Add User</title> 
     </head>
     <body>
         <p class="main_text">Add user</p>
@@ -48,8 +48,10 @@ $klassen_auswahl = "Klasse";
             ajax.open("POST", file, true);
             ajax.onreadystatechange = function()
             {
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.readyState == 4 && this.status == 200)
+                {
                 var response = this.responseText;
+                }
             };
             ajax.setRequestHeader("Content-Type", "application/json");
             ajax.send(JSON.stringify(data))

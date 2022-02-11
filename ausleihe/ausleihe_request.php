@@ -9,12 +9,14 @@ $data['response'] = 9;
 global $pdo, $usercardtype, $data, $device_1, $device_2;
 if ($rfid1 = isset($_GET['rfid1'])) {
   $rfid1 = $_GET['rfid1'];
+  $stm1 = "SELECT * FROM rfid_devices LEFT JOIN rfid_device_type ON rfid_devices.device_type = rfid_device_type.device_type_id WHERE rfid_devices.rfid_code = '".$rfid1."'";
+  $device_1 = $pdo->query($stm1)->fetch();
 }
 if ($rfid2 = isset($_GET['rfid2'])) {
   $rfid2 = $_GET['rfid2'];
+  $stm2 = "SELECT * FROM rfid_devices LEFT JOIN rfid_device_type ON rfid_devices.device_type = rfid_device_type.device_type_id WHERE rfid_devices.rfid_code = '".$rfid2."'";
+  $device_2 = $pdo->query($stm2)->fetch();
 }
-
-
 /*
 rfid1 muss Usercard sein und rfid2 Gerät, wenn man ausleihen möchte.
 
@@ -24,25 +26,22 @@ Wenn nur rfid1:
 */
 
 //wenn Input
-if (!empty($rfid1 AND $rfid2)) {
+if (!empty($rfid1 AND $rfid2)) { // ausleihe
   if (rfid_form($rfid1) AND rfid_form($rfid2)) {
-    $stm1 = "SELECT * FROM rfid_devices LEFT JOIN rfid_device_type ON rfid_devices.device_type = rfid_device_type.device_type_id WHERE rfid_devices.rfid_code = '".$rfid1."'";
-    $stm2 = "SELECT * FROM rfid_devices LEFT JOIN rfid_device_type ON rfid_devices.device_type = rfid_device_type.device_type_id WHERE rfid_devices.rfid_code = '".$rfid2."'";
-    $device_1 = $pdo->query($stm1)->fetch();
-    $device_2 = $pdo->query($stm2)->fetch();
-    if (!empty($device_1) AND !empty($device_2) AND $device_1['device_type'] == $usercardtype AND $device_2['device_type'] != $usercardtype) {
-      $user = "SELECT * FROM user WHERE rfid_code = '".$device_1['device_id']."'";
-      $user = $pdo->query($user)->fetch();
-      if ($user['rfid_device_id'] == 0) {
+    if (!empty($device_1) AND !empty($device_2) AND $device_1['device_type'] == $usercardtype AND $device_2['device_type'] != $usercardtype) { // rfidcodes in der Datenbank? Und device_types überprüfen
+      $user_status_stm = "SELECT * FROM rfid_devices LEFT JOIN user ON user.user_id = rfid_devices.lend_id WHERE lend_id = user.user_id AND user.rfid_code = '".$device_1["device_id"]."'";
+      $user_status = $pdo->query($user_status_stm)->fetch();
+      if (!$user_status) { // Leiht man bereits etwas aus?
         CreateUserObject(1);
-        $status_stm = "SELECT * FROM user WHERE rfid_device_id = '".$device_2['device_id']."'";
-        $device_status = $pdo->query($status_stm)->fetch();
-        if (empty($device_status)) {
-          $update_stm = $pdo->query("UPDATE user SET rfid_device_id = ".$device_2['device_id']." WHERE rfid_code = '".$device_1['device_id']."'");
-          $device_status = $pdo->query($status_stm)->fetch();
-          if (!empty($device_status['rfid_device_id'])) {
-            message(0);
-            CreateUserObject(1); // User Status aktualisieren
+        $device_status = "SELECT * FROM rfid_devices WHERE device_id = '".$device_2['device_id']."'";
+        $device_status = $pdo->query($device_status)->fetch();
+        if ($device_status) { // Wird das auszuleihende Gerät bereits ausgeliehen?
+          $user = "SELECT * FROM user WHERE rfid_code = '".$device_1['device_id']."'";
+          $user = $pdo->query($user)->fetch();
+          $update_stm = $pdo->query("UPDATE rfid_devices SET lend_id = ".$user['user_id']." WHERE device_id = '".$device_2['device_id']."'");
+          $user_status = $pdo->query($user_status_stm)->fetch();
+          if ($user_status) { // hat update mit Server funktioniert?
+            message(0);            CreateUserObject(1); // User Status aktualisieren
             CreateDeviceObject(2);
             event(1);
           }
@@ -62,24 +61,22 @@ if (!empty($rfid1 AND $rfid2)) {
       if (empty($device_2)) {message(3);}
       elseif ($device_2['device_type'] == $usercardtype) {message(7);}}}
   else {message(3);}}
-elseif(!empty($rfid1)) {
+elseif(!empty($rfid1)) { // rückgabe oder info
   if (rfid_form($rfid1)) {
-    $stm1 = "SELECT * FROM rfid_devices LEFT JOIN rfid_device_type ON rfid_devices.device_type = rfid_device_type.device_type_id WHERE rfid_devices.rfid_code = '".$rfid1."'";
-    $device_1 = $pdo->query($stm1)->fetch();
-    if (!empty($device_1)) {
-      if ($device_1['device_type'] == $usercardtype) {
+    if (!empty($device_1)) { // Rfid1 in der Datenbank?
+      if ($device_1['device_type'] == $usercardtype) { // Soll Info angezeigt werden?
         CreateUserObject(1);
         message(2);
         CollectHistoryData();
       }
-      else {
-        $status_stm = "SELECT * FROM user WHERE rfid_device_id = '".$device_1['device_id']."'";
+      else { // Gerät wird zurückgegeben
+        $status_stm = "SELECT * FROM user LEFT JOIN rfid_devices ON rfid_devices.lend_id = user.user_id WHERE rfid_devices.rfid_code = '".$rfid1."'";
         $device_status_ = $pdo->query($status_stm)->fetch();
-        if (!empty($device_status_)) {
+        if ($device_status_) { // Wird das Gerät ausgeliehen, damit man es zurückgeben kann?
           CreateUserObject(1);
-          $update_stm = $pdo->query("UPDATE user SET rfid_device_id = '0' WHERE rfid_device_id = '".$device_1['device_id']."'");
+          $update_stm = $pdo->query("UPDATE rfid_devices SET lend_id = '0' WHERE lend_id = '".$device_status_['user_id']."'");
           $device_status_ = $pdo->query($status_stm)->fetch();
-          if (empty($device_status_['rfid_device_id'])) {
+          if (empty($device_status_['rfid_device_id'])) { // update success?
             message(1);
             CreateDeviceObject(1);
             event(0);
@@ -98,7 +95,7 @@ elseif(!empty($rfid1)) {
   else {
       message(3);
 }}
-elseif (empty($rfid1) and empty($rfid2)) {
+elseif (empty($rfid1) and empty($rfid2) or empty($rfid2)) { // enthält die URL rfid codes?
   message(9);
 }
 
@@ -118,7 +115,7 @@ function message($messageID) {
       $data['response'] = '2';
       break;
   case 3:
-      $data['message'] = $data['message']."Device/Usercard nicht Registriert. ";
+      $data['message'] = $data['message']."Device oder Usercard nicht Registriert. ";
       $data['response'] = '3';
       break;
   case 4:
@@ -146,25 +143,53 @@ function message($messageID) {
      $data['response'] = '8';
 }}
 
+function selectData($var) {
+  global $usercardtype;
+  if ($var == $usercardtype)
+  {
+    $user_stm = "SELECT * FROM user LEFT JOIN klassen ON klassen.id = user.klasse WHERE rfid_code = '".$var."'";
+  }
+  else
+  {
+    $user_stm = "SELECT * FROM user LEFT JOIN rfid_devices ON rfid_devices.lend_id = user.user_id LEFT JOIN klassen ON klassen.id = user.klasse WHERE rfid_devices.device_id = '".$var."'";
+  }
+}
+
 function CreateUserObject($device_a) {
   global $rfid1, $data, $device_1, $device_2, $pdo, $device_status_, $usercardtype;
   $device = "device_".$device_a;
-  $variable = (${$device}['device_type'] == $usercardtype) ? "rfid_code" : "rfid_device_id";
-  $user_stm = "SELECT * FROM user LEFT JOIN klassen ON klassen.id = user.klasse WHERE ".$variable." = '".${$device}['device_id']."'";
+  selectData(${$device}['device_type']);
+  
+  if (${$device}['device_type'] == $usercardtype)
+  {
+    $user_stm = "SELECT * FROM user LEFT JOIN klassen ON klassen.id = user.klasse WHERE rfid_code = '".${$device}['device_id']."'";
+  }
+  else
+  {
+    $user_stm = "SELECT * FROM user LEFT JOIN rfid_devices ON rfid_devices.lend_id = user.user_id LEFT JOIN klassen ON klassen.id = user.klasse WHERE rfid_devices.device_id = '".${$device}['device_id']."'";
+  }
   $user_data = $pdo->query($user_stm)->fetch();
   $data['user']['vorname'] = $user_data['vorname'];
   $data['user']['nachname'] = $user_data['name'];
   $data['user']['user_id'] = $user_data['user_id'];
   $data['user']['klasse'] = $user_data['klassen_name'];
-  $data['user']['status'] = $user_data['rfid_device_id'];
+  $data['user']['status'] = $user_data['device_id'];
 }
 
 function CreateDeviceObject($device_a) { // status muss noch automatisiert werden.
   global $data, $device_1, $device_2, $pdo, $usercardtype;
   $device = "device_".$device_a;
-  $variable = (${$device}['device_type'] == $usercardtype) ? "rfid_code" : "rfid_device_id";
-  $object_stm = "SELECT * FROM user WHERE ".$variable." = '".${$device}['device_id']."'";
-  $object_data = $pdo->query($object_stm)->fetch();
+  //$variable = (${$device}['device_type'] == $usercardtype) ? "rfid_code" : "rfid_device_id";
+  //$object_stm = "SELECT * FROM user WHERE ".$variable." = '".${$device}['device_id']."'";
+  if (${$device}['device_type'] == $usercardtype)
+  {
+    $user_stm = "SELECT * FROM user LEFT JOIN klassen ON klassen.id = user.klasse WHERE rfid_code = '".${$device}['device_id']."'";
+  }
+  else
+  {
+    $user_stm = "SELECT * FROM user LEFT JOIN rfid_devices ON rfid_devices.lend_id = user.user_id LEFT JOIN klassen ON klassen.id = user.klasse WHERE rfid_devices.device_id = '".${$device}['device_id']."'";
+  }
+  $object_data = $pdo->query($user_stm)->fetch();
   $status = ($object_data) ? $object_data['user_id'] : "false";
   $device = "device_".$device_a;
   $data['device']['device_type'] = ${$device}['name']; // varable variables: Call Variable from String with Index for Array
@@ -182,7 +207,8 @@ function CollectHistoryData() {
 
 function event($status) {
   global $rfid_read, $pdo, $data;
-  $rfid_event = $pdo->query("INSERT INTO rfid_event (id, event_type_id, user_id, device_id, status, time_stamp) VALUES (NULL, ".$rfid_read.", ".$data['user']['user_id'].", ".$data['device']['id'].", ".$status.", date('Y-m-d H:i:s'))");
+  echo "event: $rfid_read user_id: ".$data['user']['user_id']." device_id: ".$data['device']['id']." status: ".$status."";
+  $pdo->query("INSERT INTO rfid_event (id, event_type_id, user_id, device_id, status, time_stamp) VALUES (NULL, ".$rfid_read.", ".$data['user']['user_id'].", ".$data['device']['id'].", ".$status.", date('Y-m-d H:i:s'))"); // maybe use date('Y-m-d H:i:s')
 }
 
 echo json_encode($data);
