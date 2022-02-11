@@ -41,7 +41,8 @@ if (!empty($rfid1 AND $rfid2)) { // ausleihe
           $update_stm = $pdo->query("UPDATE rfid_devices SET lend_id = ".$user['user_id']." WHERE device_id = '".$device_2['device_id']."'");
           $user_status = $pdo->query($user_status_stm)->fetch();
           if ($user_status) { // hat update mit Server funktioniert?
-            message(0);            CreateUserObject(1); // User Status aktualisieren
+            message(0);
+            CreateUserObject(1); // User Status aktualisieren
             CreateDeviceObject(2);
             event(1);
           }
@@ -143,8 +144,9 @@ function message($messageID) {
      $data['response'] = '8';
 }}
 
-function selectData($var) {
-  global $usercardtype;
+function selectData($device_a) {
+  global $usercardtype, $device_1, $device_2;
+  $var = ${"device_".$device_a}['device_type'];
   if ($var == $usercardtype)
   {
     $user_stm = "SELECT * FROM user LEFT JOIN klassen ON klassen.id = user.klasse WHERE rfid_code = '".$var."'";
@@ -153,47 +155,25 @@ function selectData($var) {
   {
     $user_stm = "SELECT * FROM user LEFT JOIN rfid_devices ON rfid_devices.lend_id = user.user_id LEFT JOIN klassen ON klassen.id = user.klasse WHERE rfid_devices.device_id = '".$var."'";
   }
+  return $user_stm;
 }
 
 function CreateUserObject($device_a) {
   global $rfid1, $data, $device_1, $device_2, $pdo, $device_status_, $usercardtype;
-  $device = "device_".$device_a;
-  selectData(${$device}['device_type']);
-  
-  if (${$device}['device_type'] == $usercardtype)
-  {
-    $user_stm = "SELECT * FROM user LEFT JOIN klassen ON klassen.id = user.klasse WHERE rfid_code = '".${$device}['device_id']."'";
-  }
-  else
-  {
-    $user_stm = "SELECT * FROM user LEFT JOIN rfid_devices ON rfid_devices.lend_id = user.user_id LEFT JOIN klassen ON klassen.id = user.klasse WHERE rfid_devices.device_id = '".${$device}['device_id']."'";
-  }
-  $user_data = $pdo->query($user_stm)->fetch();
+  $user_data = $pdo->query(selectData($device_a))->fetch();
   $data['user']['vorname'] = $user_data['vorname'];
   $data['user']['nachname'] = $user_data['name'];
   $data['user']['user_id'] = $user_data['user_id'];
   $data['user']['klasse'] = $user_data['klassen_name'];
-  $data['user']['status'] = $user_data['device_id'];
+  $data['user']['status'] = ($user_data) ? "Hier wird die Device ID stehen" : "false";
 }
 
 function CreateDeviceObject($device_a) { // status muss noch automatisiert werden.
   global $data, $device_1, $device_2, $pdo, $usercardtype;
-  $device = "device_".$device_a;
-  //$variable = (${$device}['device_type'] == $usercardtype) ? "rfid_code" : "rfid_device_id";
-  //$object_stm = "SELECT * FROM user WHERE ".$variable." = '".${$device}['device_id']."'";
-  if (${$device}['device_type'] == $usercardtype)
-  {
-    $user_stm = "SELECT * FROM user LEFT JOIN klassen ON klassen.id = user.klasse WHERE rfid_code = '".${$device}['device_id']."'";
-  }
-  else
-  {
-    $user_stm = "SELECT * FROM user LEFT JOIN rfid_devices ON rfid_devices.lend_id = user.user_id LEFT JOIN klassen ON klassen.id = user.klasse WHERE rfid_devices.device_id = '".${$device}['device_id']."'";
-  }
-  $object_data = $pdo->query($user_stm)->fetch();
-  $status = ($object_data) ? $object_data['user_id'] : "false";
+  $object_data = $pdo->query(selectData($device_a))->fetch();
   $device = "device_".$device_a;
   $data['device']['device_type'] = ${$device}['name']; // varable variables: Call Variable from String with Index for Array
-  $data['device']['status'] = $status;
+  $data['device']['status'] = ($object_data) ? $object_data['user_id'] : "false";
   $data['device']['id'] = ${$device}['device_id'];
   $data['device']['rfid_code'] = ${$device}['rfid_code'];
 }
@@ -207,7 +187,6 @@ function CollectHistoryData() {
 
 function event($status) {
   global $rfid_read, $pdo, $data;
-  echo "event: $rfid_read user_id: ".$data['user']['user_id']." device_id: ".$data['device']['id']." status: ".$status."";
   $pdo->query("INSERT INTO rfid_event (id, event_type_id, user_id, device_id, status, time_stamp) VALUES (NULL, ".$rfid_read.", ".$data['user']['user_id'].", ".$data['device']['id'].", ".$status.", date('Y-m-d H:i:s'))"); // maybe use date('Y-m-d H:i:s')
 }
 

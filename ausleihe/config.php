@@ -21,7 +21,7 @@ try {
 }
 
 function rfid_form($rfid_code) {
-	/*
+	/* --EXAMPLE--
 	$rfid_code_len = 17;
 	if ($rfid_code[4] == '.' AND strlen($rfid_code) == $rfid_code_len AND is_numeric(substr($rfid_code, 0, 4)) AND is_numeric(substr($rfid_code, 5, 12))) {
 	return true;
