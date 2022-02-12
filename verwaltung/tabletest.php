@@ -7,7 +7,6 @@ $data = json_decode(file_get_contents("php://input"));
 $task = $data->task;
 $search = $data->search;
 
-
 if (!empty($search) && $search[0] == "%") {
   $dataselect = "select * from ".substr($search, 1);
   runselect();
@@ -35,18 +34,22 @@ function _table() {
 
 
 function _allusers() {
-  global $columnnames, $pdo, $data, $columncount, $table, $tablelen, $activerows, $dataselect, $search;
-  $dataselect = "SELECT user.user_id, user.vorname, user.name, klassen.klassen_name, user.rfid_code AS user_rfid_code, user.rfid_device_id, rfid_devices.device_id, rfid_devices.rfid_code FROM user LEFT JOIN klassen ON klassen.id = user.klasse LEFT JOIN rfid_devices on rfid_devices.device_id = user.rfid_code";
+  global $columnnames, $pdo, $data, $columncount, $table, $tablelen, $activerows, $dataselect, $search, $task;
+  // $dataselect = "SELECT user.user_id, user.vorname, user.name, klassen.klassen_name, user.rfid_code AS user_rfid_code, rfid_devices.lend_id, rfid_devices.device_id, rfid_devices.rfid_code FROM user JOIN klassen ON klassen.id = user.klasse JOIN rfid_devices on rfid_devices.device_id = user.rfid_code";
+  $dataselect = "SELECT user.user_id, user.vorname, user.name, klassen.klassen_name, user.rfid_code AS user_rfid_code, lend_id.lend_id, usercard.lend_id, usercard.device_id, usercard.rfid_code FROM user 
+    JOIN klassen ON klassen.id = user.klasse
+    JOIN rfid_devices usercard on usercard.device_id = user.rfid_code
+    LEFT JOIN rfid_devices lend_id on user.user_id = lend_id.lend_id";
   runselect();
-  global $task;
   $columnnames = array('Id' , 'Vorname' , 'Nachname' , 'Klasse' , 'RFID Code' , 'Device ID');
   $columncount = count($columnnames);
+  echo $columncount;
   main();
 }
 
 function _alldevices() {
   global $columnnames, $pdo, $data, $columncount, $table, $tablelen, $activerows, $dataselect, $search;
-  $dataselect = "SELECT user.user_id, user.vorname, user.name, klassen.klassen_name, user.rfid_code AS user_rfid_code, user.rfid_device_id, rfid_devices.device_id, rfid_devices.rfid_code FROM user LEFT JOIN klassen ON klassen.id = user.klasse LEFT JOIN rfid_devices on rfid_devices.device_id = user.rfid_code";
+  $dataselect = "SELECT user.user_id, user.vorname, user.name, klassen.klassen_name, user.rfid_code AS user_rfid_code, user.rfid_device_id, rfid_devices.device_id, rfid_devices.rfid_code FROM user JOIN klassen ON klassen.id = user.klasse JOIN rfid_devices on rfid_devices.device_id = user.rfid_code";
   runselect();
   global $task;
   $columnnames = array('Id' , 'Vorname' , 'Nachname' , 'Klasse' , 'RFID Code' , 'Device ID');
@@ -57,6 +60,7 @@ function _alldevices() {
 function runselect() {
   global $dataselect, $table, $comlumntop, $columnnames, $columncount, $tablelen, $pdo, $data, $columnnamesdb;
   $select = $pdo->query($dataselect);
+  echo "testt";
   $table = $select->fetchAll(PDO::FETCH_NUM);
   $columntop = $pdo->query($dataselect);
   $columnnamesdb = array_keys($columntop->fetch(PDO::FETCH_ASSOC));

@@ -1,18 +1,17 @@
 <?php
 require "config.php";
-$rfid1;
-$rfid2;
+$rfid1 = '';
+$rfid2 = '';
 $data['user'] = array();
 $data['device'] = array();
 $data['message'] = '';
-$data['response'] = 9;
 global $pdo, $usercardtype, $data, $device_1, $device_2;
-if ($rfid1 = isset($_GET['rfid1'])) {
+if (isset($_GET['rfid1'])) {
   $rfid1 = $_GET['rfid1'];
   $stm1 = "SELECT * FROM rfid_devices LEFT JOIN rfid_device_type ON rfid_devices.device_type = rfid_device_type.device_type_id WHERE rfid_devices.rfid_code = '".$rfid1."'";
   $device_1 = $pdo->query($stm1)->fetch();
 }
-if ($rfid2 = isset($_GET['rfid2'])) {
+if (isset($_GET['rfid2'])) {
   $rfid2 = $_GET['rfid2'];
   $stm2 = "SELECT * FROM rfid_devices LEFT JOIN rfid_device_type ON rfid_devices.device_type = rfid_device_type.device_type_id WHERE rfid_devices.rfid_code = '".$rfid2."'";
   $device_2 = $pdo->query($stm2)->fetch();
@@ -26,7 +25,7 @@ Wenn nur rfid1:
 */
 
 //wenn Input
-if (!empty($rfid1 AND $rfid2)) { // ausleihe
+if ($rfid1 AND $rfid2) { // ausleihe
   if (rfid_form($rfid1) AND rfid_form($rfid2)) {
     if (!empty($device_1) AND !empty($device_2) AND $device_1['device_type'] == $usercardtype AND $device_2['device_type'] != $usercardtype) { // rfidcodes in der Datenbank? Und device_types überprüfen
       $user_status_stm = "SELECT * FROM rfid_devices LEFT JOIN user ON user.user_id = rfid_devices.lend_id WHERE lend_id = user.user_id AND user.rfid_code = '".$device_1["device_id"]."'";
@@ -62,7 +61,7 @@ if (!empty($rfid1 AND $rfid2)) { // ausleihe
       if (empty($device_2)) {message(3);}
       elseif ($device_2['device_type'] == $usercardtype) {message(7);}}}
   else {message(3);}}
-elseif(!empty($rfid1)) { // rückgabe oder info
+elseif($rfid1) { // rückgabe oder info
   if (rfid_form($rfid1)) {
     if (!empty($device_1)) { // Rfid1 in der Datenbank?
       if ($device_1['device_type'] == $usercardtype) { // Soll Info angezeigt werden?
