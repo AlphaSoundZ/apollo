@@ -1,13 +1,18 @@
 <?php session_start();?>
 <html style="overflow:hidden;">
-<link rel	="Stylesheet" href="style_main.css"/>
+<link rel="Stylesheet" href="style_main.css"/>
+<link rel="stylesheet" href="loading_animation.css">
+<script src="getInputValues.js"></script>
 <head>
 <title>Admin</title>
 </head>
 <body onload="onload();">
+	<!-- loading animation -->
+	<div id='loading' class="spinner-wrapper" style="display:none;"><span id ='loading' class="spinner2"></span></div>
+
 	<section class='topnav' id='topnav'>
 		<form id="search" style="display:inline;" onsubmit="task(event, 'tabletest.php', '_allusers');">
-			<input class="navbar_textfield" type="text" value="" id="searchinput" name="search" placeholder="search" onfocus="searchvalueupdate('focus');" onblur="searchvalueupdate('blur');"/>
+			<input class="navbar_textfield" type="text" value="" id="searchinput" name="search" placeholder="search" onfocus="searchvalueupdate('focus');" onblur="searchvalueupdate('blur');" onkeyup="saveValue(this);"/>
 			<input class="navbar_submit" type="submit" id="submit" value="tables"/>
 		</form>
 		<a href="index.php" id="logout"><button onclick="task(event, 'request.php', '_logout');" class="navbuttonright">logout</button></a>
@@ -16,6 +21,7 @@
 		<a href="#allusers" id="tables_id"><button class="navbutton" onclick="task(event, 'tabletest.php', '_alldevices');">import & reset</button></a>
 		<a href="user_add.php" id="adduser_id"><button class="navbuttonleft" onclick="task(event, '_adduser.php', '_adduser');">add user</button></a>
 	</section>
+	    
 	<?php
 		if (!empty($_SESSION['sessioncheck']) && $_SESSION['sessioncheck'] == $_SERVER['HTTP_USER_AGENT']) {
 	?>
@@ -55,6 +61,7 @@ function searchvalueupdate($data) {
 }
 
 function onload() {
+	getSavedValue(['searchinput']);
 	if (document.getElementById("searchinput").value != '') {
 		document.getElementById("submit").value = 'search';
 	} else {document.getElementById("submit").value = 'tables';}
@@ -111,11 +118,10 @@ function task(event, file, task) {
 
 	var ajax = new XMLHttpRequest();
 	ajax.open("POST", file, true);
+	loading('start');
 	ajax.onreadystatechange = function() {
-		if (this.readyState == 3) {
-			document.getElementById("main-content").innerHTML = "Loading Content";
-		}
 		if (this.readyState == 4 && this.status == 200) {
+			loading('stop');
 			var response = this.responseText;
 			if (response == 0) {
 					return false;
@@ -128,11 +134,14 @@ function task(event, file, task) {
 			}
 			else if (task == '_push' && file == '_adduser.php') {
 				document.getElementById("main-content").innerHTML += response;
+				delSavedValue(['input.vorname', 'input.nachname', 'input.klasse', 'input.rfid_code']);
 			}
 			else { // else if (task == '_adduser' || task == '_tables' || task == '_allusers')
-				console.log("testdgfds");
 				document.getElementById("main-content").innerHTML = response;
 				// document.getElementById("main-warning-section").innerHTML = response;
+				if (task == '_adduser') {
+					getSavedValue(['input.vorname', 'input.nachname', 'input.klasse', 'input.rfid_code']);
+				}
 				window.location = "#"+task.substring(1);
 				return true;
 			}
@@ -154,7 +163,7 @@ function checkInput(evt) {
     if ((charCode >= 48 && charCode <= 57) || (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122)) {
         return true;
     }
-    return false;
+    return false
 }
 
 function checkText(id) {
@@ -165,10 +174,8 @@ function checkText(id) {
     }
   }
   else {
-	  if (id != "input.rfid_code") {
 		  if (_eCheck()) {document.getElementById("warning").innerHTML = "";}
 		  if (id != "input.klasse") {input.value = input.value.charAt(0).toUpperCase() + input.value.slice(1);}
-	  }
   }
 }
 
@@ -197,19 +204,15 @@ function _eCheck() {
       else {return true;}
 }
 
-function loading(id, visibility) {
-  var element = document.getElementById(id);
-  var picture = document.getElementById('loading-pic_id');
-  element.style.display = visibility;
-  if (visibility == 'block') {
-    picture.style.transition = 'opacity 1s';
-    picture.style.opacity = '50%';
-  }
-  if (visibility == 'none') {
-    picture.style.transition = 'opacity 0s';
-    picture.style.opacity = '100%';
-  }
-  // loading('loading', 'none'); - Visible
-  // loading('loading', 'block'); - Unvisible
-}d
+function loading(var1) {
+	var element = document.getElementById('loading');
+	if (var1 == 'start') {
+		
+		element.style.display = 'block';
+	}
+	if (var1 == 'stop') {
+		element.style.display = 'none';
+	}
+}
+
 </script>

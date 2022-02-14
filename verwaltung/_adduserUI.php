@@ -38,6 +38,7 @@ $klassen_auswahl = "Klasse";
 <?php
 ?>
 <script type="text/javascript">
+
     function submit()
     {
         event.preventDefault();

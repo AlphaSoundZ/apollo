@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 require 'plugins/vendor/autoload.php';
-$secret = 'XVQ2UIGO75XRUKJO';
+$secret = 'AJFLKDJSLKEJLKD';
 
-$qrcode = \Sonata\GoogleAuthenticator\GoogleQrUrl::generate('chregu', $secret, 'GoogleAuthenticatorExample');
+$qrcode = \Sonata\GoogleAuthenticator\GoogleQrUrl::generate('Schule', $secret, 'Ausleihsystem');
 
 $auth = new \Sonata\GoogleAuthenticator\GoogleAuthenticator();
 

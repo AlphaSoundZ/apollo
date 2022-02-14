@@ -26,9 +26,10 @@ session_destroy();
 
         <!-- Login Form -->
         <form action="main.php" method="post" onsubmit="validateForm(event);" id="Form">
-          <input type="text" id="login" class="fadeIn second" name="username" placeholder="username">
+          <input type="text" id="login" class="fadeIn second" name="username" placeholder="username" autofocus>
           <input type="password" id="password" class="fadeIn third" name="password" placeholder="password">
-          <input type="submit" class="fadeIn fourth" value="Log In">
+          <input type="text" id="authcode" class="fadeIn fourth" name="authcode" placeholder="authentication code" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" maxlength="6">
+          <input type="submit" class="fadeIn fifth" value="Log In">
         </form>
 
         <!-- loading animation -->
@@ -64,11 +65,16 @@ function validateForm(event) {
   event.preventDefault();
   var input_username = document.getElementById("login");
   var input_password = document.getElementById("password");
-  if (input_username.value == '' || input_username.value.charAt(0) == ' ' || input_password.value == '') {
+  var input_authcode = document.getElementById("authcode");
+  if (input_username.value == '' || input_username.value.charAt(0) == ' ' || input_password.value == '' || !input_authcode.value) {
     document.getElementById("warning").innerHTML = "Fill empty fields!";
   }
+  else if (input_authcode.value.length != 6) {
+    document.getElementById("warning").innerHTML = "Authentication must be 6 digits!";
+    document.getElementById("authcode").value = "";
+  }
   else {
-    var data = {task: '_login', username: input_username.value, password: input_password.value};
+    var data = {task: '_login', username: input_username.value, password: input_password.value, authcode: input_authcode.value};
     var ajax = new XMLHttpRequest();
     ajax.open("POST", "request.php", true);
     ajax.onreadystatechange = function() {
@@ -76,9 +82,10 @@ function validateForm(event) {
         var response = this.responseText;
         if (response == 0) {
           visibility('loading', 'none');
-          document.getElementById("warning").innerHTML = "Username or password was wrong!";
+          document.getElementById("warning").innerHTML = "Username / password / Authentication was wrong!";
           document.getElementById("login").value = "";
           document.getElementById("password").value = "";
+          document.getElementById("authcode").value = "";
         }
         else if (response == 1) {
           document.getElementById("Form").submit();

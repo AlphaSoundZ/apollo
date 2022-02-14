@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 require 'config.php';
@@ -29,9 +30,9 @@ function _adduser()
         <body>
             <p class="main_text">Add user</p>
             <form>
-                <input type="text" class="main_textfield" name="vorname" placeholder="Vorname" onblur="checkText('input.vorname')" onfocus="updateerrormsg();" id="input.vorname"></input><br><br><br><br>
-                <input type="text" class="main_textfield" name="nachname" placeholder="Nachname" onblur="checkText('input.nachname')" onfocus="updateerrormsg();" id="input.nachname"></input><br><br><br>
-                <select id="input.klasse" onblur="checkText('input.klasse')" onfocus="updateerrormsg();">
+                <input type="text" class="main_textfield" name="vorname" placeholder="Vorname" onblur="checkText('input.vorname')" onfocus="updateerrormsg();" id="input.vorname" onkeyup="saveValue(this);"></input><br><br><br><br>
+                <input type="text" class="main_textfield" name="nachname" placeholder="Nachname" onblur="checkText('input.nachname')" onfocus="updateerrormsg();" id="input.nachname" onkeyup="saveValue(this);"></input><br><br><br>
+                <select id="input.klasse" onblur="checkText('input.klasse')" onfocus="updateerrormsg();" onchange="saveValue(this);">
                     <?php
                     $klassen = "SELECT * FROM klassen ORDER BY id";
                     echo "<option value='nothing_selected'>Klasse</option>";
@@ -40,7 +41,7 @@ function _adduser()
                     } ?>
                 </select>
                 <br>
-                <input type="text" class="main_textfield" name="rfid_code" placeholder="RFID Code" id="input.rfid_code" onblur="checkText('input.rfid_code')" onfocus="updateerrormsg();"></input><br><br><br> <!-- Idee: Man klickt in das Feld und dann hält man das Gerät, welches eingescannt werden soll an das Lesegerät. Sobald das Lesegerät den Code hat, wird er einfach kopiert und anschließend automatisch eingefügt. Dann kann man sich das mit einer extra seite zum scannen etc. sparen und es spart deutlich zeit, weil man nicht jedesmal auf eine seite geleitet wird, sondern es einache eingefügt wird. -->
+                <input type="text" class="main_textfield" name="rfid_code" placeholder="RFID Code" id="input.rfid_code" onblur="checkText('input.rfid_code')" onfocus="updateerrormsg();" onkeyup="saveValue(this);"></input><br><br><br> <!-- Idee: Man klickt in das Feld und dann hält man das Gerät, welches eingescannt werden soll an das Lesegerät. Sobald das Lesegerät den Code hat, wird er einfach kopiert und anschließend automatisch eingefügt. Dann kann man sich das mit einer extra seite zum scannen etc. sparen und es spart deutlich zeit, weil man nicht jedesmal auf eine seite geleitet wird, sondern es einache eingefügt wird. -->
                 <br>
                 <p class="main_warningmsg" id="warning"></p>
                 <input type="submit" class="main_submit" value="Add" id="input.submit" onclick="validateForm(event);"></input>
@@ -56,6 +57,7 @@ $nachname = 'Peter';
 $klasse = '2';
 $rfid_code = 'testrfidcode';
 */
+
 function _push() {
     global $rdata;
     $vorname = $rdata->vorname;

@@ -1,4 +1,5 @@
 <?php
+sleep(1); // only to visualize server delay 
 require 'config.php';
 require 'searchfunction.php';
 //$task = '_allusers';

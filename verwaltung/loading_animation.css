@@ -28,7 +28,7 @@
   top:0;
   left:0;
   position:absolute;
-  z-index:300;
+  z-index:301;
   display:none;
 }
 
@@ -38,6 +38,25 @@
   position:relative;
   left:0%;
   top:16%;
+  border:25px solid #3e6c7d;
+  width:1px;
+  height:1px;
+  border-left-color:transparent;
+  border-right-color:transparent;
+  -webkit-border-radius:50px;
+     -moz-border-radius:50px;
+          border-radius:50px;
+  -webkit-animation:spin 1.5s infinite;
+     -moz-animation:spin 1.5s infinite;
+          animation:spin 1.5s infinite;
+}
+
+.spinner2 {
+  margin:0 auto;
+  display:block;
+  position:relative;
+  left:0%;
+  top:50%;
   border:25px solid #3e6c7d;
   width:1px;
   height:1px;
