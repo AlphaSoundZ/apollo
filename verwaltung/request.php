@@ -44,5 +44,3 @@ function _logout() {
   else {echo 0;}
   exit;
 }
-
-?>

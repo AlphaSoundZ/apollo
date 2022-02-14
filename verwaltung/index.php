@@ -9,7 +9,7 @@ session_destroy();
     <title>Login</title>
     <link href="bootstrap_style.css" rel="stylesheet" id="bootstrap-css"> <!-- maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css -->
     <!-- <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> //maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js or bootstrap.js-->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style_login.css">
     <link rel="stylesheet" href="loading_animation.css">
 
   </head>
@@ -20,7 +20,7 @@ session_destroy();
         <!-- Icon -->
         <div class="loading-pic" id='loading-pic_id'>
           <div class="fadeIn first" id='picture'>
-            <img src="default_logo2.png" id="icon" alt="ght-hh.de" onclick="window.open('https://ght-hh.de', '_blank');"/>
+            <img src="ght_logo.png" id="icon" alt="ght-hh.de" onclick="window.open('https://ght-hh.de', '_blank');"/>
           </div>
         </div>
 

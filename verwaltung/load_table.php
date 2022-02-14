@@ -1,7 +1,7 @@
 <?php
 sleep(1); // only to visualize server delay 
 require 'config.php';
-require 'searchfunction.php';
+require 'search_algorithm.php';
 //$task = '_allusers';
 // Aktivieren, wenn Ajax request benutzt wird:
 $data = json_decode(file_get_contents("php://input"));

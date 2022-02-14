@@ -1,12 +1,13 @@
 <?php session_start(); ?>
 <?php
-if ($ajax = json_decode(file_get_contents("php://input"))) {
+if (json_decode(file_get_contents("php://input")) && isset($ajax->directory)) {
+    $ajax = json_decode(file_get_contents("php://input"));
     $dir = $ajax->directory;
     _isDir($dir);
 }
 else
 {
-    ?>
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,26 +21,31 @@ else
         <!-- MAX_FILE_SIZE muss vor dem Datei-Eingabefeld stehen -->
         <input type="hidden" name="MAX_FILE_SIZE" value="30000" />
         <!-- Der Name des Eingabefelds bestimmt den Namen im $_FILES-Array -->
-        Diese Datei hochladen: <input id="userfile" name="userfile" type="file" required/>
+        Diese Datei hochladen: <input id="userfile" name="userfile" type="file" onclick="document.getElementById('directory').style.display = 'block'; document.getElementById('response').style.display = 'none'" required/>
         <input type="submit" value="Send File" />
         <input style="color:black;" type="text" placeholder="directory" id="textbox" onkeyup="keypress();" name="directory"/>
     </form>
     <br><br>
-    <div id="response"></div>
-    <div id="directory"></div>
+    <div id="response" style="display:none"></div>
+    <div id="directory" style="display:block">
+        <?php
+        echo showDirectory('.');
+        ?>
+    </div>
 </body>
 </html>
 <script type="text/javascript">
+
     function keypress()
     {
-        var data = {"directory" : document.getElementById("textbox").value};
+        var dir = (document.getElementById("textbox").value) ? document.getElementById("textbox").value : '.';
+        var data = {"directory" : dir};
             var ajax = new XMLHttpRequest();
-            ajax.open("POST", "CSVimport.php", true);
+            ajax.open("POST", "fileupload.php", true);
             ajax.onreadystatechange = function()
             {
                 if (this.readyState == 4 && this.status == 200) {
                     const response = JSON.parse(this.responseText);
-                    console.log(response);
                     if (response.response == "directory")
                     {
                         document.getElementById("textbox").style.color = "green";
@@ -81,9 +87,10 @@ else
         if (fReq.status == 200 && fReq.readyState == 4) {
             if (fReq.responseText) {
                 console.log(fReq.responseText);
-                const rt = JSON.parse(fReq.responseText).success;
-                fOutput.innerHTML = rt;
-                fOutput.innerHTML += JSON.stringify(JSON.parse(fReq.responseText).info);
+                const rt = JSON.parse(fReq.responseText);
+                document.getElementById("directory").style.display = "none";
+                fOutput.innerHTML = "Response: "+rt.success+"<br>Filename: "+rt.info.name+"<br>Size: "+rt.info.size/1000+"kb<br>";
+                document.getElementById("response").style.display = "block";
             }
         } else {
         fOutput.innerHTML = "Error " + fReq.status + " occurred when trying to upload your file.<br \/>";
@@ -120,7 +127,7 @@ function showDirectory($directory)
     if ($directory)
     {
 
-        $ignored = array('.', '..', '.svn', '.git', '.vscode', '.prettierrc');
+        $ignored = array('.', '..', '.svn', '.git', '.vscode', '.prettierrc', 'plugins');
         $result = scandir($directory);
         $i = 0;
         $return = null;

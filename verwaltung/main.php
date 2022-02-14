@@ -1,7 +1,7 @@
 <?php session_start();?>
 <html style="overflow:hidden;">
 <link rel="Stylesheet" href="style_main.css"/>
-<link rel="stylesheet" href="loading_animation.css">
+<link rel="Stylesheet" href="loading_animation.css">
 <script src="getInputValues.js"></script>
 <head>
 <title>Admin</title>
@@ -11,15 +11,15 @@
 	<div id='loading' class="spinner-wrapper" style="display:none;"><span id ='loading' class="spinner2"></span></div>
 
 	<section class='topnav' id='topnav'>
-		<form id="search" style="display:inline;" onsubmit="task(event, 'tabletest.php', '_allusers');">
+		<form id="search" style="display:inline;" onsubmit="task(event, 'load_table.php', '_allusers', '');">
 			<input class="navbar_textfield" type="text" value="" id="searchinput" name="search" placeholder="search" onfocus="searchvalueupdate('focus');" onblur="searchvalueupdate('blur');" onkeyup="saveValue(this);"/>
 			<input class="navbar_submit" type="submit" id="submit" value="tables"/>
 		</form>
-		<a href="index.php" id="logout"><button onclick="task(event, 'request.php', '_logout');" class="navbuttonright">logout</button></a>
+		<a href="index.php" id="logout"><button onclick="clearAllSavedValues(); task(event, 'request.php', '_logout', 'logout');" class="navbuttonright">logout</button></a>
 		<a href="http://localhost/ausleihe/indexnew.html" target="_blank"><button class="navbutton">ausleihe</button></a>
-		<a href="#allusers" id="allusers_id"><button class="navbutton" onclick="task(event, 'tabletest.php', '_allusers');">all users</button></a>
-		<a href="#allusers" id="tables_id"><button class="navbutton" onclick="task(event, 'tabletest.php', '_alldevices');">import & reset</button></a>
-		<a href="user_add.php" id="adduser_id"><button class="navbuttonleft" onclick="task(event, '_adduser.php', '_adduser');">add user</button></a>
+		<a href="#allusers" id="allusers_id"><button class="navbutton" onclick="task(event, 'load_table.php', '_alldevices', 'alldevices');">all devices</button></a>
+		<a href="#allusers" id="tables_id"><button class="navbutton" onclick="task(event, 'fileupload.php', '_fileupload', 'fileupload');">import & reset</button></a>
+		<a href="user_add.php" id="adduser_id"><button class="navbuttonleft" onclick="task(event, '_adduser.php', '_adduser', 'adduser');">add user</button></a>
 	</section>
 	    
 	<?php
@@ -72,9 +72,10 @@ function onload() {
 			var file = '_'+hashValue+'.php';
 			task(0, file, '_'+hashValue);
 		} else if (hashValue == 'allusers') {
-			task(0, 'tabletest.php', '_allusers');
-		}
-		else {
+			task(0, 'load_table.php', '_allusers');
+		} else if (hashValue == 'fileupload') {
+			task(0, 'fileupload.php', '_fileupload');
+		} else {
 			var file = 'request.php';
 			task(0, file, '_'+hashValue);
 		}
@@ -82,6 +83,7 @@ function onload() {
 	else {
 		document.getElementById("main-default").style.display = 'block';
 	}
+	searchvalueupdate('blur');
 }
 
 function validateForm(event) {
@@ -90,17 +92,17 @@ function validateForm(event) {
     document.getElementById("warning").innerHTML = warningMessage;
   }
   if (_eCheck() == true) {
-		task(event, '_adduser.php', '_push');
+		task(event, '_adduser.php', '_push', 'adduser');
 		return true;
 	}
 	var search = document.getElementById('searchinput');
 	if (search.value == true) {
-		task(event, 'tabletest.php', '_allusers');
+		task(event, 'load_table.php', '_allusers', '');
 	}
 
 }
 
-function task(event, file, task) {
+function task(event, file, task, name) {
 	if (event != 0) {
 		event.preventDefault();
 	}
@@ -108,8 +110,9 @@ function task(event, file, task) {
 	if (task == '_push' && file == '_adduser.php') {
 		data = {task: '_push', vorname: document.getElementById("input.vorname").value, nachname: document.getElementById("input.nachname").value, klasse: document.getElementById("input.klasse").value, rfid_code: document.getElementById("input.rfid_code").value};
 	}
-	else if(task == '_allusers' && file == 'tabletest.php') {
-		data = {task: '_allusers', search: document.getElementById("searchinput").value};
+	else if(task == '_allusers' && file == 'load_table.php') {
+		var search = (document.getElementById("submit").value == 'tables') ? '' : document.getElementById("searchinput").value;
+		data = {task: '_allusers', search: search};
 	}
 	else {
 		data['task'] = task;
@@ -142,8 +145,8 @@ function task(event, file, task) {
 				if (task == '_adduser') {
 					getSavedValue(['input.vorname', 'input.nachname', 'input.klasse', 'input.rfid_code']);
 				}
-				window.location = "#"+task.substring(1);
-				return true;
+			window.location = "#"+name;
+			return true;
 			}
 		}
 	};

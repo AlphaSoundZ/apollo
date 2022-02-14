@@ -22,3 +22,6 @@ function delSavedValue(a = []) {
         localStorage.removeItem(a[i]);
     }
 }
+function clearAllSavedValues() {
+    localStorage.clear();
+}

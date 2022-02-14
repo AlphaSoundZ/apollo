@@ -1,5 +1,4 @@
 <?php
-var_dump($_POST);
 if ($_POST["directory"] !== "") 
 {
     $uploaddir = 'C:\xampp\htdocs\apollo/'.$_POST["directory"].'/';
@@ -25,12 +24,12 @@ else
 if ($_FILES)
 $uploadfile = $uploaddir . basename($_FILES['userfile']['name']);
 if (move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
-    $response = "upload success\n";
+    $response = "upload success!";
 } else {
-    $response = "file missing\n";
+    $response = "file missing!";
 }
 
 
 
-echo json_encode(['success' => $response, 'info' => $_FILES["userfile"]]);
+echo json_encode(['success' => $response, 'info' => ['name' => $_FILES["userfile"]["name"], 'size' => $_FILES["userfile"]["size"]]]);
 ?>  
