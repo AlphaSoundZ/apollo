@@ -10,6 +10,7 @@ session_destroy();
     <link href="bootstrap_style.css" rel="stylesheet" id="bootstrap-css"> <!-- maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css -->
     <!-- <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> //maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js or bootstrap.js-->
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="loading_animation.css">
 
   </head>
   <body>
@@ -72,9 +73,9 @@ function validateForm(event) {
     ajax.open("POST", "request.php", true);
     ajax.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
-        visibility('loading', 'none');
         var response = this.responseText;
         if (response == 0) {
+          visibility('loading', 'none');
           document.getElementById("warning").innerHTML = "Username or password was wrong!";
           document.getElementById("login").value = "";
           document.getElementById("password").value = "";
@@ -92,79 +93,3 @@ function validateForm(event) {
 }
 </script>
 
-<style>
-.loading {
-  -webkit-animation:fadein 1s;
-     -moz-animation:fadein 1s;
-       -o-animation:fadein 1s;
-          animation:fadein 1s;
-}
-@-moz-keyframes fadein {
-  from {opacity:0}
-  to {opacity:1}
-}
-@-webkit-keyframes fadein {
-  from {opacity:0}
-  to {opacity:1}
-}
-@-o-keyframes fadein {
-  from {opacity:0}
-  to {opacity:1}
-}
-@keyframes fadein {
-  from {opacity:0}
-  to {opacity:1}
-}
-
-.spinner-wrapper {
-  min-width:100%;
-  min-height:100%;
-  height:100%;
-  top:0;
-  left:0;
-  position:absolute;
-  z-index:300;
-  display:none;
-}
-
-.spinner {
-  margin:0 auto;
-  display:block;
-  position:relative;
-  left:0%;
-  top:16%;
-  border:25px solid #3e6c7d;
-  width:1px;
-  height:1px;
-  border-left-color:transparent;
-  border-right-color:transparent;
-  -webkit-border-radius:50px;
-     -moz-border-radius:50px;
-          border-radius:50px;
-  -webkit-animation:spin 1.5s infinite;
-     -moz-animation:spin 1.5s infinite;
-          animation:spin 1.5s infinite;
-}
-
-.loading-pic {
-  opacity:100%;
-}
-
-@-webkit-keyframes spin {
-  0%,100% {-webkit-transform:rotate(0deg) scale(0.6)}
-  50%     {-webkit-transform:rotate(720deg) scale(1)}
-}
-
-@-moz-keyframes spin  {
-  0%,100% {-moz-transform:rotate(0deg) scale(0.6)}
-  50%     {-moz-transform:rotate(720deg) scale(1)}
-}
-@-o-keyframes spin  {
-  0%,100% {-o-transform:rotate(0deg) scale(0.6)}
-  50%     {-o-transform:rotate(720deg) scale(1)}
-}
-@keyframes spin  {
-  0%,100% {transform:rotate(0deg) scale(0.6)}
-  50%     {transform:rotate(720deg) scale(1)}
-}
-</style>

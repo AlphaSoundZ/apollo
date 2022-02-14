@@ -4,9 +4,8 @@ require 'searchfunction.php';
 //$task = '_allusers';
 // Aktivieren, wenn Ajax request benutzt wird:
 $data = json_decode(file_get_contents("php://input"));
-$task = $data->task;
-$search = $data->search;
-
+$task = (isset($data->task)) ? $data->task: '';
+$search = (isset($data->search)) ? $data->search: '';
 if (!empty($search) && $search[0] == "%") {
   $dataselect = "select * from ".substr($search, 1);
   runselect();
@@ -43,7 +42,6 @@ function _allusers() {
   runselect();
   $columnnames = array('Id' , 'Vorname' , 'Nachname' , 'Klasse' , 'RFID Code' , 'Device ID');
   $columncount = count($columnnames);
-  echo $columncount;
   main();
 }
 
@@ -60,7 +58,6 @@ function _alldevices() {
 function runselect() {
   global $dataselect, $table, $comlumntop, $columnnames, $columncount, $tablelen, $pdo, $data, $columnnamesdb;
   $select = $pdo->query($dataselect);
-  echo "testt";
   $table = $select->fetchAll(PDO::FETCH_NUM);
   $columntop = $pdo->query($dataselect);
   $columnnamesdb = array_keys($columntop->fetch(PDO::FETCH_ASSOC));

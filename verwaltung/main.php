@@ -13,7 +13,7 @@
 		<a href="index.php" id="logout"><button onclick="task(event, 'request.php', '_logout');" class="navbuttonright">logout</button></a>
 		<a href="http://localhost/ausleihe/indexnew.html" target="_blank"><button class="navbutton">ausleihe</button></a>
 		<a href="#allusers" id="allusers_id"><button class="navbutton" onclick="task(event, 'tabletest.php', '_allusers');">all users</button></a>
-		<a href="#tables" id="tables_id"><button class="navbutton" onclick="task(event, 'tabletest.php', '_alldevices');">import & reset</button></a>
+		<a href="#allusers" id="tables_id"><button class="navbutton" onclick="task(event, 'tabletest.php', '_alldevices');">import & reset</button></a>
 		<a href="user_add.php" id="adduser_id"><button class="navbuttonleft" onclick="task(event, '_adduser.php', '_adduser');">add user</button></a>
 	</section>
 	<?php
@@ -98,40 +98,45 @@ function task(event, file, task) {
 		event.preventDefault();
 	}
 	var data = {};
-	data['task'] = task;
 	if (task == '_push' && file == '_adduser.php') {
 		data = {task: '_push', vorname: document.getElementById("input.vorname").value, nachname: document.getElementById("input.nachname").value, klasse: document.getElementById("input.klasse").value, rfid_code: document.getElementById("input.rfid_code").value};
 	}
-	else if (task == '_allusers' && file == 'tabletest.php') {
+	else if(task == '_allusers' && file == 'tabletest.php') {
 		data = {task: '_allusers', search: document.getElementById("searchinput").value};
 	}
-
+	else {
+		data['task'] = task;
+	}
 
 
 	var ajax = new XMLHttpRequest();
 	ajax.open("POST", file, true);
 	ajax.onreadystatechange = function() {
-	  if (this.readyState == 4 && this.status == 200) {
-	    var response = this.responseText;
-	    if (response == 0) {
-				return false;
-	    }
-	    else if (response == 1) {
+		if (this.readyState == 3) {
+			document.getElementById("main-content").innerHTML = "Loading Content";
+		}
+		if (this.readyState == 4 && this.status == 200) {
+			var response = this.responseText;
+			if (response == 0) {
+					return false;
+			}
+			else if (response == 1) {
 				if (task == '_logout') {
 					window.location = "./index.php";
 				}
-	      return true;
-	    }
-			else if (task == '_adduser' || task == '_tables' || task == '_allusers') {
-				document.getElementById("main-content").innerHTML = response;
-				// document.getElementById("main-warning-section").innerHTML = response;
-				window.location = "#"+task.substring(1);
 				return true;
 			}
 			else if (task == '_push' && file == '_adduser.php') {
 				document.getElementById("main-content").innerHTML += response;
 			}
-	  }
+			else { // else if (task == '_adduser' || task == '_tables' || task == '_allusers')
+				console.log("testdgfds");
+				document.getElementById("main-content").innerHTML = response;
+				// document.getElementById("main-warning-section").innerHTML = response;
+				window.location = "#"+task.substring(1);
+				return true;
+			}
+		}
 	};
 	ajax.setRequestHeader("Content-Type", "application/json");
 	ajax.send(JSON.stringify(data));
@@ -191,7 +196,20 @@ function _eCheck() {
       klasse.value == 'nothing_selected') {return false;}
       else {return true;}
 }
-</script>
-<style>
 
-</style>
+function loading(id, visibility) {
+  var element = document.getElementById(id);
+  var picture = document.getElementById('loading-pic_id');
+  element.style.display = visibility;
+  if (visibility == 'block') {
+    picture.style.transition = 'opacity 1s';
+    picture.style.opacity = '50%';
+  }
+  if (visibility == 'none') {
+    picture.style.transition = 'opacity 0s';
+    picture.style.opacity = '100%';
+  }
+  // loading('loading', 'none'); - Visible
+  // loading('loading', 'block'); - Unvisible
+}d
+</script>
