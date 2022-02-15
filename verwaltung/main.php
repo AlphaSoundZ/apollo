@@ -218,7 +218,6 @@ function _eCheck() {
 function loading(var1) {
 	var element = document.getElementById('loading');
 	if (var1 == 'start') {
-		
 		element.style.display = 'block';
 	}
 	if (var1 == 'stop') {

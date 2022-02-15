@@ -45,12 +45,12 @@ function _isDir($directory)
         $a = showDirectory($dir);
         $response = ["response" => "directory", "text" => $a];
     }
-    elseif (is_file("./$directory"))
+    elseif (is_file($dir))
     {
         $response = ["response" => "file", "text" => ""];
     }
     else{
-        $response = ["response" => "false", "text" => ""];
+        $response = ["response" => "false", "text" => $dir];
     }
     echo json_encode($response);
 }

@@ -1,6 +1,7 @@
 function keypress()
 {
-    var dir = (document.getElementById("textbox").value) ? document.getElementById("textbox").value : '.';
+    document.getElementById("directory").style.display = "block";
+    var dir = (document.getElementById("textbox").value) ? document.getElementById("textbox").value : '';
     var data = {"directory" : dir};
         var ajax = new XMLHttpRequest();
         ajax.open("POST", "fileupload.php", true);
@@ -44,16 +45,16 @@ function fileuploadsubmit(event) {
     
     var fReq = new XMLHttpRequest();
     fReq.open("POST", "upload_request.php", true);
+    loading('start');
     fReq.onload = function(event) {
         if (fReq.status == 200 && fReq.readyState == 4) {
+            loading('stop');
             if (fReq.responseText) {
                 const rt = JSON.parse(fReq.responseText);
                 document.getElementById("directory").style.display = "none";
-                fOutput.innerHTML = "Response: "+rt.success+"<br>Filename: "+rt.info.name+"<br>Size: "+rt.info.size/1000+"kb<br>";
+                fOutput.innerHTML = "Response: "+rt.success+"<br>Filename: "+rt.info.name+"<br>Size: "+rt.info.size/1000+"kb<br><br>";
                 document.getElementById("response").style.display = "block";
             }
-        } else {
-        fOutput.innerHTML = "Error " + fReq.status + " occurred when trying to upload your file.<br \/>";
         }
         document.getElementById('userfile').value = '';
     };
