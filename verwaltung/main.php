@@ -3,6 +3,7 @@
 <link rel="Stylesheet" href="style_main.css"/>
 <link rel="Stylesheet" href="loading_animation.css">
 <script src="getInputValues.js"></script>
+<script src="fileupload.js"></script>
 <head>
 <title>Admin</title>
 </head>
@@ -12,13 +13,13 @@
 
 	<section class='topnav' id='topnav'>
 		<form id="search" style="display:inline;" onsubmit="task(event, 'load_table.php', '_allusers', '');">
-			<input class="navbar_textfield" type="text" value="" id="searchinput" name="search" placeholder="search" onfocus="searchvalueupdate('focus');" onblur="searchvalueupdate('blur');" onkeyup="saveValue(this);"/>
+			<input class="navbar_textfield" type="text" value="" id="searchinput" name="search" placeholder="search" onkeyup="searchvalueupdate(); saveValue(this);"/>
 			<input class="navbar_submit" type="submit" id="submit" value="tables"/>
 		</form>
 		<a href="index.php" id="logout"><button onclick="clearAllSavedValues(); task(event, 'request.php', '_logout', 'logout');" class="navbuttonright">logout</button></a>
 		<a href="http://localhost/ausleihe/indexnew.html" target="_blank"><button class="navbutton">ausleihe</button></a>
-		<a href="#allusers" id="allusers_id"><button class="navbutton" onclick="task(event, 'load_table.php', '_alldevices', 'alldevices');">all devices</button></a>
-		<a href="#allusers" id="tables_id"><button class="navbutton" onclick="task(event, 'fileupload.php', '_fileupload', 'fileupload');">import & reset</button></a>
+		<a href="#allusers" id="allusers_id"><button class="navbutton" onclick="task(event, 'load_table.php', '_alldevices', 'alldevices');">import & reset</button></a>
+		<a href="#allusers" id="tables_id"><button class="navbutton" onclick="task(event, 'fileupload.php', '_fileupload', 'fileupload');">file upload</button></a>
 		<a href="user_add.php" id="adduser_id"><button class="navbuttonleft" onclick="task(event, '_adduser.php', '_adduser', 'adduser');">add user</button></a>
 	</section>
 	    
@@ -51,39 +52,45 @@ function updateerrormsg() {
 	}
 }
 
-function searchvalueupdate($data) {
-	if ($data == 'focus') {
+function searchvalueupdate() {
+	if (document.getElementById("searchinput").value) {
 		document.getElementById("submit").value = 'search';
 	}
-	if ($data == 'blur') {
+	else {
 		document.getElementById("submit").value = 'tables';
 	}
 }
 
 function onload() {
-	getSavedValue(['searchinput']);
-	if (document.getElementById("searchinput").value != '') {
+	getSavedValue(['searchinput']); // get recent input values after site was reload
+	if (document.getElementById("searchinput").value != '') { // change between search and tables value of submit button
 		document.getElementById("submit").value = 'search';
 	} else {document.getElementById("submit").value = 'tables';}
+
 	document.getElementById("main-default").style.display = 'none';
-	var hashValue = window.location.hash.substr(1);
-	if (hashValue) {
-		if (hashValue != 'login' && hashValue != 'logout' && hashValue != 'allusers') {
-			var file = '_'+hashValue+'.php';
-			task(0, file, '_'+hashValue);
-		} else if (hashValue == 'allusers') {
-			task(0, 'load_table.php', '_allusers');
-		} else if (hashValue == 'fileupload') {
-			task(0, 'fileupload.php', '_fileupload');
-		} else {
-			var file = 'request.php';
-			task(0, file, '_'+hashValue);
+	page = localStorage.getItem('page');
+	if (page) {
+		switch (page) {
+			case 'table':
+				task(0, 'load_table.php', '_allusers', page);
+				break;
+			case 'adduser':
+				task(0, '_adduser.php', '_adduser', page);
+				break;
+			case 'logout':
+				task(0, 'request.php', '_logout', page);
+				break;
+			case 'fileupload':
+				task(0, 'fileupload.php', '_fileupload', page);
+				break;
+			default:
+				document.getElementById("main-default").style.display = 'block';
+				break;
 		}
 	}
 	else {
 		document.getElementById("main-default").style.display = 'block';
 	}
-	searchvalueupdate('blur');
 }
 
 function validateForm(event) {
@@ -97,12 +104,13 @@ function validateForm(event) {
 	}
 	var search = document.getElementById('searchinput');
 	if (search.value == true) {
-		task(event, 'load_table.php', '_allusers', '');
+		task(event, 'load_table.php', '_allusers', 'table');
 	}
 
 }
 
 function task(event, file, task, name) {
+	document.getElementById("main-default").style.display = 'none';
 	if (event != 0) {
 		event.preventDefault();
 	}
@@ -145,7 +153,7 @@ function task(event, file, task, name) {
 				if (task == '_adduser') {
 					getSavedValue(['input.vorname', 'input.nachname', 'input.klasse', 'input.rfid_code']);
 				}
-			window.location = "#"+name;
+				localStorage.setItem('page', name);
 			return true;
 			}
 		}

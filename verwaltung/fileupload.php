@@ -1,6 +1,5 @@
-<?php session_start(); ?>
-<?php
-if (json_decode(file_get_contents("php://input")) && isset($ajax->directory)) {
+<?php session_start();
+if (json_decode(file_get_contents("php://input")) && isset(json_decode(file_get_contents("php://input"))->directory)) {
     $ajax = json_decode(file_get_contents("php://input"));
     $dir = $ajax->directory;
     _isDir($dir);
@@ -14,10 +13,11 @@ else
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="fileupload.js"></script>
     <title>CSV import</title>
 </head>
 <body>
-    <form enctype="multipart/form-data" action="upload.php" method="POST" name="form">
+    <form enctype="multipart/form-data" action="upload_request.php" method="POST" name="fileuploadform" id="fileuploadform" onsubmit="fileuploadsubmit(event);">
         <!-- MAX_FILE_SIZE muss vor dem Datei-Eingabefeld stehen -->
         <input type="hidden" name="MAX_FILE_SIZE" value="30000" />
         <!-- Der Name des Eingabefelds bestimmt den Namen im $_FILES-Array -->
@@ -29,87 +29,20 @@ else
     <div id="response" style="display:none"></div>
     <div id="directory" style="display:block">
         <?php
-        echo showDirectory('.');
+        echo showDirectory('C:/xampp/htdocs/apollo');
         ?>
     </div>
 </body>
 </html>
-<script type="text/javascript">
-
-    function keypress()
-    {
-        var dir = (document.getElementById("textbox").value) ? document.getElementById("textbox").value : '.';
-        var data = {"directory" : dir};
-            var ajax = new XMLHttpRequest();
-            ajax.open("POST", "fileupload.php", true);
-            ajax.onreadystatechange = function()
-            {
-                if (this.readyState == 4 && this.status == 200) {
-                    const response = JSON.parse(this.responseText);
-                    if (response.response == "directory")
-                    {
-                        document.getElementById("textbox").style.color = "green";
-                        if (response.text == false)
-                        {
-                            document.getElementById("directory").innerHTML = "";
-                        }
-                        else 
-                        {
-                            document.getElementById("directory").innerHTML = response.text;
-                        }
-                    }
-                    else if (response.response == "file")
-                    {
-                        document.getElementById("textbox").style.color = "orange";
-                    }
-                    else if (response.response == "false")
-                    {
-                        document.getElementById("textbox").style.color = "red";
-                    }
-                }
-            };
-            ajax.setRequestHeader("Content-Type", "application/json");
-            ajax.send(JSON.stringify(data));
-    }
-
-
-    var form = document.forms.namedItem("form");
-    form.addEventListener('submit', function(event) {
-
-    var fOutput = document.getElementById("response"),
-        oData = new FormData(form);
-
-    oData.append("username", "This is some extra data");
-
-    var fReq = new XMLHttpRequest();
-    fReq.open("POST", "upload.php", true);
-    fReq.onload = function(event) {
-        if (fReq.status == 200 && fReq.readyState == 4) {
-            if (fReq.responseText) {
-                console.log(fReq.responseText);
-                const rt = JSON.parse(fReq.responseText);
-                document.getElementById("directory").style.display = "none";
-                fOutput.innerHTML = "Response: "+rt.success+"<br>Filename: "+rt.info.name+"<br>Size: "+rt.info.size/1000+"kb<br>";
-                document.getElementById("response").style.display = "block";
-            }
-        } else {
-        fOutput.innerHTML = "Error " + fReq.status + " occurred when trying to upload your file.<br \/>";
-        }
-    };
-
-    fReq.send(oData);
-    event.preventDefault();
-    }, false);
-    
-</script>
     <?php
 }
 
 function _isDir($directory)
 {
-    if (is_dir("./$directory"))
+    $dir = 'C:/xampp/htdocs/apollo/'.$directory;
+    if (is_dir($dir))
     {
-        $a = showDirectory($directory);
+        $a = showDirectory($dir);
         $response = ["response" => "directory", "text" => $a];
     }
     elseif (is_file("./$directory"))

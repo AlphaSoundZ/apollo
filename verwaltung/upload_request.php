@@ -1,4 +1,5 @@
 <?php
+sleep(2);
 if ($_POST["directory"] !== "") 
 {
     $uploaddir = 'C:\xampp\htdocs\apollo/'.$_POST["directory"].'/';
@@ -19,7 +20,7 @@ if ($_POST["directory"] !== "")
 }
 else
 {
-    $uploaddir = 'uploads/';
+    $uploaddir = 'C:/xampp/htdocs/apollo/uploads/';
 }
 if ($_FILES)
 $uploadfile = $uploaddir . basename($_FILES['userfile']['name']);

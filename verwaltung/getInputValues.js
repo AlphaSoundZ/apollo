@@ -6,14 +6,15 @@
 function saveValue (e) {
     var id = e.id;  // get the sender's id to save it . 
     var val = e.value; // get the value. 
-    localStorage.setItem(id, val);// Every time user writing something, the localStorage's value will override . 
+    localStorage.setItem(id, val); // Every time user writing something, the localStorage's value will override . 
 }
 
 //get the saved value function - return the value of "v" from localStorage. 
 function getSavedValue (a = []) {
     for (i=0; i < a.length; i++) {
         v = a[i];
-        document.getElementById(v).value = (localStorage.getItem(v)) ? localStorage.getItem(v) : document.getElementById(v).value;
+        item = localStorage.getItem(v);
+        document.getElementById(v).value = (item) ? item : document.getElementById(v).value;
     }
 }
 
