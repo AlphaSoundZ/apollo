@@ -22,12 +22,13 @@ else
 {
     $uploaddir = 'C:/xampp/htdocs/apollo/uploads/';
 }
-if ($_FILES)
-$uploadfile = $uploaddir . basename($_FILES['userfile']['name']);
-if (move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
-    $response = "upload success!";
-} else {
-    $response = "file missing!";
+if ($_FILES) {
+    $uploadfile = $uploaddir . basename($_FILES['userfile']['name']);
+    if (move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
+        $response = "upload success!";
+    } else {
+        $response = "file missing!";
+    }
 }
 
 

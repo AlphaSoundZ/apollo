@@ -4,6 +4,7 @@
 <link rel="Stylesheet" href="loading_animation.css">
 <script src="getInputValues.js"></script>
 <script src="fileupload.js"></script>
+<script src="import.js"></script>
 <head>
 <title>Admin</title>
 </head>
@@ -12,13 +13,13 @@
 	<div id='loading' class="spinner-wrapper" style="display:none;"><span id ='loading' class="spinner2"></span></div>
 
 	<section class='topnav' id='topnav'>
-		<form id="search" style="display:inline;" onsubmit="task(event, 'load_table.php', '_allusers', '');">
+		<form id="search" style="display:inline;" onsubmit="task(event, 'load_table.php', '_allusers', 'tables');">
 			<input class="navbar_textfield" type="text" value="" id="searchinput" name="search" placeholder="search" onkeyup="searchvalueupdate(); saveValue(this);"/>
 			<input class="navbar_submit" type="submit" id="submit" value="tables"/>
 		</form>
 		<a href="index.php" id="logout"><button onclick="clearAllSavedValues(); task(event, 'request.php', '_logout', 'logout');" class="navbuttonright">logout</button></a>
-		<a href="http://localhost/ausleihe/indexnew.html" target="_blank"><button class="navbutton">ausleihe</button></a>
-		<a href="#allusers" id="allusers_id"><button class="navbutton" onclick="task(event, 'load_table.php', '_alldevices', 'alldevices');">import & reset</button></a>
+		<a href="http://localhost/apollo/ausleihe/ausleihe_request.php" target="_blank"><button class="navbutton">ausleihe</button></a>
+		<a href="#allusers" id="allusers_id"><button class="navbutton" onclick="task(event, 'import.php', '', 'import');">import & reset</button></a>
 		<a href="#allusers" id="tables_id"><button class="navbutton" onclick="task(event, 'fileupload.php', '_fileupload', 'fileupload');">file upload</button></a>
 		<a href="user_add.php" id="adduser_id"><button class="navbuttonleft" onclick="task(event, '_adduser.php', '_adduser', 'adduser');">add user</button></a>
 	</section>
@@ -71,17 +72,17 @@ function onload() {
 	page = localStorage.getItem('page');
 	if (page) {
 		switch (page) {
-			case 'table':
+			case 'tables':
 				task(0, 'load_table.php', '_allusers', page);
 				break;
 			case 'adduser':
 				task(0, '_adduser.php', '_adduser', page);
 				break;
-			case 'logout':
-				task(0, 'request.php', '_logout', page);
-				break;
 			case 'fileupload':
 				task(0, 'fileupload.php', '_fileupload', page);
+				break;
+			case 'import':
+				task(0, 'import.php', '', page);
 				break;
 			default:
 				document.getElementById("main-default").style.display = 'block';
@@ -132,6 +133,7 @@ function task(event, file, task, name) {
 	loading('start');
 	ajax.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
+			localStorage.setItem('page', name);
 			loading('stop');
 			var response = this.responseText;
 			if (response == 0) {
@@ -153,7 +155,6 @@ function task(event, file, task, name) {
 				if (task == '_adduser') {
 					getSavedValue(['input.vorname', 'input.nachname', 'input.klasse', 'input.rfid_code']);
 				}
-				localStorage.setItem('page', name);
 			return true;
 			}
 		}

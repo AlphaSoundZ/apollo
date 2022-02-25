@@ -1,5 +1,7 @@
 <?php session_start();
-if (json_decode(file_get_contents("php://input")) && isset(json_decode(file_get_contents("php://input"))->directory)) {
+require 'config.php';
+if (json_decode(file_get_contents("php://input")) && isset(json_decode(file_get_contents("php://input"))->directory))
+{
     $ajax = json_decode(file_get_contents("php://input"));
     $dir = $ajax->directory;
     _isDir($dir);
@@ -91,18 +93,20 @@ function showDirectory($directory)
 
 //require "_adduserClass.php";
 
-/*$csv = new csv();
-echo $csv->check("testtablecsv.csv");*/
+$csv = new csv();
+echo $csv->check("testtablecsv.csv");
+
 class csv
 {
     function check($file)
     {
+        $this->file = $file;
         $this->errorcount = 0;
         echo $this->filename."<br>";
         if ($this->handle !== FALSE)
         {
             $row = 1;
-            $handle = fopen($file, "r");
+            $handle = fopen($this->file, "r");
             while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
                 $row++;
                     if (count($data) != 3)
@@ -125,11 +129,16 @@ class csv
     }
     function csvimportExecute()
     {
-        // insert;
+        global $pdo;
         if ($this->errorcount !== 0)
         {
             // start execute
-            // 
+            $row = 1;
+            $handle = fopen($this->file, "r");
+            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                $row++;
+                $pdo->query("INSERT INTO user (user_id, vorname, name, klasse, rfid_code) VALUES (NULL, ".$data[0].", ".$data[1].", '1', NULL");
+            }
         }
         else
         {
