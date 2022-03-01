@@ -132,7 +132,7 @@ function message($messageID) {
       break;
   default:
      $data['message'] = $data['message']."Unexpected Error ";
-     $data['response'] = '9';
+     $data['response'] = 9;
 }}
 
 function selectData($device_a) {
