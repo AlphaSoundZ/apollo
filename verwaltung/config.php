@@ -19,4 +19,13 @@ try {
 	echo json_encode($data);
 	exit;
 }
+
+function session() {
+	if (!empty($_SESSION['sessioncheck']) && $_SESSION['sessioncheck'] == $_SERVER['HTTP_USER_AGENT']) {
+	}
+	else {
+		echo "<meta http-equiv=\"refresh\" content=\"0; URL=index.php\">"; exit;
+	}
+}
+
 ?>

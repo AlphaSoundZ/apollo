@@ -1,5 +1,6 @@
 <?php session_start();
 require 'config.php';
+session();
 if (json_decode(file_get_contents("php://input")) && isset(json_decode(file_get_contents("php://input"))->directory))
 {
     $ajax = json_decode(file_get_contents("php://input"));
@@ -93,8 +94,8 @@ function showDirectory($directory)
 
 //require "_adduserClass.php";
 
-$csv = new csv();
-echo $csv->check("testtablecsv.csv");
+//$csv = new csv();
+//echo $csv->check("testtablecsv.csv");
 
 class csv
 {

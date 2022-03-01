@@ -1,4 +1,8 @@
-<?php session_start();?>
+<?php
+session_start();
+require 'config.php';
+session();
+?>
 <html style="overflow:hidden;">
 <link rel="Stylesheet" href="style_main.css"/>
 <link rel="Stylesheet" href="loading_animation.css">
@@ -23,10 +27,6 @@
 		<a href="#allusers" id="tables_id"><button class="navbutton" onclick="task(event, 'fileupload.php', '_fileupload', 'fileupload');">file upload</button></a>
 		<a href="user_add.php" id="adduser_id"><button class="navbuttonleft" onclick="task(event, '_adduser.php', '_adduser', 'adduser');">add user</button></a>
 	</section>
-	    
-	<?php
-		if (!empty($_SESSION['sessioncheck']) && $_SESSION['sessioncheck'] == $_SERVER['HTTP_USER_AGENT']) {
-	?>
 				<section id="main" class="main-section">
 					<div id="main-default" style="display:none;">
 					<p>Select in the Navbar:</p>
@@ -37,11 +37,6 @@
 						<p>Main content</p>
 					</section>
 				</section>
-	<?php
-		} else {
-		echo "<meta http-equiv=\"refresh\" content=\"0; URL=index.php\">";
-		}
-	?>
 </body>
 </html>
 <script type="text/javascript">

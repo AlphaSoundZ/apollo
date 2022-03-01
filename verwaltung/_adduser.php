@@ -2,6 +2,7 @@
 <?php
 session_start();
 require 'config.php';
+session();
 global $rdata, $data, $pdo;
 $rdata = json_decode(file_get_contents("php://input"));
 try {

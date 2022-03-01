@@ -1,8 +1,9 @@
-<?php
+<?php session_start();
+require_once 'search_algorithm.php';
+require_once 'config.php';
+session();
 sleep(1); // only to visualize server delay 
-require 'config.php';
-require 'search_algorithm.php';
-//$task = '_allusers';
+//ses$task = '_allusers';
 // Aktivieren, wenn Ajax request benutzt wird:
 $data = json_decode(file_get_contents("php://input"));
 $task = (isset($data->task)) ? $data->task: '';

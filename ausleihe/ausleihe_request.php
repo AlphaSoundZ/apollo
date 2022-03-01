@@ -101,46 +101,38 @@ elseif (empty($rfid1) and empty($rfid2) or empty($rfid2)) { // enthält die URL 
 
 function message($messageID) {
   global $data;
+  $data['response'] = $messageID;
   switch ($messageID) {
   case 0:
       $data['message'] = $data['message']."Ausleihen erfolgreich. ";
-      $data['response'] = '0';
       break;
   case 1:
       $data['message'] = $data['message']."Rückgabe erfolgreich. ";
-      $data['response'] = '1';
       break;
   case 2:
       $data['message'] = $data['message']."Info erfolgreich. ";
-      $data['response'] = '2';
       break;
   case 3:
       $data['message'] = $data['message']."Device oder Usercard nicht Registriert. ";
-      $data['response'] = '3';
       break;
   case 4:
       $data['message'] = $data['message']."Device kann nicht zurückgegeben werden, weil es nicht ausgeliehen wird. ";
-      $data['response'] = '4';
       break;
   case 5:
       $data['message'] = $data['message']."Device kann nicht ausgeliehen weil man bereits etwas ausleiht. ";
-      $data['response'] = '5';
       break;
   case 6:
       $data['message'] = $data['message']."Device wird bereits ausgeliehen. ";
-      $data['response'] = '6';
       break;
   case 7:
       $data['message'] = $data['message']."Es handelt sich nicht um ein Device. ";
-      $data['response'] = '7';
       break;
-  case 9:
+  case 8:
       $data['message'] = $data['message']."Keine rfid Angabe. ";
-      $data['response'] = '9';
       break;
   default:
      $data['message'] = $data['message']."Unexpected Error ";
-     $data['response'] = '8';
+     $data['response'] = '9';
 }}
 
 function selectData($device_a) {
