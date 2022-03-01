@@ -4,7 +4,23 @@ $rfid1 = '';
 $rfid2 = '';
 $data['user'] = array();
 $data['device'] = array();
-$data['message'] = '';
+$data['message'] = NULL;
+
+$data['user']['vorname'] = NULL;
+$data['user']['nachname'] = NULL;
+$data['user']['user_id'] = NULL;
+$data['user']['klasse'] = NULL;
+$data['user']['status'] = NULL;
+
+$data['device']['device_type'] = NULL;
+$data['device']['status'] = NULL;
+$data['device']['id'] = NULL;
+$data['device']['rfid_code'] = NULL;
+$data['user']['history'] = NULL;
+
+
+
+
 global $pdo, $usercardtype, $data, $device_1, $device_2;
 if (isset($_GET['rfid1'])) {
   $rfid1 = $_GET['rfid1'];
@@ -156,7 +172,7 @@ function CreateUserObject($device_a) {
   $data['user']['nachname'] = $user_data['name'];
   $data['user']['user_id'] = $user_data['user_id'];
   $data['user']['klasse'] = $user_data['klassen_name'];
-  $data['user']['status'] = ($user_data) ? "Hier wird die Device ID stehen" : "false";
+  $data['user']['status'] = ($user_data) ? "Hier wird die Device ID stehen" : false;
 }
 
 function CreateDeviceObject($device_a) { // status muss noch automatisiert werden.
@@ -164,7 +180,7 @@ function CreateDeviceObject($device_a) { // status muss noch automatisiert werde
   $object_data = $pdo->query(selectData($device_a))->fetch();
   $device = "device_".$device_a;
   $data['device']['device_type'] = ${$device}['name']; // varable variables: Call Variable from String with Index for Array
-  $data['device']['status'] = ($object_data) ? $object_data['user_id'] : "false";
+  $data['device']['status'] = ($object_data) ? $object_data['user_id'] : false;
   $data['device']['id'] = ${$device}['device_id'];
   $data['device']['rfid_code'] = ${$device}['rfid_code'];
 }
