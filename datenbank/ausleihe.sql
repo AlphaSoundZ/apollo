@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 25. Feb 2022 um 10:37
+-- Erstellungszeit: 03. Mrz 2022 um 00:08
 -- Server-Version: 10.4.20-MariaDB
 -- PHP-Version: 8.0.9
 
@@ -24,22 +24,29 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `eventtype`
+-- Tabellenstruktur für Tabelle `event`
 --
 
-CREATE TABLE `eventtype` (
-  `event_type_id` int(11) NOT NULL,
-  `name` text NOT NULL DEFAULT 'UNKNOWN',
-  `description` text NOT NULL DEFAULT 'UNKNOWN'
+CREATE TABLE `event` (
+  `id` int(11) NOT NULL,
+  `user` int(11) NOT NULL,
+  `device` int(11) NOT NULL,
+  `begin` timestamp NULL DEFAULT current_timestamp(),
+  `end` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Daten für Tabelle `eventtype`
+-- Daten für Tabelle `event`
 --
 
-INSERT INTO `eventtype` (`event_type_id`, `name`, `description`) VALUES
-(1, 'RFID_READ', 'Ein Lesezugriff'),
-(2, 'RFID_WRITE', 'Schreibzugriff auf RFID-Device');
+INSERT INTO `event` (`id`, `user`, `device`, `begin`, `end`) VALUES
+(33, 12, 5, '2022-03-02 21:51:04', '2022-03-02 21:51:04'),
+(34, 12, 5, '2022-03-02 22:26:03', '2022-03-02 22:26:03'),
+(35, 12, 5, '2022-03-02 22:26:08', '2022-03-02 22:26:08'),
+(36, 12, 5, '2022-03-02 22:54:16', '2022-03-02 23:02:52'),
+(37, 12, 24, '2022-03-02 23:03:21', '2022-03-02 23:03:22'),
+(38, 12, 5, '2022-03-02 23:04:20', '2022-03-02 23:04:32'),
+(39, 12, 24, '2022-03-02 23:04:21', '2022-03-02 23:04:33');
 
 -- --------------------------------------------------------
 
@@ -103,7 +110,7 @@ CREATE TABLE `rfid_devices` (
 --
 
 INSERT INTO `rfid_devices` (`device_id`, `device_type`, `rfid_code`, `lend_id`) VALUES
-(1, 1, '6815.510528921625', 0),
+(1, 1, '6815.510528921625', 11),
 (2, 2, '6406.586651137644', 0),
 (3, 2, '6815.510528921111', 0),
 (4, 2, '6815.123412341234', 0),
@@ -177,126 +184,6 @@ INSERT INTO `rfid_device_type` (`device_type_id`, `name`) VALUES
 (1, 'Ipad'),
 (2, 'UserCard'),
 (3, 'Surface Book');
-
--- --------------------------------------------------------
-
---
--- Tabellenstruktur für Tabelle `rfid_event`
---
-
-CREATE TABLE `rfid_event` (
-  `id` int(11) NOT NULL,
-  `event_type_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `device_id` int(11) NOT NULL,
-  `status` tinyint(1) NOT NULL,
-  `time_stamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Daten für Tabelle `rfid_event`
---
-
-INSERT INTO `rfid_event` (`id`, `event_type_id`, `user_id`, `device_id`, `status`, `time_stamp`) VALUES
-(90, 1, 2, 5, 1, '2021-12-12 11:44:36'),
-(91, 1, 2, 5, 0, '2021-12-12 11:44:44'),
-(92, 1, 2, 5, 1, '2021-12-12 22:34:18'),
-(93, 1, 2, 5, 0, '2021-12-12 22:36:30'),
-(94, 1, 2, 24, 1, '2021-12-12 22:37:03'),
-(95, 1, 10, 5, 1, '2021-12-13 12:22:57'),
-(96, 1, 10, 5, 0, '2021-12-13 12:23:13'),
-(97, 1, 10, 5, 1, '2021-12-13 12:23:20'),
-(98, 1, 1, 1, 1, '2022-02-10 14:14:50'),
-(99, 1, 1, 1, 1, '2022-02-10 14:16:35'),
-(100, 1, 1, 1, 1, '2022-02-10 14:17:43'),
-(101, 1, 1, 1, 1, '2022-02-11 08:35:13'),
-(102, 1, 1, 1, 1, '2022-02-11 08:35:50'),
-(103, 1, 1, 1, 1, '2022-02-11 09:18:36'),
-(104, 1, 1, 1, 1, '2022-02-11 09:22:34'),
-(105, 1, 1, 1, 1, '2022-02-11 09:24:32'),
-(106, 1, 1, 1, 1, '2022-02-11 09:52:36'),
-(107, 1, 1, 1, 0, '2022-02-11 09:52:40'),
-(108, 1, 1, 1, 1, '2022-02-11 09:52:48'),
-(109, 1, 1, 1, 0, '2022-02-11 09:52:50'),
-(110, 1, 1, 1, 1, '2022-02-11 10:49:54'),
-(111, 1, 1, 1, 0, '2022-02-11 10:49:57'),
-(112, 1, 1, 1, 1, '2022-02-11 10:50:12'),
-(113, 1, 1, 1, 1, '2022-02-11 10:54:24'),
-(114, 1, 1, 1, 0, '2022-02-11 10:54:25'),
-(115, 1, 1, 1, 1, '2022-02-11 11:21:23'),
-(116, 1, 1, 1, 0, '2022-02-11 11:21:24'),
-(117, 1, 1, 1, 1, '2022-02-11 11:21:29'),
-(118, 1, 1, 1, 0, '2022-02-11 11:27:55'),
-(119, 1, 1, 1, 1, '2022-02-11 11:28:00'),
-(120, 1, 1, 1, 0, '2022-02-11 11:28:04'),
-(121, 1, 1, 1, 1, '2022-02-11 11:28:05'),
-(122, 1, 1, 1, 0, '2022-02-11 11:28:07'),
-(123, 1, 1, 1, 1, '2022-02-11 11:28:48'),
-(124, 1, 1, 1, 0, '2022-02-11 11:28:59'),
-(125, 1, 1, 1, 1, '2022-02-11 11:30:21'),
-(126, 1, 1, 1, 0, '2022-02-11 11:31:15'),
-(127, 1, 1, 1, 1, '2022-02-11 11:31:17'),
-(128, 1, 1, 1, 0, '2022-02-11 11:31:21'),
-(129, 1, 1, 1, 1, '2022-02-11 11:31:39'),
-(130, 1, 1, 1, 0, '2022-02-11 11:31:40'),
-(131, 1, 1, 1, 1, '2022-02-12 19:51:28'),
-(132, 1, 1, 5, 1, '2022-02-25 08:00:50'),
-(133, 1, 1, 5, 1, '2022-02-25 08:01:13'),
-(134, 1, 12, 5, 0, '2022-02-25 08:33:27'),
-(135, 1, 78, 24, 1, '2022-02-25 08:33:34'),
-(136, 1, 12, 24, 0, '2022-02-25 08:33:37'),
-(137, 1, 11, 1, 0, '2022-02-25 08:33:43'),
-(138, 1, 11, 1, 0, '2022-02-25 08:36:34'),
-(139, 1, 11, 1, 1, '2022-02-25 08:36:37'),
-(140, 1, 12, 5, 1, '2022-02-25 08:36:40'),
-(141, 1, 12, 5, 0, '2022-02-25 08:36:45'),
-(142, 1, 12, 5, 1, '2022-02-25 08:40:50'),
-(143, 1, 12, 24, 1, '2022-02-25 08:42:43'),
-(144, 1, 12, 24, 1, '2022-02-25 08:42:43'),
-(145, 1, 12, 24, 1, '2022-02-25 08:42:43'),
-(146, 1, 12, 24, 1, '2022-02-25 08:42:44'),
-(147, 1, 12, 24, 1, '2022-02-25 08:42:44'),
-(148, 1, 12, 24, 1, '2022-02-25 08:42:56'),
-(149, 1, 12, 24, 1, '2022-02-25 08:43:17'),
-(150, 1, 12, 5, 1, '2022-02-25 08:43:29'),
-(151, 1, 12, 24, 1, '2022-02-25 08:43:31'),
-(152, 1, 11, 1, 0, '2022-02-25 08:43:38'),
-(153, 1, 12, 5, 1, '2022-02-25 08:44:52'),
-(154, 1, 12, 24, 1, '2022-02-25 08:44:53'),
-(155, 1, 11, 1, 1, '2022-02-25 08:44:55'),
-(156, 1, 11, 1, 0, '2022-02-25 08:45:39'),
-(157, 1, 11, 6, 1, '2022-02-25 08:45:45'),
-(158, 1, 12, 5, 1, '2022-02-25 08:45:48'),
-(159, 1, 12, 24, 0, '2022-02-25 08:45:51'),
-(160, 1, 12, 24, 1, '2022-02-25 08:45:53'),
-(161, 1, 12, 24, 1, '2022-02-25 08:45:56'),
-(162, 1, 12, 24, 1, '2022-02-25 08:45:58'),
-(163, 1, 12, 24, 1, '2022-02-25 08:46:38'),
-(164, 1, 12, 24, 1, '2022-02-25 08:46:50'),
-(165, 1, 12, 24, 1, '2022-02-25 08:46:50'),
-(166, 1, 11, 6, 0, '2022-02-25 09:10:14'),
-(167, 1, 11, 1, 1, '2022-02-25 09:17:43'),
-(168, 1, 11, 1, 0, '2022-02-25 09:18:08'),
-(169, 1, 11, 6, 1, '2022-02-25 09:18:11'),
-(170, 1, 11, 6, 0, '2022-02-25 09:18:15'),
-(171, 1, 11, 1, 1, '2022-02-25 09:18:19'),
-(172, 1, 11, 1, 0, '2022-02-25 09:18:21'),
-(173, 1, 12, 5, 1, '2022-02-25 09:18:23'),
-(174, 1, 12, 24, 0, '2022-02-25 09:18:28'),
-(175, 1, 12, 5, 1, '2022-02-25 09:18:40'),
-(176, 1, 12, 24, 1, '2022-02-25 09:18:43'),
-(177, 1, 12, 5, 0, '2022-02-25 09:18:45'),
-(178, 1, 12, 5, 1, '2022-02-25 09:20:58'),
-(179, 1, 12, 24, 1, '2022-02-25 09:21:00'),
-(180, 1, 12, 5, 0, '2022-02-25 09:23:24'),
-(181, 1, 12, 5, 1, '2022-02-25 09:25:50'),
-(182, 1, 12, 24, 1, '2022-02-25 09:25:52'),
-(183, 1, 12, 5, 0, '2022-02-25 09:25:54'),
-(184, 1, 12, 24, 0, '2022-02-25 09:25:56'),
-(185, 1, 11, 1, 1, '2022-02-25 09:26:00'),
-(186, 1, 11, 1, 0, '2022-02-25 09:26:03'),
-(187, 1, 11, 6, 1, '2022-02-25 09:26:07'),
-(188, 1, 11, 6, 0, '2022-02-25 09:26:08');
 
 -- --------------------------------------------------------
 
@@ -393,10 +280,10 @@ INSERT INTO `user` (`user_id`, `vorname`, `name`, `klasse`, `rfid_code`) VALUES
 --
 
 --
--- Indizes für die Tabelle `eventtype`
+-- Indizes für die Tabelle `event`
 --
-ALTER TABLE `eventtype`
-  ADD PRIMARY KEY (`event_type_id`);
+ALTER TABLE `event`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indizes für die Tabelle `klassen`
@@ -418,14 +305,6 @@ ALTER TABLE `rfid_device_type`
   ADD PRIMARY KEY (`device_type_id`);
 
 --
--- Indizes für die Tabelle `rfid_event`
---
-ALTER TABLE `rfid_event`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `event_type_id` (`event_type_id`),
-  ADD KEY `device_id` (`device_id`);
-
---
 -- Indizes für die Tabelle `user`
 --
 ALTER TABLE `user`
@@ -438,10 +317,10 @@ ALTER TABLE `user`
 --
 
 --
--- AUTO_INCREMENT für Tabelle `eventtype`
+-- AUTO_INCREMENT für Tabelle `event`
 --
-ALTER TABLE `eventtype`
-  MODIFY `event_type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+ALTER TABLE `event`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT für Tabelle `klassen`
@@ -462,12 +341,6 @@ ALTER TABLE `rfid_device_type`
   MODIFY `device_type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT für Tabelle `rfid_event`
---
-ALTER TABLE `rfid_event`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=189;
-
---
 -- AUTO_INCREMENT für Tabelle `user`
 --
 ALTER TABLE `user`
@@ -482,13 +355,6 @@ ALTER TABLE `user`
 --
 ALTER TABLE `rfid_devices`
   ADD CONSTRAINT `rfid_devices_ibfk_1` FOREIGN KEY (`device_type`) REFERENCES `rfid_device_type` (`device_type_id`);
-
---
--- Constraints der Tabelle `rfid_event`
---
-ALTER TABLE `rfid_event`
-  ADD CONSTRAINT `rfid_event_ibfk_1` FOREIGN KEY (`event_type_id`) REFERENCES `eventtype` (`event_type_id`),
-  ADD CONSTRAINT `rfid_event_ibfk_2` FOREIGN KEY (`device_id`) REFERENCES `rfid_devices` (`device_id`);
 
 --
 -- Constraints der Tabelle `user`
