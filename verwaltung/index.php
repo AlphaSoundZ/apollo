@@ -11,9 +11,10 @@ session_destroy();
     <!-- <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> //maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js or bootstrap.js-->
     <link rel="stylesheet" href="style_login.css">
     <link rel="stylesheet" href="loading_animation.css">
+    <script src="getStorageItems.js"></script>
 
   </head>
-  <body>
+  <body onload="clearAllSavedValues();">
     <div class="wrapper fadeInDown">
       <div id="formContent">
 
@@ -90,6 +91,9 @@ function validateForm(event) {
         else if (response == 1) {
           document.getElementById("Form").submit();
           return true;
+        }
+        else if (reponse) {
+          visibility('loading', 'block');
         }
       }
     };

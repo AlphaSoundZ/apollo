@@ -2,21 +2,10 @@
 require "config.php";
 $rfid1 = '';
 $rfid2 = '';
-$data['user'] = array();
-$data['device'] = array();
 $data['message'] = NULL;
 
-$data['user']['vorname'] = NULL;
-$data['user']['nachname'] = NULL;
-$data['user']['user_id'] = NULL;
-$data['user']['klasse'] = NULL;
-$data['user']['status'] = NULL;
-
-$data['device']['device_type'] = NULL;
-$data['device']['status'] = NULL;
-$data['device']['id'] = NULL;
-$data['device']['rfid_code'] = NULL;
-$data['user']['history'] = NULL;
+$data['user'] = NULL;
+$data['device'] = NULL;
 
 
 
@@ -189,9 +178,13 @@ function CreateDeviceObject($device_a) { // status muss noch automatisiert werde
 
 function CollectHistoryData() {
   global $data, $device_1, $pdo, $rfid_read;
-  $history_stm = "SELECT device_id, status, time_stamp FROM rfid_event WHERE event_type_id = '".$rfid_read."' AND user_id = '".$data['user']['user_id']."' LIMIT 20";
+  $history_stm = "SELECT * FROM rfid_event WHERE user_id = '".$data['user']['user_id']."' LIMIT 10";
   $history = $pdo->query($history_stm)->fetch();
   $data['user']['history'] = $history;
+  print "<pre>";
+  print_r($history);
+  print "</pre>";
+  
 }
 
 function event($status) {

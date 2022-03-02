@@ -6,7 +6,7 @@ session();
 <html style="overflow:hidden;">
 <link rel="Stylesheet" href="style_main.css"/>
 <link rel="Stylesheet" href="loading_animation.css">
-<script src="getInputValues.js"></script>
+<script src="getStorageItems.js"></script>
 <script src="fileupload.js"></script>
 <script src="import.js"></script>
 <head>
@@ -21,11 +21,12 @@ session();
 			<input class="navbar_textfield" type="text" value="" id="searchinput" name="search" placeholder="search" onkeyup="searchvalueupdate(); saveValue(this);"/>
 			<input class="navbar_submit" type="submit" id="submit" value="tables"/>
 		</form>
-		<a href="index.php" id="logout"><button onclick="clearAllSavedValues(); task(event, 'request.php', '_logout', 'logout');" class="navbuttonright">logout</button></a>
-		<a href="http://localhost/apollo/ausleihe/ausleihe_request.php" target="_blank"><button class="navbutton">ausleihe</button></a>
-		<a href="#allusers" id="allusers_id"><button class="navbutton" onclick="task(event, 'import.php', '', 'import');">import & reset</button></a>
-		<a href="#allusers" id="tables_id"><button class="navbutton" onclick="task(event, 'fileupload.php', '_fileupload', 'fileupload');">file upload</button></a>
-		<a href="user_add.php" id="adduser_id"><button class="navbuttonleft" onclick="task(event, '_adduser.php', '_adduser', 'adduser');">add user</button></a>
+		<a id="logout"><button onclick="clearAllSavedValues(); task(event, 'request.php', '_logout', 'logout');" class="navbuttonright">logout</button></a>
+		<!-- <button id="" class="navbutton" onclick="task(event, 'file', 'task', 'keyword')">Title</button> -->
+		<button id="ausleihe_id" class="navbutton" onclick="task(event, 'ausleihe_sim.php', '', 'ausleihe')">Ausleihe</button>
+		<a id="allusers_id"><button class="navbutton" onclick="task(event, 'import.php', '', 'import');">import & reset</button></a>
+		<a id="tables_id"><button class="navbutton" onclick="task(event, 'fileupload.php', '_fileupload', 'fileupload');">file upload</button></a>
+		<a id="adduser_id"><button class="navbuttonleft" onclick="task(event, '_adduser.php', '_adduser', 'adduser');">add user</button></a>
 	</section>
 				<section id="main" class="main-section">
 					<div id="main-default" style="display:none;">
@@ -65,6 +66,7 @@ function onload() {
 
 	document.getElementById("main-default").style.display = 'none';
 	page = localStorage.getItem('page');
+
 	if (page) {
 		switch (page) {
 			case 'tables':
@@ -78,6 +80,9 @@ function onload() {
 				break;
 			case 'import':
 				task(0, 'import.php', '', page);
+				break;
+			case 'ausleihe':
+				task(0, 'ausleihe_sim.php', '', page);
 				break;
 			default:
 				document.getElementById("main-default").style.display = 'block';
@@ -152,6 +157,9 @@ function task(event, file, task, name) {
 				}
 			return true;
 			}
+		}
+		else if(this.readyState == 4) {
+			loading('stop');
 		}
 	};
 	ajax.setRequestHeader("Content-Type", "application/json");
