@@ -194,8 +194,7 @@ function event($status) {
       if (count($event_line) > 1) {
         message('event table '.count($event_line).' rows instead of 1');
       }
-      $time_stamp = $pdo->query("SELECT CURRENT_TIMESTAMP()")->fetch()[0];
-      $pdo->query("UPDATE event SET end = '".$time_stamp."' WHERE event.id = '".$event_line[0]['id']."'");
+      $pdo->query("UPDATE event SET end = CURRENT_TIMESTAMP WHERE event.id = '".$event_line[0]['id']."'");
     }
     else {
       message('event table no avaiable event');
