@@ -96,7 +96,7 @@ elseif($rfid1) { // rückgabe oder info
       message(3);
 }}
 elseif (empty($rfid1) and empty($rfid2) or empty($rfid2)) { // enthält die URL rfid codes?
-  message(9);
+  message(8);
 }
 
 function message($messageID) {
@@ -171,18 +171,12 @@ function CreateDeviceObject($device_a) { // status muss noch automatisiert werde
 
 function CollectHistoryData() {
   global $data, $device_1, $pdo, $rfid_read;
-  $history_stm = "SELECT * FROM rfid_event WHERE user_id = '".$data['user']['user_id']."' LIMIT 10";
-  $history = $pdo->query($history_stm)->fetch();
-  $data['user']['history'] = $history;
-  print "<pre>";
-  print_r($history);
-  print "</pre>";
   
 }
 
 function event($status) {
   global $rfid_read, $pdo, $data;
-  $pdo->query("INSERT INTO rfid_event (id, event_type_id, user_id, device_id, status, time_stamp) VALUES (NULL, ".$rfid_read.", ".$data['user']['user_id'].", ".$data['device']['id'].", ".$status.", date('Y-m-d H:i:s'))"); // maybe use date('Y-m-d H:i:s')
+  $pdo->query("INSERT INTO rfid_event (id, event_type_id, user_id, device_id, status, time_stamp) VALUES (NULL, ".$rfid_read.", ".$data['user']['user_id'].", ".$data['device']['id'].", ".$status.", date('Y-m-d H:i:s'))");
 }
 
 echo json_encode($data);
