@@ -8,7 +8,7 @@
 </head>
 <body>
     <a href="http://localhost/apollo/ausleihe/ausleihe_request.php" target="_blank"><button>ausleihe</button></a><br>
-    <form action="ausleihe_sim.php" method="POST" target="_blank">
+    <form action="ausleihe_sim.php" method="POST"> <!-- target="_blank" -->
     <p>
         User_id: 12<br>
         Name: Peter Wedemann<br>

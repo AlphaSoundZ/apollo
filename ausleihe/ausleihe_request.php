@@ -47,7 +47,7 @@ if ($rfid1 AND $rfid2) { // ausleihe
           }
           else {
             CreateDeviceObject(2);
-            message('');}}
+            message('server update error');}}
         else {
           message(6);
           CreateDeviceObject(2);
@@ -83,7 +83,7 @@ elseif($rfid1) { // rückgabe oder info
           }
           else {
             CreateDeviceObject(1);
-            message('');
+            message('server update error');
         }}
         else {
           CreateDeviceObject(1);
@@ -131,7 +131,7 @@ function message($messageID) {
       $data['message'] = $data['message']."Keine rfid Angabe. ";
       break;
   default:
-     $data['message'] = $data['message']."Unexpected Error ";
+     $data['message'] = $data['message']."Unexpected Error (".$messageID.") ";
      $data['response'] = 9;
 }}
 
@@ -171,12 +171,36 @@ function CreateDeviceObject($device_a) { // status muss noch automatisiert werde
 
 function CollectHistoryData() {
   global $data, $device_1, $pdo, $rfid_read;
-  
+  $history_stm = "SELECT rfid_devices.device_type, rfid_devices.device_id, rfid_device_type.device_type_id, rfid_device_type.name, event.* FROM event LEFT JOIN rfid_devices ON event.device = rfid_devices.device_id LEFT JOIN rfid_device_type ON rfid_device_type.device_type_id = rfid_devices.device_type WHERE user = '".$data['user']['user_id']."' ORDER BY begin DESC LIMIT 20";
+  $history = $pdo->query($history_stm)->fetchAll();
+  if ($history) {
+    for ($i=0;$i < count($history); $i++) {
+      $data['user']['history'][$i]['device_id'] = $history[$i]['device'];
+      $data['user']['history'][$i]['begin'] = $history[$i]['begin'];
+      $data['user']['history'][$i]['end'] = $history[$i]['end'];
+      $data['user']['history'][$i]['device_type'] = $history[$i]['name'];
+    }
+  }
 }
 
 function event($status) {
   global $rfid_read, $pdo, $data;
-  $pdo->query("INSERT INTO rfid_event (id, event_type_id, user_id, device_id, status, time_stamp) VALUES (NULL, ".$rfid_read.", ".$data['user']['user_id'].", ".$data['device']['id'].", ".$status.", date('Y-m-d H:i:s'))");
+  if ($data['response'] == 0) {
+    $pdo->query("INSERT INTO event (id, user, device, begin, end) VALUES (NULL, ".$data['user']['user_id'].", ".$data['device']['id'].", CURRENT_TIMESTAMP, NULL)");
+  }
+  if ($data['response'] == 1) {
+    $event_line = $pdo->query("SELECT * FROM event WHERE user = '".$data['user']['user_id']."' AND end <=> null")->fetchAll();
+    if ($event_line) {
+      if (count($event_line) > 1) {
+        message('event table '.count($event_line).' rows instead of 1');
+      }
+      $time_stamp = $pdo->query("SELECT CURRENT_TIMESTAMP()")->fetch()[0];
+      $pdo->query("UPDATE event SET end = '".$time_stamp."' WHERE event.id = '".$event_line[0]['id']."'");
+    }
+    else {
+      message('event table no avaiable event');
+    }
+  }
 }
 
 echo json_encode($data);
