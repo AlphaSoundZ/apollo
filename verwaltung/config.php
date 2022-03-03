@@ -10,8 +10,6 @@ try {
 	if ($pdo) {
 		$usercardtype = $pdo->query("SELECT * FROM rfid_device_type WHERE name = 'UserCard'")->fetch();
 		$usercardtype = $usercardtype['device_type_id'];
-		$rfid_read = $pdo->query("SELECT event_type_id FROM eventtype WHERE name ='RFID_READ'")->fetch()[0];
-		$rfid_write = $pdo->query("SELECT event_type_id FROM eventtype WHERE name = 'RFID_WRITE'")->fetch()[0];
 	}
 } catch (PDOException $e) {
 	$data['message'] = $e->getMessage();

@@ -185,10 +185,10 @@ function CollectHistoryData() {
 
 function event($status) {
   global $rfid_read, $pdo, $data;
-  if ($data['response'] == 0) {
+  if ($data['response'] == 0) { // Bei ausleihe begin aktuallisieren
     $pdo->query("INSERT INTO event (id, user, device, begin, end) VALUES (NULL, ".$data['user']['user_id'].", ".$data['device']['id'].", CURRENT_TIMESTAMP, NULL)");
   }
-  if ($data['response'] == 1) {
+  if ($data['response'] == 1) { // Bei Rückgabe end aktuallisieren
     $event_line = $pdo->query("SELECT * FROM event WHERE user = '".$data['user']['user_id']."' AND end <=> null")->fetchAll();
     if ($event_line) {
       if (count($event_line) > 1) {
