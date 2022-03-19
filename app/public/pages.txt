@@ -1,0 +1,33 @@
+{
+   "index":[
+      "default.php",
+      ["default.js", "default_2.js"],
+      "Home",
+      "home"
+   ],
+   "404":[
+      "404error.php",
+      "404error.js",
+      "404 Error"
+   ],
+   "405":[
+      "405error.php",
+      "405error.js",
+      "405 Error"
+   ],
+   "pg1":[
+      "page1.php",
+      "page1.js",
+      "Page 1"
+   ],
+   "pg2":[
+      "page2.php",
+      "page2.js",
+      "Page 2"
+   ],
+   "pg3":[
+      "page3.php",
+      "page3.js",
+      "Page 3"
+   ]
+}
