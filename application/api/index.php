@@ -4,7 +4,6 @@ $rfid1 = '';
 $rfid2 = '';
 $data['message'] = NULL;
 
-
 global $pdo, $usercardtype, $data, $device_1, $device_2;
 if (isset($_GET['rfid1'])) {
   $rfid1 = $_GET['rfid1'];

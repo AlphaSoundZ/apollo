@@ -14,7 +14,9 @@ session();
 </head>
 <body onload="onload();">
 	<!-- loading animation -->
-	<div id='loading' class="spinner-wrapper" style="display:none;"><span id ='loading' class="spinner2"></span></div>
+	<div id='loading' class="spinner-wrapper" style="display:none;">
+        <span id ='spinner' class="spinner"></span>
+    </div>
 
 	<section class='topnav' id='topnav'>
 		<form id="search" style="display:inline;" onsubmit="task(event, 'load_table.php', '_allusers', 'tables');">
