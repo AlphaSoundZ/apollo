@@ -1,8 +1,8 @@
-<!DOCTYPE html>
 <?php
 session_start();
 session_destroy();
 ?>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
@@ -80,7 +80,7 @@ function validateForm(event) {
     ajax.open("POST", "request.php", true);
     ajax.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
-        var response = this.responseText;
+        const response = this.responseText;
         if (response == 0) {
           visibility('loading', 'none');
           document.getElementById("warning").innerHTML = "Username / password / Authentication was wrong!";

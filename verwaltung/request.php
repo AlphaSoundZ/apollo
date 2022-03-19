@@ -1,8 +1,7 @@
 <?php
 declare(strict_types=1);
 session_start();
-require 'plugins/vendor/autoload.php';
-
+require '../application/plugins/vendor/autoload.php';
 require 'config.php';
 $data = json_decode(file_get_contents("php://input"));
 $task = $data->task;

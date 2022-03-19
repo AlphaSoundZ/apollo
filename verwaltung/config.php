@@ -5,6 +5,7 @@ $__username = 'root';
 $__password = '';
 $__dsn = "mysql:host=$__host;dbname=$__db;charset=UTF8";
 
+
 try {
 	$pdo = new PDO($__dsn, $__username, $__password);
 	if ($pdo) {
