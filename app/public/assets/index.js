@@ -1,7 +1,7 @@
 const XdynamicContent = new dynamicContent();
 
 function handleClick(path) {
-    const PAGES = JSON.parse(loadFile("../../config/pages.txt"));
+    const PAGES = JSON.parse(loadFile("../pages.txt"));
     var UrlPath = path;
     if (PAGES[path][3])
         UrlPath = PAGES[path][3];

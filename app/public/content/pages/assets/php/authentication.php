@@ -29,6 +29,9 @@ function _login() {
       $_SESSION['sessioncheck'] = $_SERVER['HTTP_USER_AGENT'];
       echo 1;
     }
+    else {
+      echo 0;
+    }
   }
   else {echo 0;}
   exit;

@@ -1,14 +1,15 @@
+<!-- link dynamic content loader -->
+<script src="content/pages/assets/dynamicContent.js"></script>
+<script src="content/pages/assets/index.js"></script>
 <?php
 session_start();
-require '../../../config/config.php';
+include '../../../config/config.php';
 session();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- link dynamic content loader -->
-    <script src="content/pages/assets/dynamicContent.js"></script>
-    <script src="content/pages/assets/index.js"></script>
     <link rel="stylesheet" href="/assets/style.css">
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -23,10 +24,11 @@ session();
         <input type="text" id="search_text">
         <input type="button" id="search_submit" value="Search">
 
-		<input type="button" id="logout" class="navbutton" onclick="handleClick('logout');" value="Logout">
-        <input type="button" id="import_and_reset" class="navbutton" onclick="" value="Import & Reset">
+        <input type="button" id="add_user" class="navbutton" onclick="" value="Tables">
         <input type="button" id="add_user" class="navbutton" onclick="" value="Add User">
+        <input type="button" id="import_and_reset" class="navbutton" onclick="" value="Import & Reset">
         <input type="button" id="test_system" class="navbutton" onclick="" value="Test System">
+		<input type="button" id="logout" class="navbutton" onclick="handleClick('index');" value="Logout">
         
 
 		<!-- EXAMPLE & REFERENCE:
@@ -49,7 +51,7 @@ session();
         <button id="page1" onclick="handleClick('pg1');">Page 1</button>
         <button id="page2" onclick="handleClick('pg2');">Page 2</button>
         <button id="page3" onclick="handleClick('pg3');">Page 3</button>
-        <button id="home" onclick="handleClick('index');"></button>
+        <button id="home" onclick="handleClick('index');">Logout</button>
     </div>
     <button onclick="getInfo();">Get Page Data</button>
     <h1>Static Content</h1>

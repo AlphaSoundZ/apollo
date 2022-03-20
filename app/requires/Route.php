@@ -1,6 +1,6 @@
 <?php
 use function PHPSTORM_META\type;
-
+//include '../config/config.php';
 class Route {
   
   private static $routes = Array();
@@ -39,7 +39,7 @@ class Route {
       }
       elseif ($path == "404")
       {
-        Route::pathNotFound(function($path) {
+        Route::pathNotFound(function() {
             echo self::loadContent("404");
         });
       }

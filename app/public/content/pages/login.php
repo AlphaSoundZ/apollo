@@ -17,6 +17,11 @@ session_destroy();
     <div class="wrapper fadeInDown">
       <div id="formContent">
 
+        <!-- loading animation -->
+        <div id='loading' class="spinner-wrapper">
+          <span class="spinner"></span>
+        </div>
+        
         <!-- Icon -->
         <div class="loading-pic" id='loading-pic_id'>
           <div class="fadeIn first" id='picture'>
@@ -31,11 +36,6 @@ session_destroy();
           <input type="text" id="authcode" class="fadeIn fourth" name="authcode" placeholder="authentication code" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" maxlength="6">
           <input type="submit" class="fadeIn fifth" value="Log In">
         </form>
-
-        <!-- loading animation -->
-        <div id='loading' class="spinner-wrapper">
-          <span class="spinner"></span>
-        </div>
 
         <!-- Warning message -->
         <div id="formFooter">

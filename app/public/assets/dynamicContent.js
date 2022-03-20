@@ -11,7 +11,7 @@ class dynamicContent {
                 document.getElementById("dynamic-content").innerHTML = this.responseText;
                 me.updateURL(path, title);
                 me.info = [page, js.slice(), title, path];
-                if (js) {
+                if (js[0] != "") {
                     js.forEach(function(file) {
                         var xjs = "../content/pages/assets/js/" + file;
                         me.loadJS(xjs, false);
@@ -54,7 +54,7 @@ class dynamicContent {
         document.title = title;
     }
     fileNotFound() {
-        const PAGES = JSON.parse(loadFile("../../config/pages.txt"));
+        const PAGES = JSON.parse(loadFile("../pages.txt"));
         this.loadContent(PAGES["404"][0], PAGES["404"][1], PAGES["404"][2], "404");
     }
 }

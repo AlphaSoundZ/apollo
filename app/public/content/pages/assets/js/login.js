@@ -33,13 +33,14 @@ function validateForm(event) {
         const response = this.responseText;
         if (response == 0) {
           visibility('loading', 'none');
-          document.getElementById("warning").innerHTML = "Username / password / Authentication was wrong!";
+          document.getElementById("warning").innerHTML = "Username / password / authentication was wrong!";
           document.getElementById("login").value = "";
           document.getElementById("password").value = "";
           document.getElementById("authcode").value = "";
         }
         else if (response == 1) {
           // load home Page
+            handleClick("home");
           return true;
         }
         else if (reponse) {
