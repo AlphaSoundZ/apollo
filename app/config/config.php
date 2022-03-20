@@ -5,6 +5,12 @@ $__username = 'root';
 $__password = '';
 $__dsn = "mysql:host=$__host;dbname=$__db;charset=UTF8";
 
+// Define a global basepath
+define('BASEPATH','/');
+
+// Get Pagestructures
+$json_obj = file_get_contents("pages.txt");
+define("PAGES", json_decode($json_obj, true));
 
 try {
 	$pdo = new PDO($__dsn, $__username, $__password);
@@ -23,7 +29,8 @@ function session() {
 	if (!empty($_SESSION['sessioncheck']) && $_SESSION['sessioncheck'] == $_SERVER['HTTP_USER_AGENT']) {
 	}
 	else {
-		echo "<meta http-equiv=\"refresh\" content=\"0; URL=index.php\">"; exit;
+		//echo '<script> XdynamicContent.loadContent("'.PAGES["index"][0].'", '.json_encode(PAGES["index"][1]).', "'.PAGES["index"][2].'", ""); </script>';
+		//echo "<meta http-equiv=\"refresh\" content=\"0; URL=index.php\">"; exit;
 	}
 }
 

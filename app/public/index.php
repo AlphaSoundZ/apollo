@@ -1,19 +1,11 @@
 <?php
+session_start();
+include '../config/config.php';
+session();
+
+
 // Include router class
 include '../requires/Route.php';
-// Define a global basepath
-define('BASEPATH','/');
-
-/*define("PAGES", array(
-    "index" => ["default.php", "default.js", "Home", "home"],
-    "404" => ["404error.php", "404error.js", "404 Error"],
-    "405" => ["405error.php", "405error.js", "405 Error"],
-    "pg1" => ["page1.php", "page1.js", "Page 1"],
-    "pg2" => ["page2.php", "page2.js", "Page 2"],
-    "pg3" => ["page3.php", "page3.js", "Page 3"],
-));*/
-$json_obj = file_get_contents("pages.txt");
-define("PAGES", json_decode($json_obj, true));
 
 // If your script lives in a subfolder you can use the following example
 // Do not forget to edit the basepath in .htaccess if you are on apache
@@ -37,44 +29,11 @@ define("PAGES", json_decode($json_obj, true));
     <div id='loading' class="spinner-wrapper" style="display:none;">
         <span id ='spinner' class="spinner"></span>
     </div>
+    
+    <button id="page1" onclick="handleClick('home');">Administration</button>
 
-	<div class='navbar' id='navbar'>
-        <input type="text" id="search_text">
-        <input type="button" id="search_submit" value="Search">
-
-		<input type="button" id="logout" class="navbutton" onclick="handleClick('logout');" value="Logout">
-        <input type="button" id="import_and_reset" class="navbutton" onclick="" value="Import & Reset">
-        <input type="button" id="add_user" class="navbutton" onclick="" value="Add User">
-        <input type="button" id="test_system" class="navbutton" onclick="" value="Test System">
-        
-
-		<!-- EXAMPLE & REFERENCE:
-            <button id="" class="navbutton" onclick="task(event, 'file', 'task', 'keyword')">Title</button>
-            <a id="allusers_id"><button class="navbutton" onclick="task(event, 'import.php', '', 'import');">import & reset</button></a>
-		    <a id="tables_id"><button class="navbutton" onclick="task(event, 'fileupload.php', '_fileupload', 'fileupload');">file upload</button></a>
-		    <a id="adduser_id"><button class="navbuttonleft" onclick="task(event, '_adduser.php', '_adduser', 'adduser');">add user</button></a>
-            <a id="logout"><button onclick="clearAllSavedValues(); task(event, 'request.php', '_logout', 'logout');" class="navbuttonright">logout</button></a>
-            <form id="search" style="display:inline;" onsubmit="task(event, 'load_table.php', '_allusers', 'tables');">
-			    <input class="navbar_textfield" type="text" value="" id="searchinput" name="search" placeholder="search" onkeyup="searchvalueupdate(); saveValue(this);"/>
-			    <input class="navbar_submit" type="submit" id="submit" value="tables"/>
-		    </form>
-            <input type="button" id="ausleihe_id" class="navbutton" onclick="task(event, 'ausleihe_sim.php', '', 'ausleihe')">Ausleihe</button>
-        -->
-    </div>
-
-
-    <p>Navbar:</p>
-    <div class="navbar-wrapper">
-        <button id="page1" onclick="handleClick('pg1');">Page 1</button>
-        <button id="page2" onclick="handleClick('pg2');">Page 2</button>
-        <button id="page3" onclick="handleClick('pg3');">Page 3</button>
-        <button id="home" onclick="handleClick('index');">Home</button>
-    </div>
-    <button onclick="getInfo();">Get Page Data</button>
-    <h1>Static Content</h1>
     <!-- dynamic content-->
     <div class="dynamic-content" id="dynamic-content"></div>
-    <p>Static Content</p>
 </body>
 </html>
 <?php

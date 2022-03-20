@@ -11,7 +11,7 @@
       "404 Error"
    ],
    "405":[
-      "405error.php",
+      "405error.php",   
       "405error.js",
       "405 Error"
    ],

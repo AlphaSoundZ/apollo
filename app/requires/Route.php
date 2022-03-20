@@ -1,5 +1,4 @@
 <?php
-
 use function PHPSTORM_META\type;
 
 class Route {

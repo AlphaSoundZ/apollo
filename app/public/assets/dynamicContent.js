@@ -54,7 +54,7 @@ class dynamicContent {
         document.title = title;
     }
     fileNotFound() {
-        const PAGES = JSON.parse(loadFile("../pages.txt"));
+        const PAGES = JSON.parse(loadFile("../../config/pages.txt"));
         this.loadContent(PAGES["404"][0], PAGES["404"][1], PAGES["404"][2], "404");
     }
 }
