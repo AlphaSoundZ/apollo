@@ -31,7 +31,7 @@ if (!session()) {
         <input type="button" id="settings" class="navbutton" onclick="" value="Settings">
         <input type="button" id="import" class="navbutton" onclick="" value="Import">
         <input type="button" id="test_system" class="navbutton" onclick="" value="Test System">
-		<input type="button" id="logout" class="navbutton" onclick="handleClick('index');" value="Logout">
+		<input type="button" id="logout" class="navbutton" onclick="handleClick('.index');" value="Logout">
         
 
 		<!-- EXAMPLE & REFERENCE:
@@ -54,12 +54,10 @@ if (!session()) {
         <button id="page1" onclick="handleClick('pg1');">Page 1</button>
         <button id="page2" onclick="handleClick('pg2');">Page 2</button>
         <button id="page3" onclick="handleClick('pg3');">Page 3</button>
-        <button id="home" onclick="handleClick('index');">Logout</button>
+        <button id="home" onclick="handleClick('.index');">Logout</button>
     </div>
     <button onclick="getInfo();">Get Page Data</button>
     <h1>Static Content</h1>
-    <!-- dynamic content-->
-    <div class="dynamic-content" id="dynamic-content"></div>
     <p>Static Content</p>
 </body>
 </html>

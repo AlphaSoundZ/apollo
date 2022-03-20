@@ -15,52 +15,52 @@ class Route {
    *
    */
   public static function loadContent($path) {
-    return '<script> XdynamicContent.loadContent("'.PAGES[$path][0].'", '.json_encode(PAGES["index"][1]).', "'.PAGES[$path][2].'", "'.$path.'"); </script>';
+    return '<script> XdynamicContent.loadContent("'.PAGES[$path][0].'", '.json_encode(PAGES[".index"][1]).', "'.PAGES[$path][2].'", "'.$path.'"); </script>';
   }
 
   public static function generate() {
     foreach (PAGES as $path => $page) {
       if (!session()) {
         Route::add('/', function() {
-          echo '<script> XdynamicContent.loadContent("'.PAGES["index"][0].'", '.json_encode(PAGES["index"][1]).', "'.PAGES["index"][2].'", ""); </script>';
+          echo '<script> XdynamicContent.loadContent("'.PAGES[".index"][0].'", '.json_encode(PAGES[".index"][1]).', "'.PAGES[".index"][2].'", ""); </script>';
         });
         Route::pathNotFound(function() {
-          echo '<script> XdynamicContent.loadContent("'.PAGES["index"][0].'", '.json_encode(PAGES["index"][1]).', "'.PAGES["index"][2].'", ""); </script>';
+          echo '<script> XdynamicContent.loadContent("'.PAGES[".index"][0].'", '.json_encode(PAGES[".index"][1]).', "'.PAGES[".index"][2].'", ""); </script>';
         });
       }
       else {
         if (array_key_exists(3, $page)) {
           Route::add('/'.$page[3], function() use($path) {
-            echo '<script> XdynamicContent.loadContent("'.PAGES[$path][0].'", '.json_encode(PAGES["index"][1]).', "'.PAGES[$path][2].'", "'.PAGES[$path][3].'"); </script>';
+            echo '<script> XdynamicContent.loadContent("'.PAGES[$path][0].'", '.json_encode(PAGES[".index"][1]).', "'.PAGES[$path][2].'", "'.PAGES[$path][3].'"); </script>';
           });
         }
-        if ($path != "404" && $path != "405" && $path != "index")
+        if ($path != ".404" && $path != ".405" && $path != ".index")
         {
           Route::add('/'.$path, function() use($path) {
               echo self::loadContent($path);
           });
         }
-        elseif ($path == "index")
+        elseif ($path == ".index")
         {
           Route::add('/', function() {
             if (session()) {
               echo self::loadContent("home");
             }
             else {
-              echo '<script> XdynamicContent.loadContent("'.PAGES["index"][0].'", '.json_encode(PAGES["index"][1]).', "'.PAGES["index"][2].'", ""); </script>';
+              echo '<script> XdynamicContent.loadContent("'.PAGES[".index"][0].'", '.json_encode(PAGES[".index"][1]).', "'.PAGES[".index"][2].'", ""); </script>';
             }
           });
         }
-        elseif ($path == "404")
+        elseif ($path == ".404")
         {
           Route::pathNotFound(function() {
-              echo self::loadContent("404");
+            echo '<script> XdynamicContent.loadContent("'.PAGES[".404"][0].'", '.json_encode(PAGES[".404"][1]).', "'.PAGES[".404"][2].'", "404"); </script>';
           });
         }
-        elseif ($path == "405")
+        elseif ($path == ".405")
         {
           Route::methodNotAllowed(function($path, $method) {
-              echo self::loadContent("405");
+            echo '<script> XdynamicContent.loadContent("'.PAGES[".405"][0].'", '.json_encode(PAGES[".405"][1]).', "'.PAGES[".405"][2].'", "405"); </script>';
           });
         }
       }

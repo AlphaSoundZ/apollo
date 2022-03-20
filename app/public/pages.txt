@@ -1,16 +1,16 @@
 {
-   "index":[
+   ".index":[
       "login.php",
       ["getStorageItems.js", "login.js"],
       "Login",
       "login"
    ],
-   "404":[
+   ".404":[
       "404error.php",
       "404error.js",
       "404 Error"
    ],
-   "405":[
+   ".405":[
       "405error.php",
       "405error.js",
       "405 Error"

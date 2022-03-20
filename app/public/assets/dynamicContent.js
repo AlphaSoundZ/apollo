@@ -12,8 +12,37 @@ class dynamicContent {
                 me.updateURL(path, title);
                 me.info = [page, js.slice(), title, path];
                 if (js[0] != "") {
-                    js.forEach(function(file) {
-                        var xjs = "../content/pages/assets/js/" + file;
+                    js.forEach(function(jsfile) {
+                        var xjs = "../content/pages/assets/js/" + jsfile;
+                        me.loadJS(xjs, false);
+                    });
+                }
+                loadStatic('navbar');
+            }
+            if (this.status == 404) {
+                me.fileNotFound();
+            }
+        };
+
+        xhttp.setRequestHeader("Content-Type", "application/json");
+
+        if (data) xhttp.send(JSON.stringify(data));
+        else xhttp.send();
+    }
+    loadStaticContent(file, js, div, data = null) {
+        const page = '../static/' + file;
+        if (!Array.isArray(js))
+            js = [js];
+        var xhttp = new XMLHttpRequest();
+        var xpage = "../content/static/" + page;
+        xhttp.open("POST", xpage, true);
+        var me = this;
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById(div).innerHTML = this.responseText;
+                if (js[0] != "") {
+                    js.forEach(function(jsfile) {
+                        const xjs = '../content/static/js/' + jsfile;
                         me.loadJS(xjs, false);
                     });
                 }
@@ -54,7 +83,17 @@ class dynamicContent {
         document.title = title;
     }
     fileNotFound() {
-        const PAGES = JSON.parse(loadFile("../pages.txt"));
-        this.loadContent(PAGES["404"][0], PAGES["404"][1], PAGES["404"][2], "404");
+        const PAGES = JSON.parse(this.loadFile("../pages.txt"));
+        this.loadContent(PAGES[".404"][0], PAGES[".404"][1], PAGES[".404"][2], "404");
+    }
+    loadFile(filePath) {
+        var result = null;
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", filePath, false);
+        xmlhttp.send();
+        if (xmlhttp.status==200) {
+          result = xmlhttp.responseText;
+        }
+        return result;
     }
 }

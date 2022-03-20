@@ -36,11 +36,12 @@ define("PAGES", json_decode($json_obj, true));
     
     <!-- <button id="page1" onclick="handleClick('home');">Administration</button> -->
     <!-- dynamic content-->
+    <div class="navbar" id="navbar" data-page="navbar.php" data-js="navbar.js"></div>
     <div class="dynamic-content" id="dynamic-content"></div>
 </body>
 </html>
 <?php
  
-Route::generate();
-Route::run(BASEPATH);
-?>
+ Route::generate();
+ Route::run(BASEPATH);
+ ?>
