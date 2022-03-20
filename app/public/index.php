@@ -33,8 +33,8 @@ define("PAGES", json_decode($json_obj, true));
 </head>
 <body>
     
-    <button id="page1" onclick="handleClick('home');" hidden>Administration</button>
-
+    
+    <!-- <button id="page1" onclick="handleClick('home');">Administration</button> -->
     <!-- dynamic content-->
     <div class="dynamic-content" id="dynamic-content"></div>
 </body>

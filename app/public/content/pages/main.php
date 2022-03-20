@@ -4,7 +4,9 @@
 <?php
 session_start();
 include '../../../config/config.php';
-session();
+if (!session()) {
+    die();
+};
 
 ?>
 <!DOCTYPE html>
@@ -24,9 +26,10 @@ session();
         <input type="text" id="search_text">
         <input type="button" id="search_submit" value="Search">
 
-        <input type="button" id="add_user" class="navbutton" onclick="" value="Tables">
+        <input type="button" id="tables" class="navbutton" onclick="" value="Tables">
         <input type="button" id="add_user" class="navbutton" onclick="" value="Add User">
-        <input type="button" id="import_and_reset" class="navbutton" onclick="" value="Import & Reset">
+        <input type="button" id="settings" class="navbutton" onclick="" value="Settings">
+        <input type="button" id="import" class="navbutton" onclick="" value="Import">
         <input type="button" id="test_system" class="navbutton" onclick="" value="Test System">
 		<input type="button" id="logout" class="navbutton" onclick="handleClick('index');" value="Logout">
         

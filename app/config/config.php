@@ -22,7 +22,7 @@ function session() {
 	if (!empty($_SESSION['sessioncheck']) && $_SESSION['sessioncheck'] == $_SERVER['HTTP_USER_AGENT']) {
 		return true;
 	}
-	die();
+	return false;
 	//return false;
 }
 
