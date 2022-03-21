@@ -26,6 +26,7 @@ define("PAGES", json_decode($json_obj, true));
 <html lang="en">
 <head>
     <!-- link dynamic content loader -->
+    <link rel="preload" href="/assets/index.js" as="script">
     <link rel="stylesheet" href="/assets/style.css">
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -40,8 +41,13 @@ define("PAGES", json_decode($json_obj, true));
     <div class="dynamic-content" id="dynamic-content"></div>
 </body>
 </html>
+<script>
+  var usedLaterScript = document.createElement('script');
+  usedLaterScript.src = '/assets/index.js';
+  document.body.appendChild(usedLaterScript);
+</script>
 <?php
  
  Route::generate();
  Route::run(BASEPATH);
- ?>
+?>

@@ -6,18 +6,18 @@ class dynamicContent {
         var xpage = "../content/pages/" + page;
         xhttp.open("POST", xpage, true);
         var me = this;
+        this.info = [page, js.slice(), title, path];
+        loadStatic('navbar');
+        if (js[0] != "") {
+            js.forEach(function(jsfile) {
+                var xjs = "../content/pages/assets/js/" + jsfile;
+                me.loadJS(xjs, false);
+            });
+        }
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("dynamic-content").innerHTML = this.responseText;
                 me.updateURL(path, title);
-                me.info = [page, js.slice(), title, path];
-                if (js[0] != "") {
-                    js.forEach(function(jsfile) {
-                        var xjs = "../content/pages/assets/js/" + jsfile;
-                        me.loadJS(xjs, false);
-                    });
-                }
-                loadStatic('navbar');
+                document.getElementById("dynamic-content").innerHTML = this.responseText;
             }
             if (this.status == 404) {
                 me.fileNotFound();

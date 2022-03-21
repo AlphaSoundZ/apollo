@@ -10,7 +10,7 @@ function handleClick(path) {
 
 function loadStatic(id) {
     const el = document.getElementById(id);
-    if (XdynamicContent.info[2] != "Login") {
+    if (XdynamicContent.info[2] != "Login" && XdynamicContent.info[2] != "404") {
         XdynamicContent.loadStaticContent(el.dataset.page, el.dataset.js, id);
     }
     else {
