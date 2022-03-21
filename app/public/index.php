@@ -1,5 +1,6 @@
 <script src="/assets/dynamicContent.js"></script>
 <script src="/assets/index.js"></script>
+<script src="/content/pages/assets/js/getStorageItems.js"></script>
 <?php
 session_start();
 include '../config/config.php';
@@ -23,11 +24,13 @@ define("PAGES", json_decode($json_obj, true));
 // See examples below
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" manifest="demo.appcache">
 <head>
     <!-- link dynamic content loader -->
+    <link rel="stylesheet" href="content/pages/assets/css/loading_animation.css">
     <link rel="preload" href="/assets/index.js" as="script">
     <link rel="stylesheet" href="/assets/style.css">
+    <link rel="stylesheet" href="content/pages/assets/css/login.css">
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

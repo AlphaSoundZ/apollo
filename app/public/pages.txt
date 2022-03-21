@@ -1,7 +1,7 @@
 {
    ".index":[
       "login.php",
-      ["getStorageItems.js", "login.js"],
+      "login.js",
       "Login",
       "login"
    ],

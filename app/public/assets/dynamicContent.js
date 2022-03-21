@@ -87,6 +87,10 @@ class dynamicContent {
         this.loadContent(PAGES[".404"][0], PAGES[".404"][1], PAGES[".404"][2], "404");
     }
     loadFile(filePath) {
+        if (localStorage.getItem(filePath)) {
+            console.log("saved time!");
+            return localStorage.getItem(filePath);
+        }
         var result = null;
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", filePath, false);
@@ -94,6 +98,7 @@ class dynamicContent {
         if (xmlhttp.status==200) {
           result = xmlhttp.responseText;
         }
+        localStorage.setItem(filePath, result);
         return result;
     }
 }
