@@ -18,6 +18,28 @@ if (!session()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
+
+    <button class="mdc-button tables mdc-button--raised">
+        <div class="mdc-button__ripple"></div>
+        <span class="mdc-button__label">tables</span>
+    </button>
+    <button class="mdc-button adduser mdc-button--raised">
+        <div class="mdc-button__ripple"></div>
+        <span class="mdc-button__label">add user</span>
+    </button>
+    <button class="mdc-button settings mdc-button--raised">
+        <div class="mdc-button__ripple"></div>
+        <span class="mdc-button__label">settings</span>
+    </button>
+    <button class="mdc-button import mdc-button--raised">
+        <div class="mdc-button__ripple"></div>
+        <span class="mdc-button__label">import</span>
+    </button>
+    <button class="mdc-button testsystem mdc-button--raised">
+        <div class="mdc-button__ripple"></div>
+        <span class="mdc-button__label">test system</span>
+    </button>
+
     <div id='loading' class="spinner-wrapper" style="display:none;">
         <span id ='spinner' class="spinner"></span>
     </div>

@@ -7,6 +7,7 @@ session_destroy();
   <head manifest="demo.appcache">
     <meta charset="utf-8">
     <title>Login</title>
+    <link rel="stylesheet" href="/content/pages/assets/css/login.css">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"> <!-- bootstrap_style.css -->
     <!-- <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> //maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js or bootstrap.js-->
     

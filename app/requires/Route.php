@@ -15,24 +15,46 @@ class Route {
    *
    */
   public static function loadContent($path) {
-    return '<script> XdynamicContent.loadContent("'.PAGES[$path][0].'", '.json_encode(PAGES[".index"][1]).', "'.PAGES[$path][2].'", "'.$path.'"); </script>';
+    return '<script> XdynamicContent.loadContent("'.PAGES[$path][0].'", '.json_encode(PAGES[$path][1]).', "'.PAGES[$path][2].'", "'.$path.'"); </script>';
   }
-
   public static function generate() {
     foreach (PAGES as $path => $page) {
       if (!session()) {
         Route::add('/', function() {
           echo '<script> XdynamicContent.loadContent("'.PAGES[".index"][0].'", '.json_encode(PAGES[".index"][1]).', "'.PAGES[".index"][2].'", ""); </script>';
         });
+        if ($path == ".0")
+        {
+          foreach ($page[0] as $api => $apiPage) {
+            foreach ($page[3] as $urlPathKey => $urlPath) {
+              Route::add("/".PAGES[$path][3][$urlPathKey], function() use($path, $api) {
+                echo '<script> XdynamicContent.loadContent("'.PAGES[$path][0][$api].'", '.json_encode(PAGES[$path][1][$api]).', "'.PAGES[$path][2][$api].'", "'.PAGES[$path][3][$api].'", "", true); </script>';
+              });
+            }
+          }
+        }
+        Route::add('/2fa', function() {
+          echo self::loadContent("2fa");
+        });
         Route::pathNotFound(function() {
           echo '<script> XdynamicContent.loadContent("'.PAGES[".index"][0].'", '.json_encode(PAGES[".index"][1]).', "'.PAGES[".index"][2].'", ""); </script>';
         });
       }
       else {
-        if (array_key_exists(3, $page)) {
-          Route::add('/'.$page[3], function() use($path) {
-            echo '<script> XdynamicContent.loadContent("'.PAGES[$path][0].'", '.json_encode(PAGES[".index"][1]).', "'.PAGES[$path][2].'", "'.PAGES[$path][3].'"); </script>';
-          });
+        if ($path == ".0")
+        {
+          foreach ($page[0] as $api => $apiPage) {
+            foreach ($page[3] as $urlPathKey => $urlPath) {
+              Route::add("/".PAGES[$path][3][$urlPathKey], function() use($path, $api) {
+                echo '<script> XdynamicContent.loadContent("'.PAGES[$path][0][$api].'", '.json_encode(PAGES[$path][1][$api]).', "'.PAGES[$path][2][$api].'", "'.PAGES[$path][3][$api].'", "", true); </script>';
+              });
+            }
+          }
+        }
+        elseif (array_key_exists(3, $page)) {
+            Route::add('/'.$page[3], function() use($path) {
+              echo '<script> XdynamicContent.loadContent("'.PAGES[$path][0].'", '.json_encode(PAGES[".index"][1]).', "'.PAGES[$path][2].'", "'.PAGES[$path][3].'"); </script>';
+            });
         }
         if ($path != ".404" && $path != ".405" && $path != ".index")
         {

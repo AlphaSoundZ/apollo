@@ -1,5 +1,5 @@
 <?php
-require "../config/config.php";
+require "../../../config/config.php";
 $rfid1 = '';
 $rfid2 = '';
 $data['message'] = NULL;

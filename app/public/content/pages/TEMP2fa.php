@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
-require '../application/plugins/vendor/autoload.php';
+echo "cwd:".getcwd();
+require '../../../plugins/vendor/autoload.php';
 $secret = 'AJFLKDJSLKEJLKD';
 
 $qrcode = \Sonata\GoogleAuthenticator\GoogleQrUrl::generate('Schule', $secret, 'Ausleihsystem');
@@ -28,21 +29,4 @@ $link = \Sonata\GoogleAuthenticator\GoogleQrUrl::generate('Schule', $secret, 'Go
 <a  href="<?php echo $link; ?>"><img style="border: 0; padding:10px" src="<?php echo $link; ?>"/></a>
 </p>
 <p>Current code is:</p>
-➡️➡️ <input type="button" id="code" onclick="copyToClipboard();" value="<?= $auth->getCode($secret)?>"> ⬅️⬅️
-
-
-<script>
-function copyToClipboard() {
-  /* Get the text field */
-  var copyText = document.getElementById("code");
-
-  /* Select the text field */
-  //copyText.select();
-  //copyText.setSelectionRange(0, 99999); /* For mobile devices */
-
-   /* Copy the text inside the text field */
-  navigator.clipboard.writeText(copyText.value);
-
-  /* Alert the copied text */
-}
-</script>
+➡️➡️ <input type="textfield" id="code" onclick="copyToClipboard();" value="<?= $auth->getCode($secret)?>"> ⬅️⬅️

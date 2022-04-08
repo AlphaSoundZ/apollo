@@ -7,6 +7,9 @@
     <title>Document</title>
 </head>
 <body>
-    <p>Some Static Content after Login :D</p>
+    <button class="mdc-button mdc-button--raised">
+        <div class="mdc-button__ripple"></div>
+        <span class="mdc-button__label">tables</span>
+    </button>
 </body>
 </html>

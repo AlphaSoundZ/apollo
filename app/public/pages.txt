@@ -17,7 +17,7 @@
    ],
    "home":[
       "main.php",
-      "default.js",
+      "main.js",
       "Home"
    ],
    "pg2":[
@@ -29,5 +29,16 @@
       "page3.php",
       "page3.js",
       "Page 3"
+   ],
+   "2fa":[
+      "TEMP2fa.php",
+      "2fa.js",
+      "2FA Auth Code"
+   ],
+   ".0":[
+      ["ausleihe/v1.php", "ausleihe/v2.php"],
+      ["", ""],
+      ["API", "API"],
+      ["0-ausleihe-v1", "0/ausleihe/v2"]
    ]
 }

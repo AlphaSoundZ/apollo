@@ -1,9 +1,12 @@
 class dynamicContent {
-    loadContent(page, js, title, path, data = null) {
+    loadContent(page, js, title, path, data = null, api = false) {
         if (!Array.isArray(js))
             js = [js];
         var xhttp = new XMLHttpRequest();
-        var xpage = "../content/pages/" + page;
+        if (api) 
+            var xpage = "../api/" + page;
+        else 
+            var xpage = "../content/pages/" + page;
         xhttp.open("POST", xpage, true);
         var me = this;
         this.info = [page, js.slice(), title, path];
@@ -20,7 +23,9 @@ class dynamicContent {
                 document.getElementById("dynamic-content").innerHTML = this.responseText;
             }
             if (this.status == 404) {
-                me.fileNotFound();
+                const PAGES = JSON.parse(this.loadFile("../pages.txt"));
+                if (page != PAGES[".404"][0])
+                    me.fileNotFound();
             }
         };
 
@@ -88,8 +93,8 @@ class dynamicContent {
     }
     loadFile(filePath) {
         if (localStorage.getItem(filePath)) {
-            console.log("saved time!");
-            return localStorage.getItem(filePath);
+            // access pages file in localstorage();
+            //return localStorage.getItem(filePath);
         }
         var result = null;
         var xmlhttp = new XMLHttpRequest();
@@ -98,7 +103,8 @@ class dynamicContent {
         if (xmlhttp.status==200) {
           result = xmlhttp.responseText;
         }
-        localStorage.setItem(filePath, result);
+        // save file in Localstorage:
+        // localStorage.setItem(filePath, result);
         return result;
     }
 }
