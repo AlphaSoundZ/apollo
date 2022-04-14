@@ -36,9 +36,10 @@
       "2FA Auth Code"
    ],
    ".0":[
-      ["ausleihe/v1.php", "ausleihe/v2.php"],
+      ["ausleihe/v1.php", "add_device/v1.php"],
       ["", ""],
       ["API", "API"],
-      ["0-ausleihe-v1", "0/ausleihe/v2"]
+      ["0-ausleihe-v1", "0-add_device-v1"],
+      ["", "data1, data2"]
    ]
 }
