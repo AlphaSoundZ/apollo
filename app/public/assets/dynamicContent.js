@@ -4,16 +4,16 @@ class dynamicContent {
             js = [js];
         var xhttp = new XMLHttpRequest();
         if (api) 
-            var xpage = "../api/" + page;
+            var xpage = "/api/" + page;
         else 
-            var xpage = "../content/pages/" + page;
+            var xpage = "/content/pages/" + page;
         xhttp.open("POST", xpage, true);
         var me = this;
         this.info = [page, js.slice(), title, path];
         loadStatic('navbar');
         if (js[0] != "") {
             js.forEach(function(jsfile) {
-                var xjs = "../content/pages/assets/js/" + jsfile;
+                var xjs = "/content/pages/assets/js/" + jsfile;
                 me.loadJS(xjs, false);
             });
         }

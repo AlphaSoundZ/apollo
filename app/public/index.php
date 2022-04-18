@@ -26,10 +26,6 @@ define("PAGES", json_decode($json_obj, true));
 <!DOCTYPE html>
 <html lang="en" manifest="demo.appcache">
 <head>
-  <!-- material ui -->
-  <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <!-- link dynamic content loader -->
   
   <link rel="stylesheet" href="content/pages/assets/css/loading_animation.css">
