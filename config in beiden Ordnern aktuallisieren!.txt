@@ -1,0 +1,3 @@
+Verwaltung:
+.css Dateien zusammtragen und reduzieren
+request.php mit config.php zusammenführen
