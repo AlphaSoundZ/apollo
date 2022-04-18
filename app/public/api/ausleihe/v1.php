@@ -270,4 +270,3 @@ class addToDB
         }
     }
 }
->>>>>>> 9ff6a1f22586a83705968d1dac20c8ce0a754c73:app/api/v1.php
