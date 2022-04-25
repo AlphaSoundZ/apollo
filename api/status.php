@@ -66,9 +66,9 @@ $totalusers = count($totalusers);
                     echo "<th>".$row['vorname']." ".$row['name']."</th>";
                     echo "<th>".date( "h:i d/m/Y", strtotime($row['begin']))."</th>";
                     echo "<th>".$amount."</th>";
-                    $number++;
-                    }
                 }
+                $number++;
+            }
                 echo "</tr>";
         }
     ?>
