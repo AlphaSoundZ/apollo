@@ -11,6 +11,7 @@ $response = '';
 
 if (authorize("add_device") === false)
 {
+    echo "Wrong token!";
     exit;
 }
 
