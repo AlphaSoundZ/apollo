@@ -9,7 +9,7 @@ $response = '';
     2 = Laptop
 */
 
-if (authorize("add_device") === false)
+if (authorize("add_device") == false)
 {
     echo "Wrong token!";
     exit;
@@ -31,7 +31,6 @@ if ($data && !empty($data["rfid_code"]) && !empty($data["type"]))
         $upload["log"] = "device already exists";
     }
 
-    
 }
 else
 {

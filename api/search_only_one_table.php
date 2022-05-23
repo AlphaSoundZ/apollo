@@ -1,24 +1,15 @@
 <?php
-
-/* body-form:
-
-ONE TABLE:
-"tables":{{"table":"TABLE1","column":["*"]}}
-
-MULTIPLE TABLES:
-"tables":{{"table":"TABLE1","column":["*"]}, {"table":"TABLE2","column":["*"], "link_this":"COLUMN1","link_to":"TABLE1.COLUMN2"}}
-
-FILTER:
-"filter":{"page":"0","pagesize":"10"}
-
-SEARCH:
-"search":{"value":"peter","filter":["column","column"]}
-
-*/
-
-
-
 require("config.php");
+/*
+$data = [
+    "search" => ["value" => "foo", "filter" => []],
+    "table" => "",
+    "filter" => "", // Examples: ["page" => "3", "pagesize" => "50"] for just simple limit set page to 0
+    "columns" => ['name', 'klasse'] // Example: ["firstname", "lastname", "class"] to get every column just leave it empty
+];
+
+example url: http://localhost:8080/search.php?data={%22table%22:%22user%22,%22filter%22:{%22page%22:%220%22,%22pagesize%22:%222%22},%22search%22:{%22value%22:%22Frische%22,%22filter%22:[%22name%22]}}
+*/
 
 $data = getData("POST");
 
@@ -86,6 +77,24 @@ function doSearch($needle, $haystack, $filter)
     }
     return $result;
 }
+
+/*
+TABLES:
+"tables":{{"table":"user","column":["*"], "link_this":"","link_to":""}
+
+FILTER:
+"filter":{"page":"0","pagesize":"10"}
+
+SEARCH:
+"search":{"value":"peter","filter":["column","column"]}
+
+if same columns twice rename column:
+"tables":{{"table":"user","column":["name as username"]},}
+"search":{"value":"peter","filter":["username","name"]}
+
+nochn nicht umgesetzt!
+bisher nur ein Table selektierbar!
+*/
 
 function selectMultiTables($tables, $filter = array(), $columns = array())
 {

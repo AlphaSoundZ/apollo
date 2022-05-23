@@ -3,7 +3,8 @@
 require 'config.php';
 global $pdo;
 
-$sql_1 = "SELECT * FROM event LEFT JOIN user ON event.user = user.user_id";
+$sql_1 = "SELECT * FROM event LEFT JOIN user ON event.user = user.user_id 
+            LEFT JOIN klassen ON user.klasse = klassen.id ORDER BY event.id DESC";
 $event = $pdo->query($sql_1);
 $event = $event->fetchAll();
 $sql_2 = "SELECT * FROM rfid_devices WHERE device_type != 2";
@@ -64,7 +65,7 @@ $totalusers = count($totalusers);
 
                     array_push($userontable, $row["user"]);
                     echo "<th>".$row['vorname']." ".$row['name']."</th>";
-                    echo "<th>".date( "h:i d/m/Y", strtotime($row['begin']))."</th>";
+                    echo "<th>".date( "H:i / d.m.y", strtotime($row['begin']))."</th>";
                     echo "<th>".$amount."</th>";
                 }
                 $number++;
@@ -89,6 +90,29 @@ $totalusers = count($totalusers);
         <th>total users</th>
         <th><?php echo $totalusers; ?></th>
     </tr>
+</table>
+
+<h3>History:</h3>
+
+<table>
+    <tr>
+        <th>name</th>
+        <th>class / teacher</th>
+        <th>begin</th>
+        <th>end</th>
+    </tr>
+
+    <?php
+        foreach ($event as $row)
+        {
+            echo "<tr>";
+            echo "<th>".$row['vorname']." ".$row['name']."</th>";
+            echo "<th>".$row['klassen_name']."</th>";
+            echo "<th>".date( "H:i / d.m.y", strtotime($row['begin']))."</th>";
+            echo "<th>".date( "H:i / d.m.y", strtotime($row['end']))."</th>";
+            echo "</tr>";
+        }
+    ?>
 </table>
 </body>
 </html>
