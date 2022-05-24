@@ -1,118 +1,77 @@
 <?php
-
-/* body-form:
-
-ONE TABLE:
-"tables":{{"table":"TABLE1","column":["*"]}}
-
-MULTIPLE TABLES:
-"tables":{{"table":"TABLE1","column":["*"]}, {"table":"TABLE2","column":["*"], "link_this":"COLUMN1","link_to":"TABLE1.COLUMN2"}}
-
-FILTER:
-"filter":{"page":"0","pagesize":"10"}
-
-SEARCH:
-"search":{"value":"peter","filter":["column","column"]}
+/*
 
 */
 
+/*
+response codes:
+0 = search success
+1 = no input
 
-
-require("config.php");
-
+*/
+require 'config.php';
+// get input:
 $data = getData("POST");
+$response["message"] = "";
+$response["response"] = "";
 
-if ($data)
+if (isset($data["table"]))
 {
-    // check if input has a filter and/or columns
-    $data["filter"] = (!empty($data["filter"])) ? $data["filter"] : "";
-    $data["columns"] = (!empty($data["columns"])) ? $data["columns"] : "";
-
-    $table_data = selectTable($data["table"], $data["filter"], $data["columns"]);
-
-    if (!empty($data["search"]["value"]) && !empty($data["search"]["filter"]))
+    $table = new table();
+    $response["table"] = $table->selectTable($data["table"], $data["column"], $data["filter"]);
+    if (isset($data["search"]))
     {
-        $result = doSearch($data["search"]["value"], $table_data, $data["search"]["filter"]);
-        print_r($result);
+        $limit = (isset($data["search"]["limit"])) ? $data["search"]["limit"] : "";
+        $response["search"] = $table->search($data["search"]["value"], $response["table"], $data["search"]["column"]);
     }
-
 }
 else
-{
-    echo "wrong data input!";
+{ // input missing
+    $response["message"] = "wrong input data";
+    $response["response"] = 1;
 }
 
+echo json_encode($response); // return the response
 
-function selectTable($table, $filter = array(), $columns = array())
-{
-    global $pdo;
+class table {
+    static function selectTable($table, $column, $filter = []) {
+        global $pdo;
+        $first_table = $table[0]["table"];
+        array_shift($table);
+        $column = implode(", ", $column);
+        $join = "";
 
-    if (empty($columns))
-    {
-        $columns = "*";
-    }
-    else
-    {
-        $columns = implode(", ", $columns);
-    }
-
-    $sql = 'SELECT '.$columns.' FROM '.$table.'';
-    if (isset($filter["page"]) && isset($filter["pagesize"]))
-    {
-        $sql .= ' LIMIT '.$filter["pagesize"].' OFFSET '.$filter["page"].'';
-    }
-
-    $stmt = $pdo->query($sql);
-    return $stmt->fetchAll();
-}
-
-function doSearch($needle, $haystack, $filter)
-{
-    $result = array();
-    //$limit = $arr["limit"];
-    for ($row = 0; $row < count($haystack); $row++) // loop every user
-    {
-        for ($column = 0; $column < count($haystack[$row])/2; $column++) // loop columns to search
+        foreach ($table as $key => $t)
         {
-            for ($filterColumn = 0; $filterColumn < count($filter); $filterColumn++)
-            {
-                if (array_search($haystack[$row][$column], $haystack[$row]) == $filter[$filterColumn])
-                {
-                    similar_text($needle,$haystack[$row][$column],$percent);
-                    array_push($result, ["accordance" => $percent, "data" => $haystack[$row]]);
-                }
-            }
+            $table_name = $t['table'];
+            $link_1 = $t['link'][0];
+            $link_2 = $t['link'][1];
+            $join .= " LEFT JOIN $table_name ON $link_1 = $link_2";
         }
-    }
-    return $result;
-}
+        $sql = "SELECT $column FROM $first_table $join";
+        if (isset($filter["orderby"]) && isset($filter["direction"])) $sql .= ' ORDER BY '.$filter["orderby"].' '.$filter["direction"].' ';
+        if (isset($filter["size"]) && isset($filter["page"])) $sql .= ' LIMIT '.$filter["size"].' OFFSET '.$filter["page"].' ';
+        echo $sql."<br>";
 
-function selectMultiTables($tables, $filter = array(), $columns = array())
-{
-    global $pdo;
-
-    if (empty($columns))
-    {
-        $columns = "*";
-    }
-    else
-    {
-        $columns = implode(", ", $columns);
+        $sth = $pdo->prepare($sql);
+        $sth->execute();
+        $result = $sth->fetchAll();
+        return $result;
     }
 
-    $sql = 'SELECT '.$columns.' FROM '.$tables.'';
-
-    for ($i = 1; $i < count($tables); $i++)
-    {
-        $table = $tables[$i];
-        $sql .= ' LEFT JOIN '.$table.' ON '.$table.'.'.$column_to_link.' = '.$link_to;
+    static function search($needle, $haystack, $filter) {
+        $result = array();
+        for ($row = 0; $row < count($haystack); $row++) // loop every row
+        {
+            $best = 0;
+            for ($column = 0; $column < count($filter); $column++)
+            {
+                $value = $haystack[$row][$filter[$column]];
+                similar_text(strtolower($needle),strtolower($value),$percent);
+                $best = max($best, $percent);
+            }
+            array_push($result, ["accordance" => $best, "data" => $haystack[$row]]);
+        }
+        return $result;
     }
-
-    if (isset($filter["page"]) && isset($filter["pagesize"]))
-    {
-        $sql .= ' LIMIT '.$filter["pagesize"].' OFFSET '.$filter["page"].'';
-    }
-
-    $stmt = $pdo->query($sql);
-    return $stmt->fetchAll();
 }

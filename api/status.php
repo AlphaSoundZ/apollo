@@ -3,11 +3,11 @@
 require 'config.php';
 global $pdo;
 
-$sql_1 = "SELECT * FROM event LEFT JOIN user ON event.user = user.user_id 
-            LEFT JOIN klassen ON user.klasse = klassen.id ORDER BY event.id DESC";
+$sql_1 = "SELECT * FROM event LEFT JOIN user ON event.event_user_id = user.user_id 
+            LEFT JOIN property_class ON user.user_class = property_class.class_id ORDER BY event.event_id DESC";
 $event = $pdo->query($sql_1);
 $event = $event->fetchAll();
-$sql_2 = "SELECT * FROM rfid_devices WHERE device_type != 2";
+$sql_2 = "SELECT * FROM devices WHERE device_type != 2";
 $all = $pdo->query($sql_2);
 $all = $all->fetchAll();
 $all = count($all);
@@ -43,16 +43,16 @@ $totalusers = count($totalusers);
         foreach($event as $key => $row)
         {
             echo "<tr>";
-            if (is_null($row["end"]))
+            if (is_null($row["event_end"]))
             {
-                if (in_array($row["user"], $userontable) == false OR end($userontable) != $row["user"])
+                if (in_array($row["event_user_id"], $userontable) == false OR end($userontable) != $row["event_user_id"])
                 {
                     $amount = 0;
                     for ($i = $key; $i < count($event); $i++)
                     {
-                        if (is_null($event[$i]["end"]))
+                        if (is_null($event[$i]["event_end"]))
                         {
-                            if ($row["user"] == $event[$i]["user"])
+                            if ($row["event_user_id"] == $event[$i]["event_user_id"])
                             {
                                 $amount++;
                             }
@@ -63,9 +63,9 @@ $totalusers = count($totalusers);
                         }
                     }
 
-                    array_push($userontable, $row["user"]);
-                    echo "<th>".$row['vorname']." ".$row['name']."</th>";
-                    echo "<th>".date( "H:i / d.m.y", strtotime($row['begin']))."</th>";
+                    array_push($userontable, $row["event_user_id"]);
+                    echo "<th>".$row['user_firstname']." ".$row['user_lastname']."</th>";
+                    echo "<th>".date( "H:i / d.m.y", strtotime($row['event_begin']))."</th>";
                     echo "<th>".$amount."</th>";
                 }
                 $number++;
@@ -106,10 +106,10 @@ $totalusers = count($totalusers);
         foreach ($event as $row)
         {
             echo "<tr>";
-            echo "<th>".$row['vorname']." ".$row['name']."</th>";
-            echo "<th>".$row['klassen_name']."</th>";
-            echo "<th>".date( "H:i / d.m.y", strtotime($row['begin']))."</th>";
-            echo "<th>".date( "H:i / d.m.y", strtotime($row['end']))."</th>";
+            echo "<th>".$row['user_firstname']." ".$row['user_lastname']."</th>";
+            echo "<th>".$row['class_name']."</th>";
+            echo "<th>".date( "H:i / d.m.y", strtotime($row['event_begin']))."</th>";
+            echo "<th>".date( "H:i / d.m.y", strtotime($row['event_end']))."</th>";
             echo "</tr>";
         }
     ?>

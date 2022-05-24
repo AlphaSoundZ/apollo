@@ -8,15 +8,14 @@ $token["add_device"] = "1234-1234-1234-1234";
 
 try {
 	$pdo = new PDO($__dsn, $__username, $__password);
-	if ($pdo) {
-		$usercardtype = $pdo->query("SELECT * FROM rfid_device_type WHERE name = 'UserCard'")->fetch();
-		$usercardtype = $usercardtype['device_type_id'];
-	}
+	//$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	$usercardtype = $pdo->query("SELECT * FROM property_device_type WHERE device_type_name = 'UserCard'")->fetch();
+	$usercardtype = $usercardtype['device_type_id'];
 } catch (PDOException $e) {
 	$data['message'] = $e->getMessage();
 	$data['response'] = "10";
 	echo json_encode($data);
-	exit;
+	die;
 }
 
 function getData($method)
@@ -36,10 +35,15 @@ function getData($method)
 function authorize($file)
 {
 	global $token;
-	$given_token = $_SERVER["HTTP_AUTHORIZATION"];
+	if (isset($_SERVER["HTTP_AUTHORIZATION"])) $given_token = $_SERVER["HTTP_AUTHORIZATION"];
+	else return false;
 	if ($token[$file] == explode(" ", $given_token)[1])
 	{
 		return true;
 	}
 	return false;
+}
+
+function rfid_form($x) {
+	return true;
 }

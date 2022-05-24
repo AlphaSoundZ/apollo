@@ -42,12 +42,12 @@ echo json_encode($upload);
 
 class addToDB
 {
-    static public function upload($device_code, $device_type)
+    static public function upload($device_uid, $device_type)
     {
         global $pdo;
-        $sql = "INSERT INTO rfid_devices (device_id, device_type, rfid_code, lend_id) VALUES (NULL, :device_type, :device_code, '0')";
+        $sql = "INSERT INTO devices (device_id, device_type, device_uid, device_lend_user_id) VALUES (NULL, :device_type, :device_uid, '0')";
         $stmt= $pdo->prepare($sql);
-        $status = $stmt->execute(["device_type" => $device_type, "device_code" => $device_code]);
+        $status = $stmt->execute(["device_type" => $device_type, "device_uid" => $device_uid]);
         if ($status)
         {
             return ["success" => "1", "log" => "success"];
@@ -57,12 +57,12 @@ class addToDB
             return ["success" => "3", "log" => "sql error"];
         }
     }
-    static public function checkCode($device_code)
+    static public function checkCode($device_uid)
     {
         global $pdo;
-        $sql = "SELECT * FROM rfid_devices WHERE rfid_code = :rfid_code";
+        $sql = "SELECT * FROM devices WHERE device_uid = :device_uid";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute(["rfid_code" => $device_code]);
+        $stmt->execute(["device_uid" => $device_uid]);
         $result = $stmt->fetch();
         if ($result)
         {
