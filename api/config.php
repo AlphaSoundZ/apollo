@@ -69,7 +69,7 @@ function authorize($file)
 	if ($result)
 	{
 		$given_permissions = json_decode($result["token_permissions"]);
-		if (in_array($token_permission["permission_id"], $given_permissions)) return true;
+		if ($token_permission && in_array($token_permission["permission_id"], $given_permissions)) return true;
 		else
 		{
 			$response["response"] = 99;
