@@ -4,7 +4,7 @@ $__db = 'ausleihe';
 $__username = 'root';
 $__password = '';
 $__dsn = "mysql:host=$__host;dbname=$__db;charset=UTF8";
-$token["add_device"] = "1234-1234-1234-1234";
+
 
 try {
 	$pdo = new PDO($__dsn, $__username, $__password);
@@ -18,30 +18,71 @@ try {
 	die;
 }
 
-function getData($method)
+function getData($method, $requirements = [])
 {
 	if ($method === "POST")
 	{
-		return json_decode(file_get_contents("php://input"), true);
+		$input = json_decode(file_get_contents("php://input"), true);
 		//return (isset($_POST['data'])) ? json_decode($_POST['data'], true) : false;
 	}
 	elseif ($method === "GET")
 	{
-		return (isset($_GET['data'])) ? json_decode($_GET['data'], true) : false;
+		$input = (isset($_GET['data'])) ? json_decode($_GET['data'], true) : false;
 	}
-	return false;
+	else
+	{
+		die;
+	}
+	if (isset($requirements))
+	{
+		foreach ($requirements as $r) {
+			if (!array_key_exists($r, $input))
+			{
+				$response["response"] = 77;
+				$response["message"] = "Some input is missing ($r)";
+				echo json_encode($response);
+			}
+		}
+	}
+	return $input;
 }
 
 function authorize($file)
 {
-	global $token;
+	global $pdo;
 	if (isset($_SERVER["HTTP_AUTHORIZATION"])) $given_token = $_SERVER["HTTP_AUTHORIZATION"];
 	else return false;
-	if ($token[$file] == explode(" ", $given_token)[1])
+	$token_hash = md5(explode(" ", $given_token)[1]);
+
+	// search for token
+	$sql = "SELECT * FROM token WHERE token_hash = :token_hash";
+	$sth = $pdo->prepare($sql);
+	$sth->execute(["token_hash" => $token_hash]);
+	$result  = $sth->fetch();
+	
+	// token_permissions
+	$sql = "SELECT * FROM property_token_permissions WHERE permission_text = :permission";
+	$sth = $pdo->prepare($sql);
+	$sth->execute(["permission" => $file]);
+	$token_permission = $sth->fetch();
+
+	if ($result)
 	{
-		return true;
+		$given_permissions = json_decode($result["token_permissions"]);
+		if (in_array($token_permission["permission_id"], $given_permissions)) return true;
+		else
+		{
+			$response["response"] = 99;
+			$response["message"] = "405 you dont have the permission to access this content";
+		}
 	}
-	return false;
+	else
+	{
+		$response["response"] = 88;
+		$response["message"] = "wrong token";
+	}
+	echo json_encode($response);
+	die;
 }
 
 function rfid_form($x) {

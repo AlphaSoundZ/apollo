@@ -9,11 +9,7 @@ $response = '';
     2 = Laptop
 */
 
-if (authorize("add_device") == false)
-{
-    echo "Wrong token!";
-    exit;
-}
+authorize("add_device");
 
 
 $data = getData("POST");
@@ -27,15 +23,15 @@ if ($data && !empty($data["rfid_code"]) && !empty($data["type"]))
     }
     else
     {
-        $upload["success"] = 0;
-        $upload["log"] = "device already exists";
+        $upload["response"] = 0;
+        $upload["message"] = "device already exists";
     }
 
 }
 else
 {
-    $upload["success"] = 2;
-    $upload["log"] = "wrong data input";
+    $upload["response"] = 2;
+    $upload["message"] = "wrong data input";
 }
 echo json_encode($upload);
 
@@ -45,16 +41,16 @@ class addToDB
     static public function upload($device_uid, $device_type)
     {
         global $pdo;
-        $sql = "INSERT INTO devices (device_id, device_type, device_uid, device_lend_user_id) VALUES (NULL, :device_type, :device_uid, '0')";
+        $sql = "INSERT INTO devices (device_id, device_type, device_uid, device_lend_user_id) VALUES (NULL, :device_type, :device_uid, '0'  )";
         $stmt= $pdo->prepare($sql);
         $status = $stmt->execute(["device_type" => $device_type, "device_uid" => $device_uid]);
         if ($status)
         {
-            return ["success" => "1", "log" => "success"];
+            return ["response" => "1", "message" => "success"];
         }
         else
         {
-            return ["success" => "3", "log" => "sql error"];
+            return ["response" => "3", "message" => "sql error"];
         }
     }
     static public function checkCode($device_uid)

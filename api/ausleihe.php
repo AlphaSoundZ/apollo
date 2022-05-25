@@ -42,15 +42,11 @@ if (!empty($rfid1) AND !empty($rfid2)) { // ausleihe
         if ($device_status["device_lend_user_id"] == 0) { // Wird das auszuleihende Gerät bereits ausgeliehen?
           $update_stm = $pdo->query("UPDATE devices SET device_lend_user_id = ".$user['user_id']." WHERE device_id = '".$device_2['device_id']."'");
           $user_status = $pdo->query($user_status_stm)->fetch();
-          if (true) { // hat update mit Server funktioniert?
-            message(0);
-            CreateUserObject(1); // User Status aktualisieren
-            CreateDeviceObject(2);
-            event(1);
-          }
-          else {
-            CreateDeviceObject(2);
-            message('server update error');}}
+          message(0);
+          CreateUserObject(1); // User Status aktualisieren
+          CreateDeviceObject(2);
+          event(1);
+        }
         else {
           message(6);
           CreateDeviceObject(2);
@@ -78,15 +74,10 @@ elseif(!empty($rfid1)) { // rückgabe oder info
         if ($device_status_) { // Wird das Gerät ausgeliehen, damit man es zurückgeben kann?
           CreateUserObject(1);
           $update_stm = $pdo->query("UPDATE devices SET device_lend_user_id = '0' WHERE device_uid = '".$rfid1."'");
-          if (true) { // update success? muss noch gemacht werden
-            message(1);
-            CreateDeviceObject(1);
-            event(0);
-          }
-          else {
-            CreateDeviceObject(1);
-            message('server update error');
-        }}
+          message(1);
+          CreateDeviceObject(1);
+          event(0);
+        }
         else {
           CreateDeviceObject(1);
           message(4);

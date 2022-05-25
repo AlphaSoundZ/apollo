@@ -1,0 +1,1 @@
+// here you will be able to reset the event table and the status of devices/user
