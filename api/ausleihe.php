@@ -29,7 +29,6 @@ Wenn nur rfid1:
 
 //wenn Input
 if (!empty($rfid1) AND !empty($rfid2)) { // ausleihe
-  if (rfid_form($rfid1) AND rfid_form($rfid2)) {
     if (!empty($device_1) AND !empty($device_2) AND $device_1['device_type'] == $usercardtype AND $device_2['device_type'] != $usercardtype) { // rfidcodes in der Datenbank? Und device_types überprüfen
       $user_status_stm = "SELECT * FROM devices LEFT JOIN user ON user.user_id = devices.device_lend_user_id WHERE device_lend_user_id = user.user_id AND user.user_usercard_id = '".$device_1["device_uid"]."'";
       $user_status = $pdo->query($user_status_stm)->fetch();
@@ -59,9 +58,7 @@ if (!empty($rfid1) AND !empty($rfid2)) { // ausleihe
     else {
       if (empty($device_2)) {message(3);}
       elseif ($device_2['device_type'] == $usercardtype) {message(7);}}}
-  else {message(3);}}
 elseif(!empty($rfid1)) { // rückgabe oder info
-  if (rfid_form($rfid1)) {
     if (!empty($device_1)) { // Rfid1 in der Datenbank?
       if ($device_1['device_type'] == $usercardtype) { // Soll Info angezeigt werden?
         CreateUserObject(1);
@@ -85,9 +82,6 @@ elseif(!empty($rfid1)) { // rückgabe oder info
     else {
       message(3);
   }}
-  else {
-      message(3);
-}}
 elseif (empty($rfid1) and empty($rfid2) or empty($rfid2)) { // enthält die URL rfid codes?
   message(8);
 }

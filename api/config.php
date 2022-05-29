@@ -5,6 +5,8 @@ $__username = 'root';
 $__password = '';
 $__dsn = "mysql:host=$__host;dbname=$__db;charset=UTF8";
 
+$response["response"] = "";
+$response["message"] = "";
 
 try {
 	$pdo = new PDO($__dsn, $__username, $__password);
@@ -22,8 +24,7 @@ function getData($method, $requirements = [])
 {
 	if ($method === "POST")
 	{
-		$input = json_decode(file_get_contents("php://input"), true);
-		//return (isset($_POST['data'])) ? json_decode($_POST['data'], true) : false;
+		$input = (isset($_POST['data'])) ? json_decode(file_get_contents("php://input"), true) : false;
 	}
 	elseif ($method === "GET")
 	{
@@ -83,8 +84,4 @@ function authorize($file)
 	}
 	echo json_encode($response);
 	die;
-}
-
-function rfid_form($x) {
-	return true;
 }
