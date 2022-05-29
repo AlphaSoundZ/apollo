@@ -24,11 +24,11 @@ function getData($method, $requirements = [])
 {
 	if ($method === "POST")
 	{
-		$input = (isset($_POST['data'])) ? json_decode(file_get_contents("php://input"), true) : false;
+		$input = (isset($_POST)) ? json_decode(file_get_contents("php://input"), true) : false;
 	}
 	elseif ($method === "GET")
 	{
-		$input = (isset($_GET['data'])) ? json_decode($_GET['data'], true) : false;
+		$input = (isset($_GET)) ? json_decode($_GET['data'], true) : false;
 	}
 	else
 	{
@@ -36,13 +36,20 @@ function getData($method, $requirements = [])
 	}
 	if (isset($requirements))
 	{
+		$errors = [];
 		foreach ($requirements as $r) {
 			if (!array_key_exists($r, $input))
 			{
-				$response["response"] = 77;
-				$response["message"] = "Some input is missing ($r)";
-				echo json_encode($response);
+				array_push($errors, $r);
 			}
+		}
+		if (!empty($errors))
+		{
+			$response["response"] = 77;
+			$errors = implode(", ", $errors);
+			$response["message"] = "Some input is missing ($errors)";
+			echo json_encode($response);
+			die;
 		}
 	}
 	return $input;
