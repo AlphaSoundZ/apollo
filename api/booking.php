@@ -4,16 +4,16 @@ global $pdo, $usercardtype, $data, $device_1, $device_2;
 $rfid1 = '';
 $rfid2 = '';
 $data['message'] = NULL;
+$input = getData("POST", ["uid_1"]);
 
 
-if (isset($_GET['rfid1'])) {
-  $rfid1 = $_GET['rfid1'];
-  $stm1 = "SELECT * FROM devices LEFT JOIN property_device_type ON devices.device_type = property_device_type.device_type_id WHERE devices.device_uid = '".$rfid1."'";
-  $device_1 = $pdo->query($stm1)->fetch();
-}
 
-if (isset($_GET['rfid2'])) {
-  $rfid2 = $_GET['rfid2'];
+$rfid1 = $input["uid_1"];
+$stm1 = "SELECT * FROM devices LEFT JOIN property_device_type ON devices.device_type = property_device_type.device_type_id WHERE devices.device_uid = '".$rfid1."'";
+$device_1 = $pdo->query($stm1)->fetch();
+
+if (isset($input['uid_2'])) {
+  $rfid2 = $input["uid_2"];
   $stm2 = "SELECT * FROM devices LEFT JOIN property_device_type ON devices.device_type = property_device_type.device_type_id WHERE devices.device_uid = '".$rfid2."'";
   $device_2 = $pdo->query($stm2)->fetch();
 }

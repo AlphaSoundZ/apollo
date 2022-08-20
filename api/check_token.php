@@ -14,6 +14,7 @@ try {
     $decoded = (array) $decoded;
     $response["response"] = 0;
     $response["message"] = "Authorized";
+    $response["permissions"] = array_values((array) $decoded["permissions"]);;
     echo json_encode($response);
 } catch (\Throwable) {
     $response["response"] = 88;

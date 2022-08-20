@@ -12,8 +12,8 @@ $__dsn = "mysql:host=$__host;dbname=$__db;charset=UTF8";
 
 $jwt_key = 'example_key';
 
-$response["response"] = null;
-$response["message"] = null;
+$responseX["response"] = null;
+$responseX["message"] = null;
 
 try {
 	$pdo = new PDO($__dsn, $__username, $__password);
@@ -32,26 +32,26 @@ function getData($method, $requirements = [])
 	if ($method === "POST")
 	{
 		$input = (isset($_POST)) ? json_decode(file_get_contents("php://input"), true) : false;
+		if (empty($input))
+			$input = false;
 	}
 	elseif ($method === "GET")
 	{
 		$input = (isset($_GET)) ? json_decode($_GET['data'], true) : false;
 	}
-	if (isset($requirements) && isset($input))
+	if (isset($requirements) && $input)
 	{
 		$errors = [];
 		foreach ($requirements as $r) {
-			if (!array_key_exists($r, $input))
-			{
+			if (!array_key_exists($r, $input) || empty($input[$r]))
 				array_push($errors, $r);
-			}
 		}
 		if (!empty($errors))
 		{
-			$response["response"] = 77;
+			$responseX["response"] = 77;
 			$errors = implode(", ", $errors);
-			$response["message"] = "Some input is missing ($errors)";
-			echo json_encode($response);
+			$responseX["message"] = "Some input is missing ($errors)";
+			echo json_encode($responseX);
 			http_response_code(400);
 			die;
 		}
@@ -61,7 +61,7 @@ function getData($method, $requirements = [])
 
 function authorize($file)
 {
-	global $pdo, $jwt_key, $response;
+	global $pdo, $jwt_key, $responseX;
 	if (isset($_SERVER["HTTP_AUTHORIZATION"])) $given_token = $_SERVER["HTTP_AUTHORIZATION"];
 	else return false;
 	$jwt = explode(" ", $given_token)[1];
@@ -70,20 +70,19 @@ function authorize($file)
 	try {
 		$decoded = JWT::decode($jwt, new Key($jwt_key, 'HS256'));
 		$decoded = (array) $decoded;
-	} catch (\Throwable) {
-		$response["response"] = 88;
-		$response["message"] = "401 Unauthorized";
-		echo json_encode($response);
+	} catch (Exception $e) {
+		$responseX["response"] = 88;
+		$responseX["message"] = "401 Unauthorized";
+		echo json_encode($responseX);
 		http_response_code(401);
 		die;
 	}
-	// check for permission
-	if (in_array($file, (array) $decoded["permissions"])) return true;
+	if (array_key_exists("permissions", $decoded) && in_array($file, (array) $decoded["permissions"])) return true;
 	else
 	{
-		$response["response"] = 99;
-		$response["message"] = "405 you dont have the permission to access this content";
+		$responseX["response"] = 99;
+		$responseX["message"] = "405 you dont have the permission to access this content";
 	}
-	echo json_encode($response);
+	echo json_encode($responseX);
 	die;
 }

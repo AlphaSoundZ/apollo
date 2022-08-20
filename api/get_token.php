@@ -7,7 +7,7 @@ use Firebase\JWT\Key;
 $data = getData("POST");
 
 $username = $data["username"];
-$md5_password = md5($data["password"]);
+$md5_password = md5($data["password"]); // Passwords are saved as md5 hashes in the database
 
 $stmt = "SELECT * FROM token WHERE token_username = :username AND token_password = :password";
 $stmt = $pdo->prepare($stmt);
