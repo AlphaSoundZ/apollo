@@ -1,20 +1,42 @@
 <?php
 require 'config.php';
 
-authorize("login");
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 $data = getData("POST");
 
-$md5_username = md5($data["username"]);
+$username = $data["username"];
 $md5_password = md5($data["password"]);
 
-$stmt = "SELECT * FROM login";
+$stmt = "SELECT * FROM token WHERE token_username = :username AND token_password = :password";
 $stmt = $pdo->prepare($stmt);
-$stmt->execute();
+$stmt->execute(["username" => $username, "password" => $md5_password]);
 $login_data = $stmt->fetch();
 
-if ($login_data["username"] == $md5_username && $login_data["password"] == $md5_password)
+$given_permissions = json_decode($login_data["token_permissions"]);
+$token_id = $login_data["token_id"];
+
+if ($login_data)
 {
+    $response["response"] = 0;
+    $response["message"] = "success";
+
+    // fetch permissions for payload
+    $given_permissions_str = implode("', '", $given_permissions);
+    $sql = "SELECT * FROM property_token_permissions WHERE permission_id IN ('$given_permissions_str')";
+    $sth = $pdo->prepare($sql);
+    $sth->execute();
+    $given_permission_names = $sth->fetchAll(\PDO::FETCH_ASSOC);
+    $given_permission_names = array_column($given_permission_names, 'permission_text');
+    $permissions = array_combine($given_permissions, $given_permission_names);
+
+    $payload = [
+        'permissions' => $permissions,
+    ];
+    $jwt = JWT::encode($payload, $jwt_key, 'HS256');
+
+    $response["jwt"] = $jwt;
     $response["response"] = 0;
     $response["message"] = "success";
 }

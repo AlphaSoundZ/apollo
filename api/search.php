@@ -12,26 +12,19 @@ require 'config.php';
 authorize("search");
 
 // get input:
-$data = getData("POST");
+$data = getData("POST", ["table"]);
 $response["message"] = "";
 $response["response"] = "";
 
 
-if (isset($data["table"]))
+$table = new table();
+$response["table"] = $table->selectTable($data["table"], $data["column"], $data["filter"]);
+if (isset($data["search"]))
 {
-    $table = new table();
-    $response["table"] = $table->selectTable($data["table"], $data["column"], $data["filter"]);
-    if (isset($data["search"]))
-    {
-        $limit = (isset($data["search"]["limit"])) ? $data["search"]["limit"] : "";
-        $response["search"] = $table->search($data["search"]["value"], $response["table"], $data["search"]["column"]);
-    }
+    $limit = (isset($data["search"]["limit"])) ? $data["search"]["limit"] : "";
+    $response["search"] = $table->search($data["search"]["value"], $response["table"], $data["search"]["column"]);
 }
-else
-{ // input missing
-    $response["message"] = "wrong input data";
-    $response["response"] = 1;
-}
+
 
 echo json_encode($response); // return the response
 

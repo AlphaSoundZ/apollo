@@ -1,15 +1,21 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.3
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 01. Jun 2022 um 07:45
--- Server-Version: 10.4.24-MariaDB
--- PHP-Version: 8.1.4
+-- Erstellungszeit: 20. Aug 2022 um 19:32
+-- Server-Version: 10.4.20-MariaDB
+-- PHP-Version: 8.0.9
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Datenbank: `ausleihe`
@@ -162,7 +168,8 @@ INSERT INTO `devices` (`device_id`, `device_type`, `device_uid`, `device_lend_us
 (127, 2, '884b5c', 0),
 (128, 2, '8845ce7', 0),
 (129, 2, '9a34701a', 0),
-(130, 2, '884c8c', NULL);
+(130, 2, '884c8c', NULL),
+(131, 2, '12345', NULL);
 
 -- --------------------------------------------------------
 
@@ -178,30 +185,50 @@ CREATE TABLE `event` (
   `event_end` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Daten für Tabelle `event`
---
-
-INSERT INTO `event` (`event_id`, `event_user_id`, `event_device_id`, `event_begin`, `event_end`) VALUES
-(1, 1, 1, '2022-05-29 10:33:15', '2022-05-29 10:33:15');
-
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `login`
+-- Tabellenstruktur für Tabelle `prebook`
 --
 
-CREATE TABLE `login` (
-  `username` text NOT NULL,
-  `password` text NOT NULL
+CREATE TABLE `prebook` (
+  `prebook_id` int(11) NOT NULL,
+  `prebook_user_id` int(11) NOT NULL,
+  `prebook_amount` int(11) NOT NULL,
+  `prebook_begin` int(11) NOT NULL,
+  `prebook_end` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Daten für Tabelle `login`
+-- Daten für Tabelle `prebook`
 --
 
-INSERT INTO `login` (`username`, `password`) VALUES
-('21232f297a57a5a743894a0e4a801fc3', 'd6b0ab7f1c8ab8f514db9a6d85de160a');
+INSERT INTO `prebook` (`prebook_id`, `prebook_user_id`, `prebook_amount`, `prebook_begin`, `prebook_end`) VALUES
+(2, 1, 10, 2022, 2022),
+(3, 1, 10, 2022, 2022),
+(4, 1, 10, 2022, 2022),
+(5, 1, 10, 2022, 2022),
+(6, 1, 10, 2022, 2022),
+(7, 1, 10, 2022, 2022),
+(8, 1, 10, 2022, 2022),
+(9, 1, 10, 2022, 2022),
+(10, 1, 10, 2022, 2022),
+(11, 1, 10, 2022, 2022),
+(12, 1, 10, 2022, 2022),
+(13, 1, 10, 2022, 2022),
+(14, 1, 10, 2022, 2022),
+(15, 1, 10, 2022, 2022),
+(16, 1, 10, 2022, 2022),
+(17, 1, 10, 2022, 2022),
+(18, 1, 10, 2022, 2022),
+(19, 1, 10, 2022, 2022),
+(20, 1, 10, 2022, 2022),
+(21, 1, 10, 2022, 2022),
+(22, 1, 10, 2022, 2022),
+(23, 1, 10, 2022, 2022),
+(24, 1, 10, 2022, 2022),
+(25, 1, 10, 2022, 2022),
+(26, 1, 10, 2022, 2022);
 
 -- --------------------------------------------------------
 
@@ -261,7 +288,9 @@ INSERT INTO `property_token_permissions` (`permission_id`, `permission_text`) VA
 (1, 'add_device'),
 (2, 'add_user'),
 (3, 'search'),
-(4, 'login');
+(4, 'login'),
+(5, 'reset'),
+(6, 'prebook');
 
 -- --------------------------------------------------------
 
@@ -271,7 +300,8 @@ INSERT INTO `property_token_permissions` (`permission_id`, `permission_text`) VA
 
 CREATE TABLE `token` (
   `token_id` int(11) NOT NULL,
-  `token_hash` text NOT NULL,
+  `token_username` text NOT NULL,
+  `token_password` text NOT NULL,
   `token_permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`token_permissions`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -279,8 +309,8 @@ CREATE TABLE `token` (
 -- Daten für Tabelle `token`
 --
 
-INSERT INTO `token` (`token_id`, `token_hash`, `token_permissions`) VALUES
-(1, 'dd114d62493532d3a5615550796229a8', '[1, 2, 3, 4]');
+INSERT INTO `token` (`token_id`, `token_username`, `token_password`, `token_permissions`) VALUES
+(1, 'test_usr', '05ea11082bec51f97cd92de75981a5eb', '[1, 2, 3, 4, 5, 6]');
 
 -- --------------------------------------------------------
 
@@ -293,6 +323,7 @@ CREATE TABLE `user` (
   `user_firstname` text NOT NULL,
   `user_lastname` text NOT NULL,
   `user_class` int(11) NOT NULL,
+  `user_token_id` int(11) DEFAULT NULL,
   `user_usercard_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -300,73 +331,74 @@ CREATE TABLE `user` (
 -- Daten für Tabelle `user`
 --
 
-INSERT INTO `user` (`user_id`, `user_firstname`, `user_lastname`, `user_class`, `user_usercard_id`) VALUES
-(1, 'Jan Jacob', 'Holst', 1, 1),
-(2, 'Pia', 'Brüntrup', 1, 32),
-(4, 'Max', 'Heilmann', 1, 37),
-(5, 'Emils', 'Fischerei', 1, 72),
-(6, 'Samio', 'Mohammed', 1, 73),
-(7, 'Nils', 'Cleven', 1, 75),
-(8, 'Alain', 'Regidor', 1, 77),
-(9, 'Alexander', 'Potrykus', 1, 33),
-(10, 'Alexandra', 'Wilson', 1, 78),
-(11, 'Anja', 'Woitalla', 1, 79),
-(12, 'Annabrit', 'Evert', 1, 81),
-(13, 'Anne', 'Möbert', 1, 80),
-(14, 'Antonella', 'Frisina', 1, NULL),
-(15, 'Beatrice', 'Asare-Lartey', 1, 129),
-(16, 'Betül', 'Aslan', 1, 82),
-(17, 'Britta', 'Letzner', 1, 83),
-(18, 'Christian', 'Laarz', 1, NULL),
-(19, 'Christian', 'Müller', 1, 130),
-(20, 'Christine', 'Velmede', 1, 84),
-(21, 'Eva', 'Voermanek', 1, 85),
-(22, 'Eva', 'Kreuzeder', 1, 86),
-(23, 'Felix', 'Bunzel', 1, 87),
-(24, 'Finja', 'Lucassen', 1, 88),
-(25, 'Florian', 'Baumert', 1, 89),
-(26, 'Helena', 'Zeller', 1, 125),
-(27, 'Inga', 'Sönnichsen', 1, 90),
-(28, 'Janne', 'Meyn', 1, 91),
-(29, 'Jasmin', 'Bolwin', 1, 92),
-(30, 'Joannis', 'Stassinopoulos', 1, 93),
-(31, 'Jörg', 'Neuwerth', 1, 94),
-(32, 'Jörn', 'Krönert', 1, 95),
-(33, 'Josephine', 'Reinefarth', 1, 96),
-(34, 'Julia', 'Hornbostel', 1, 126),
-(35, 'Juliane', 'Brunner', 1, 97),
-(36, 'Katharina', 'Weiland', 1, 127),
-(37, 'Katrin', 'Carstens', 1, 98),
-(38, 'Katrin', 'Zeng', 1, 99),
-(39, 'Kristin', 'Schulz', 1, 100),
-(40, 'Leonie Isabelle', 'Schüler', 1, 101),
-(41, 'Lina', 'Minners', 1, 102),
-(42, 'Lisa', 'Straßer', 1, 103),
-(43, 'Lynn', 'Kreipe', 1, 104),
-(44, 'Manuel', 'Bamming', 1, 105),
-(45, 'Marcel', 'Stemmler-Nemcic', 1, 106),
-(46, 'Mareike', 'Mönnich', 1, 107),
-(47, 'Maren', 'Dellbrügger', 1, 108),
-(48, 'Markus', 'Heimbach', 1, 109),
-(49, 'Maya Antonia', 'Paasch', 1, 110),
-(50, 'Mike', 'Korherr', 1, 111),
-(51, 'Miriam-Sarah', 'Nöldner', 1, 112),
-(52, 'Nils', 'Lenzen', 1, NULL),
-(53, 'Nino', 'Ehlers', 1, 127),
-(55, 'Rainer', 'Munck', 1, 113),
-(56, 'Rita', 'Wolf', 1, 114),
-(57, 'Sarah', 'Müller', 1, 115),
-(58, 'Sarah', 'Mirlacher', 1, 128),
-(59, 'Sascha', 'Haffer', 1, 116),
-(60, 'Simon', 'Löer', 1, 117),
-(61, 'Steffen', 'Kaminsky', 1, 118),
-(62, 'Susanne', 'Wagner', 1, 119),
-(63, 'Sven', 'Surup', 1, 120),
-(64, 'Svenja', 'Blum', 1, NULL),
-(65, 'Timo', 'Trunk', 1, 121),
-(66, 'Tobias', 'Drechsel', 1, 122),
-(67, 'VincentRouven', 'Dobrick', 1, 123),
-(68, 'Wiebke', 'Suchanek', 1, 124);
+INSERT INTO `user` (`user_id`, `user_firstname`, `user_lastname`, `user_class`, `user_token_id`, `user_usercard_id`) VALUES
+(1, 'Jan Jacob', 'Holst', 1, 1, 1),
+(2, 'Pia', 'Brüntrup', 1, NULL, 32),
+(4, 'Max', 'Heilmann', 1, NULL, 37),
+(5, 'Emils', 'Fischerei', 1, NULL, 72),
+(6, 'Samio', 'Mohammed', 1, NULL, 73),
+(7, 'Nils', 'Cleven', 1, NULL, 75),
+(8, 'Alain', 'Regidor', 1, NULL, 77),
+(9, 'Alexander', 'Potrykus', 1, NULL, 33),
+(10, 'Alexandra', 'Wilson', 1, NULL, 78),
+(11, 'Anja', 'Woitalla', 1, NULL, 79),
+(12, 'Annabrit', 'Evert', 1, NULL, 81),
+(13, 'Anne', 'Möbert', 1, NULL, 80),
+(14, 'Antonella', 'Frisina', 1, NULL, NULL),
+(15, 'Beatrice', 'Asare-Lartey', 1, NULL, 129),
+(16, 'Betül', 'Aslan', 1, NULL, 82),
+(17, 'Britta', 'Letzner', 1, NULL, 83),
+(18, 'Christian', 'Laarz', 1, NULL, NULL),
+(19, 'Christian', 'Müller', 1, NULL, 130),
+(20, 'Christine', 'Velmede', 1, NULL, 84),
+(21, 'Eva', 'Voermanek', 1, NULL, 85),
+(22, 'Eva', 'Kreuzeder', 1, NULL, 86),
+(23, 'Felix', 'Bunzel', 1, NULL, 87),
+(24, 'Finja', 'Lucassen', 1, NULL, 88),
+(25, 'Florian', 'Baumert', 1, NULL, 89),
+(26, 'Helena', 'Zeller', 1, NULL, 125),
+(27, 'Inga', 'Sönnichsen', 1, NULL, 90),
+(28, 'Janne', 'Meyn', 1, NULL, 91),
+(29, 'Jasmin', 'Bolwin', 1, NULL, 92),
+(30, 'Joannis', 'Stassinopoulos', 1, NULL, 93),
+(31, 'Jörg', 'Neuwerth', 1, NULL, 94),
+(32, 'Jörn', 'Krönert', 1, NULL, 95),
+(33, 'Josephine', 'Reinefarth', 1, NULL, 96),
+(34, 'Julia', 'Hornbostel', 1, NULL, 126),
+(35, 'Juliane', 'Brunner', 1, NULL, 97),
+(36, 'Katharina', 'Weiland', 1, NULL, 127),
+(37, 'Katrin', 'Carstens', 1, NULL, 98),
+(38, 'Katrin', 'Zeng', 1, NULL, 99),
+(39, 'Kristin', 'Schulz', 1, NULL, 100),
+(40, 'Leonie Isabelle', 'Schüler', 1, NULL, 101),
+(41, 'Lina', 'Minners', 1, NULL, 102),
+(42, 'Lisa', 'Straßer', 1, NULL, 103),
+(43, 'Lynn', 'Kreipe', 1, NULL, 104),
+(44, 'Manuel', 'Bamming', 1, NULL, 105),
+(45, 'Marcel', 'Stemmler-Nemcic', 1, NULL, 106),
+(46, 'Mareike', 'Mönnich', 1, NULL, 107),
+(47, 'Maren', 'Dellbrügger', 1, NULL, 108),
+(48, 'Markus', 'Heimbach', 1, NULL, 109),
+(49, 'Maya Antonia', 'Paasch', 1, NULL, 110),
+(50, 'Mike', 'Korherr', 1, NULL, 111),
+(51, 'Miriam-Sarah', 'Nöldner', 1, NULL, 112),
+(52, 'Nils', 'Lenzen', 1, NULL, NULL),
+(53, 'Nino', 'Ehlers', 1, NULL, 127),
+(55, 'Rainer', 'Munck', 1, NULL, 113),
+(56, 'Rita', 'Wolf', 1, NULL, 114),
+(57, 'Sarah', 'Müller', 1, NULL, 115),
+(58, 'Sarah', 'Mirlacher', 1, NULL, 128),
+(59, 'Sascha', 'Haffer', 1, NULL, 116),
+(60, 'Simon', 'Löer', 1, NULL, 117),
+(61, 'Steffen', 'Kaminsky', 1, NULL, 118),
+(62, 'Susanne', 'Wagner', 1, NULL, 119),
+(63, 'Sven', 'Surup', 1, NULL, 120),
+(64, 'Svenja', 'Blum', 1, NULL, NULL),
+(65, 'Timo', 'Trunk', 1, NULL, 121),
+(66, 'Tobias', 'Drechsel', 1, NULL, 122),
+(67, 'VincentRouven', 'Dobrick', 1, NULL, 123),
+(68, 'Wiebke', 'Suchanek', 1, NULL, 124),
+(83, 'Test4904', 'Test4804', 1, NULL, 131);
 
 --
 -- Indizes der exportierten Tabellen
@@ -383,6 +415,12 @@ ALTER TABLE `devices`
 --
 ALTER TABLE `event`
   ADD PRIMARY KEY (`event_id`);
+
+--
+-- Indizes für die Tabelle `prebook`
+--
+ALTER TABLE `prebook`
+  ADD PRIMARY KEY (`prebook_id`);
 
 --
 -- Indizes für die Tabelle `property_class`
@@ -422,13 +460,19 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT für Tabelle `devices`
 --
 ALTER TABLE `devices`
-  MODIFY `device_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
+  MODIFY `device_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=132;
 
 --
 -- AUTO_INCREMENT für Tabelle `event`
 --
 ALTER TABLE `event`
-  MODIFY `event_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `event_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `prebook`
+--
+ALTER TABLE `prebook`
+  MODIFY `prebook_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT für Tabelle `property_class`
@@ -446,7 +490,7 @@ ALTER TABLE `property_device_type`
 -- AUTO_INCREMENT für Tabelle `property_token_permissions`
 --
 ALTER TABLE `property_token_permissions`
-  MODIFY `permission_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `permission_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT für Tabelle `token`
@@ -458,5 +502,9 @@ ALTER TABLE `token`
 -- AUTO_INCREMENT für Tabelle `user`
 --
 ALTER TABLE `user`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
 COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

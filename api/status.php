@@ -7,7 +7,7 @@ $sql_1 = "SELECT * FROM event LEFT JOIN user ON event.event_user_id = user.user_
             LEFT JOIN property_class ON user.user_class = property_class.class_id ORDER BY event.event_id DESC";
 $event = $pdo->query($sql_1);
 $event = $event->fetchAll();
-$sql_2 = "SELECT * FROM devices WHERE device_type != 2";
+$sql_2 = "SELECT * FROM devices WHERE device_type != $usercardtype";
 $all = $pdo->query($sql_2);
 $all = $all->fetchAll();
 $all = count($all);
