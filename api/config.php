@@ -78,7 +78,7 @@ function authorize($file)
 		die;
 	}
 
-	// check if username and password in scope are correct
+	// check if username and password in payload are correct
 	$sql = "SELECT * FROM token WHERE token_username = '{$decoded['username']}' AND token_password = '{$decoded['password']}'";
 	$sth = $pdo->prepare($sql);
 	$sth->execute();
