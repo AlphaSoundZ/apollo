@@ -33,6 +33,8 @@ if ($login_data)
 
     $payload = [
         'permissions' => $permissions,
+        'username' => $username,
+        'password' => $md5_password,
     ];
     $jwt = JWT::encode($payload, $jwt_key, 'HS256');
 

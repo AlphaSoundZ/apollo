@@ -77,11 +77,27 @@ function authorize($file)
 		http_response_code(401);
 		die;
 	}
-	if (array_key_exists("permissions", $decoded) && in_array($file, (array) $decoded["permissions"])) return true;
+
+	// check if username and password in scope are correct
+	$sql = "SELECT * FROM token WHERE token_username = '{$decoded['username']}' AND token_password = '{$decoded['password']}'";
+	$sth = $pdo->prepare($sql);
+	$sth->execute();
+	$login = $sth->fetch();
+	
+	if ($login)
+	{
+		if (array_key_exists("permissions", $decoded) && in_array($file, (array) $decoded["permissions"]))
+			return true;
+		else
+		{
+			$responseX["response"] = 99;
+			$responseX["message"] = "405 you dont have the permission to access this content";
+		}
+	}
 	else
 	{
-		$responseX["response"] = 99;
-		$responseX["message"] = "405 you dont have the permission to access this content";
+		$responseX["response"] = 88;
+		$responseX["message"] = "401 Unauthorized";
 	}
 	echo json_encode($responseX);
 	die;
