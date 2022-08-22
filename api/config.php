@@ -12,9 +12,6 @@ $__dsn = "mysql:host=$__host;dbname=$__db;charset=UTF8";
 
 $jwt_key = 'example_key';
 
-$responseX["response"] = null;
-$responseX["message"] = null;
-
 try {
 	$pdo = new PDO($__dsn, $__username, $__password);
 	//$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -50,12 +47,8 @@ function getData($method, $requirements = [])
 		}
 		if (!empty($errors))
 		{
-			$responseX["response"] = 77;
 			$errors = implode(", ", $errors);
-			$responseX["message"] = "Some input is missing ($errors)";
-			echo json_encode($responseX);
-			http_response_code(400);
-			die;
+			throw new Exception("Some input is missing ($errors)", 400);
 		}
 	}
 	return $input;
@@ -63,7 +56,7 @@ function getData($method, $requirements = [])
 
 function authorize($file)
 {
-	global $pdo, $jwt_key, $responseX;
+	global $pdo, $jwt_key;
 	if (isset($_SERVER["HTTP_AUTHORIZATION"])) $given_token = $_SERVER["HTTP_AUTHORIZATION"];
 	else return false;
 	$jwt = explode(" ", $given_token)[1];
@@ -73,11 +66,7 @@ function authorize($file)
 		$decoded = JWT::decode($jwt, new Key($jwt_key, 'HS256'));
 		$decoded = (array) $decoded;
 	} catch (Exception $e) {
-		$responseX["response"] = 88;
-		$responseX["message"] = "401 Unauthorized";
-		echo json_encode($responseX);
-		http_response_code(401);
-		die;
+		throw new Exception("401 Unauthorized", 401);
 	}
 
 	// check if username and password in payload are correct
@@ -92,15 +81,20 @@ function authorize($file)
 			return true;
 		else
 		{
-			$responseX["response"] = 99;
-			$responseX["message"] = "405 you dont have the permission to access this content";
+			throw new Exception("403 Forbidden", 403);
 		}
 	}
 	else
 	{
-		$responseX["response"] = 88;
-		$responseX["message"] = "401 Unauthorized";
+		throw new Exception("401 Unauthorized", 401);
 	}
-	echo json_encode($responseX);
-	die;
 }
+
+set_exception_handler(function ($e) {
+	global $data;
+	$data["response"] = $e->getCode();
+	$data["message"] = $e->getMessage();
+	echo json_encode($data);
+	http_response_code($e->getCode());
+	die;
+} );

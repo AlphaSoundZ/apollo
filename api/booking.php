@@ -11,8 +11,7 @@ set_exception_handler(function ($e) {
 
 require "config.php";
 global $pdo, $usercardtype, $data, $device_1, $device_2;
-$rfid1 = '';
-$rfid2 = '';
+authorize("book");
 $data['message'] = NULL;
 $input = getData("POST", ["uid_1"]);
 
