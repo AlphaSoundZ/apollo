@@ -7,13 +7,17 @@ use Firebase\JWT\Key;
 $data = getData("POST");
 
 $username = $data["username"];
-$password_hash = md5($data["password"]); // Passwords are saved as md5 hashes in the database
-
+$algo_options = [
+    'cost' => 12,
+];
+$password_hash = password_hash($data["password"], PASSWORD_BCRYPT, $algo_options); // Passwords are saved as md5 hashes in the database
 $stmt = "SELECT * FROM token WHERE token_username = :username AND token_password = :password";
 $stmt = $pdo->prepare($stmt);
 $stmt->execute(["username" => $username, "password" => $password_hash]);
 $login_data = $stmt->fetch();
-
+if (!$login_data) {
+    throw new Exception("401 Unauthorized", 401);
+}
 $given_permissions = json_decode($login_data["token_permissions"]);
 $token_id = $login_data["token_id"];
 

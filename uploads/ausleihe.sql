@@ -310,7 +310,7 @@ CREATE TABLE `token` (
 --
 
 INSERT INTO `token` (`token_id`, `token_username`, `token_password`, `token_permissions`) VALUES
-(1, 'test_usr', '05ea11082bec51f97cd92de75981a5eb', '[1, 2, 3, 4, 5, 6]');
+(1, 'test_usr', '$2a$12$.is8OnwyAMIRvQ.jxTki3ubntBpOk9LCnbOdyWI7eaWw2bYNXDFsC', '[1, 2, 3, 4, 5, 6]');
 
 -- --------------------------------------------------------
 
