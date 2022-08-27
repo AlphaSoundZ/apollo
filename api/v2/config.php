@@ -1,16 +1,39 @@
 <?php
+declare(strict_types=1);
+
+set_exception_handler(function ($e) {
+	$data["response"] = $e->getCode();
+	$data["message"] = $e->getMessage();
+	echo json_encode($data);
+	
+	$status_code = array("100","101","200","201","202","203","204","205","206","300","301","302","303","304","305","306","307","400","401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416","417","500","501","502","503","504","505");
+	
+	if(in_array($e->getCode(), $status_code))
+		http_response_code($e->getCode());
+	else
+		http_response_code(400);
+	
+	die;
+} );
+
 require 'vendor/autoload.php';
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
-$__host = 'localhost';
-$__db = 'ausleihe';
-$__username = 'root';
-$__password = '';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+if (!$dotenv->safeLoad())
+	throw new Exception("Could not load .env file", 400);
+
+
+$__host = $_ENV['HOST'];
+$__db = $_ENV['DB'];
+$__username = $_ENV['USERNAME'];
+$__password = $_ENV['PASSWORD'];
 $__dsn = "mysql:host=$__host;dbname=$__db;charset=UTF8";
 
-$jwt_key = 'example_key';
+$jwt_key = $_ENV['JWT_KEY'];
 
 try {
 	$pdo = new PDO($__dsn, $__username, $__password);
@@ -92,18 +115,3 @@ function authorize($file)
 		throw new Exception("401 Unauthorized", 401);
 	}
 }
-
-set_exception_handler(function ($e) {
-	$data["response"] = $e->getCode();
-	$data["message"] = $e->getMessage();
-	echo json_encode($data);
-	
-	$status_code = array("100","101","200","201","202","203","204","205","206","300","301","302","303","304","305","306","307","400","401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416","417","500","501","502","503","504","505");
-	
-	if(in_array($e->getCode(), $status_code))
-		http_response_code($e->getCode());
-	else
-		http_response_code(400);
-	
-	die;
-} );
