@@ -30,16 +30,16 @@ if ($login_data)
     $response["message"] = "success";
 
     // fetch permissions for payload
-    $given_permissions_str = implode("', '", $given_permissions);
+    /*$given_permissions_str = implode("', '", $given_permissions);
     $sql = "SELECT * FROM property_token_permissions WHERE permission_id IN ('$given_permissions_str')";
     $sth = $pdo->prepare($sql);
     $sth->execute();
     $given_permission_names = $sth->fetchAll(\PDO::FETCH_ASSOC);
     $given_permission_names = array_column($given_permission_names, 'permission_text');
-    $permissions = array_combine($given_permissions, $given_permission_names);
+    $permissions = array_combine($given_permissions, $given_permission_names);*/
 
     $payload = [
-        'permissions' => $permissions,
+        'permissions' => $given_permissions,
         'username' => $username,
         'password' => $password_hash,
     ];
