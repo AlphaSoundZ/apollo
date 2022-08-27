@@ -1,11 +1,11 @@
 <?php
 
-set_exception_handler(function ($e) {
+set_exception_handler(function ($e, $code) {
   global $data;
   $data["response"] = $e->getCode();
   $data["message"] = $e->getMessage();
   echo json_encode($data);
-  http_response_code(500);
+  http_response_code(400);
   die;
 } );
 
