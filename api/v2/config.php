@@ -22,7 +22,7 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
 if (!$dotenv->safeLoad())
 	throw new Exception("Could not load .env file", 400);
 
