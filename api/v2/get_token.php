@@ -7,11 +7,11 @@ use Firebase\JWT\Key;
 $data = getData("POST");
 
 $username = $data["username"];
-$md5_password = md5($data["password"]); // Passwords are saved as md5 hashes in the database
+$password_hash = md5($data["password"]); // Passwords are saved as md5 hashes in the database
 
 $stmt = "SELECT * FROM token WHERE token_username = :username AND token_password = :password";
 $stmt = $pdo->prepare($stmt);
-$stmt->execute(["username" => $username, "password" => $md5_password]);
+$stmt->execute(["username" => $username, "password" => $password_hash]);
 $login_data = $stmt->fetch();
 
 $given_permissions = json_decode($login_data["token_permissions"]);
@@ -34,7 +34,7 @@ if ($login_data)
     $payload = [
         'permissions' => $permissions,
         'username' => $username,
-        'password' => $md5_password,
+        'password' => $password_hash,
     ];
     $jwt = JWT::encode($payload, $jwt_key, 'HS256');
 
