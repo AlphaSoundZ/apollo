@@ -95,23 +95,27 @@ function authorize($file)
 		throw new Exception($e->getMessage(), 401);
 	}
 
-	// check if username and password in payload are correct
-	$sql = "SELECT * FROM token WHERE token_username = '{$decoded['username']}' AND token_password = '{$decoded['password']}'";
+	// check if iat and username in payload are correct
+
+	$stmt = "SELECT * FROM token WHERE token_username = '{$decoded['username']}'";
+	$stmt = $pdo->prepare($stmt);
+	$stmt->execute();
+	$login_data = $stmt->fetch();
+	$token_last_change = strtotime($login_data['token_last_change']) * 1000;
+	if (!$login_data || $login_data <= $token_last_change)
+		throw new Exception("401 Unauthorized", 401);
+		
+	
+	// check if token has the right permissions:
+	$sql = "SELECT * FROM property_token_permissions WHERE permission_text = '{$file}'";
 	$sth = $pdo->prepare($sql);
 	$sth->execute();
-	$login = $sth->fetch();
-	
-	if ($login)
-	{
-		if (array_key_exists("permissions", $decoded) && in_array($file, (array) $decoded["permissions"]))
-			return true;
-		else
-		{
-			throw new Exception("403 Forbidden", 403);
-		}
-	}
+	$file_id = $sth->fetch();
+
+	if (array_key_exists("permissions", $decoded) && in_array($file_id, (array) $decoded["permissions"]))
+		return true;
 	else
 	{
-		throw new Exception("401 Unauthorized", 401);
+		throw new Exception("403 Forbidden", 403);
 	}
 }
