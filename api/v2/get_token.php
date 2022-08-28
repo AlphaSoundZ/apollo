@@ -20,7 +20,7 @@ $token_id = $login_data["token_id"];
 $payload = [
     'permissions' => $given_permissions,
     'sub' => $token_id,
-    'iat' => microtime(),
+    'iat' => round(microtime(true)),
 ];
 $jwt = JWT::encode($payload, $jwt_key, 'HS256');
 
