@@ -14,7 +14,16 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
--- Exportiere Daten aus Tabelle ausleihe.devices: ~132 rows (ungefähr)
+-- Exportiere Struktur von Tabelle ausleihe.devices
+CREATE TABLE IF NOT EXISTS `devices` (
+  `device_id` int(11) NOT NULL AUTO_INCREMENT,
+  `device_type` int(11) NOT NULL,
+  `device_uid` text NOT NULL,
+  `device_lend_user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`device_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=140 DEFAULT CHARSET=utf8mb4;
+
+-- Exportiere Daten aus Tabelle ausleihe.devices: ~131 rows (ungefähr)
 REPLACE INTO `devices` (`device_id`, `device_type`, `device_uid`, `device_lend_user_id`) VALUES
 	(1, 1, '2e9ab22', 0),
 	(2, 3, '8846fce', 0),
@@ -148,11 +157,31 @@ REPLACE INTO `devices` (`device_id`, `device_type`, `device_uid`, `device_lend_u
 	(130, 1, '884c8c', NULL),
 	(139, 3, '6594', 0);
 
--- Exportiere Daten aus Tabelle ausleihe.event: ~0 rows (ungefähr)
+-- Exportiere Struktur von Tabelle ausleihe.event
+CREATE TABLE IF NOT EXISTS `event` (
+  `event_id` int(11) NOT NULL AUTO_INCREMENT,
+  `event_user_id` int(11) NOT NULL,
+  `event_device_id` int(11) NOT NULL,
+  `event_begin` timestamp NULL DEFAULT current_timestamp(),
+  `event_end` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`event_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+
+-- Exportiere Daten aus Tabelle ausleihe.event: ~1 rows (ungefähr)
 REPLACE INTO `event` (`event_id`, `event_user_id`, `event_device_id`, `event_begin`, `event_end`) VALUES
 	(1, 1, 3, '2022-08-27 20:28:56', '2022-08-27 20:29:14');
 
--- Exportiere Daten aus Tabelle ausleihe.prebook: ~29 rows (ungefähr)
+-- Exportiere Struktur von Tabelle ausleihe.prebook
+CREATE TABLE IF NOT EXISTS `prebook` (
+  `prebook_id` int(11) NOT NULL AUTO_INCREMENT,
+  `prebook_user_id` int(11) NOT NULL,
+  `prebook_amount` int(11) NOT NULL,
+  `prebook_begin` int(11) NOT NULL,
+  `prebook_end` int(11) NOT NULL,
+  PRIMARY KEY (`prebook_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4;
+
+-- Exportiere Daten aus Tabelle ausleihe.prebook: ~31 rows (ungefähr)
 REPLACE INTO `prebook` (`prebook_id`, `prebook_user_id`, `prebook_amount`, `prebook_begin`, `prebook_end`) VALUES
 	(2, 1, 10, 2022, 2022),
 	(3, 1, 10, 2022, 2022),
@@ -186,9 +215,23 @@ REPLACE INTO `prebook` (`prebook_id`, `prebook_user_id`, `prebook_amount`, `preb
 	(31, 1, 10, 2022, 2022),
 	(32, 1, 10, 2022, 2022);
 
--- Exportiere Daten aus Tabelle ausleihe.property_class: ~0 rows (ungefähr)
+-- Exportiere Struktur von Tabelle ausleihe.property_class
+CREATE TABLE IF NOT EXISTS `property_class` (
+  `class_id` int(11) NOT NULL AUTO_INCREMENT,
+  `class_name` text NOT NULL,
+  PRIMARY KEY (`class_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
+
+-- Exportiere Daten aus Tabelle ausleihe.property_class: ~1 rows (ungefähr)
 REPLACE INTO `property_class` (`class_id`, `class_name`) VALUES
 	(1, 'Lehrer');
+
+-- Exportiere Struktur von Tabelle ausleihe.property_device_type
+CREATE TABLE IF NOT EXISTS `property_device_type` (
+  `device_type_id` int(11) NOT NULL AUTO_INCREMENT,
+  `device_type_name` text NOT NULL,
+  PRIMARY KEY (`device_type_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
 
 -- Exportiere Daten aus Tabelle ausleihe.property_device_type: ~4 rows (ungefähr)
 REPLACE INTO `property_device_type` (`device_type_id`, `device_type_name`) VALUES
@@ -196,6 +239,13 @@ REPLACE INTO `property_device_type` (`device_type_id`, `device_type_name`) VALUE
 	(2, 'Ipad'),
 	(3, 'Surface Book'),
 	(4, 'Laptop');
+
+-- Exportiere Struktur von Tabelle ausleihe.property_token_permissions
+CREATE TABLE IF NOT EXISTS `property_token_permissions` (
+  `permission_id` int(11) NOT NULL AUTO_INCREMENT,
+  `permission_text` text NOT NULL,
+  PRIMARY KEY (`permission_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4;
 
 -- Exportiere Daten aus Tabelle ausleihe.property_token_permissions: ~10 rows (ungefähr)
 REPLACE INTO `property_token_permissions` (`permission_id`, `permission_text`) VALUES
@@ -210,12 +260,33 @@ REPLACE INTO `property_token_permissions` (`permission_id`, `permission_text`) V
 	(9, 'delete'),
 	(10, 'add_csv');
 
+-- Exportiere Struktur von Tabelle ausleihe.token
+CREATE TABLE IF NOT EXISTS `token` (
+  `token_id` int(11) NOT NULL AUTO_INCREMENT,
+  `token_username` text NOT NULL,
+  `token_password` text NOT NULL,
+  `token_permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`token_permissions`)),
+  `token_last_change` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`token_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+
 -- Exportiere Daten aus Tabelle ausleihe.token: ~2 rows (ungefähr)
 REPLACE INTO `token` (`token_id`, `token_username`, `token_password`, `token_permissions`, `token_last_change`) VALUES
 	(1, 'test_usr', '$2a$12$DLJddmhogkFvJ2A1Jbe58e/JzX5bBiYKj4cl7WYCqifkssVf1cRcC', '[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]', '2022-08-26 22:00:00'),
 	(2, 'booking_account', '$2a$12$.is8OnwyAMIRvQ.jxTki3ubntBpOk9LCnbOdyWI7eaWw2bYNXDFsC', ' [7]', '2022-08-26 22:00:00');
 
--- Exportiere Daten aus Tabelle ausleihe.user: ~67 rows (ungefähr)
+-- Exportiere Struktur von Tabelle ausleihe.user
+CREATE TABLE IF NOT EXISTS `user` (
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_firstname` text NOT NULL,
+  `user_lastname` text NOT NULL,
+  `user_class` int(11) NOT NULL,
+  `user_token_id` int(11) DEFAULT NULL,
+  `user_usercard_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4;
+
+-- Exportiere Daten aus Tabelle ausleihe.user: ~68 rows (ungefähr)
 REPLACE INTO `user` (`user_id`, `user_firstname`, `user_lastname`, `user_class`, `user_token_id`, `user_usercard_id`) VALUES
 	(1, 'Test Vorname', 'Test Nachname', 1, 1, 1),
 	(2, 'Pia', 'Brüntrup', 1, NULL, 32),
