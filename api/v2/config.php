@@ -97,7 +97,7 @@ function authorize($file)
 
 	// check if iat and username in payload are correct
 
-	$stmt = "SELECT * FROM token WHERE token_username = '{$decoded['username']}'";
+	$stmt = "SELECT * FROM token WHERE token_id = '{$decoded['sub']}'";
 	$stmt = $pdo->prepare($stmt);
 	$stmt->execute();
 	$login_data = $stmt->fetch();
@@ -111,8 +111,7 @@ function authorize($file)
 	$sth = $pdo->prepare($sql);
 	$sth->execute();
 	$file_id = $sth->fetch();
-
-	if (array_key_exists("permissions", $decoded) && in_array($file_id, (array) $decoded["permissions"]))
+	if (array_key_exists("permissions", $decoded) && in_array($file_id["permission_id"], (array) $decoded["permissions"]))
 		return true;
 	else
 	{
