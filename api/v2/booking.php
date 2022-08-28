@@ -47,10 +47,10 @@ class ausleihe
         $device_2 = $pdo->query($sql)->fetch();
 
         if (!$device_2)
-          throw new Exception("Device mit uid $uid_2 nicht gefunden. Bitte wenden Sie sich mit dem Device an einen Administrator", 400, 3);
+          throw new Exception("Device mit uid $uid_2 nicht gefunden. Bitte wenden Sie sich mit dem Device an einen Administrator", 3, 400);
 
         if ($device_2['device_type_id'] == $usercardtype)
-          throw new Exception("Eine Usercard kann nicht ausgeliehen werden", 400, 7);
+          throw new Exception("Eine Usercard kann nicht ausgeliehen werden", 7, 400);
         
         // Ausleihe
         // ist $uid_1 eine usercard und $uid_2 ein Gerät?
@@ -59,20 +59,20 @@ class ausleihe
           $sql = "SELECT * FROM devices WHERE device_lend_user_id = '{$user['user_id']}'";
           $status = $pdo->query($sql)->fetchAll();
           if ($status && $user['user_class'] != $multiuser)
-            throw new Exception("User darf nicht mehr als ein Gerät ausleihen", 5);
+            throw new Exception("User darf nicht mehr als ein Gerät ausleihen", 5, 400);
           
           // Wird das auszuleihende Gerät bereits ausgeliehen?
           if ($device_2['device_lend_user_id'] != 0)
-            throw new Exception("Gerät ist bereits ausgeliehen", 6);
+            throw new Exception("Gerät ist bereits ausgeliehen", 6, 400);
           // Keine Probleme, Gerät kann ausgeliehen werden
           self::lend($user['user_id'], $device_2['device_id']);
         }
         else if ($device_1['device_type_id'] != $usercardtype && $device_2['device_type_id'] != $usercardtype)
-          throw new Exception("Das erste Gerät ist keine Usercard und das zweite Gerät ist kein Device", 9);
+          throw new Exception("Das erste Gerät ist keine Usercard und das zweite Gerät ist kein Device", 9, 400);
         else if ($device_1['device_type_id'] != $usercardtype)
-          throw new Exception("Das erste Gerät ist keine Usercard", 9);
+          throw new Exception("Das erste Gerät ist keine Usercard", 9, 400);
         else if ($device_2['device_type_id'] == $usercardtype)
-          throw new Exception("Das zweite Gerät ist kein Device", 7);
+          throw new Exception("Das zweite Gerät ist kein Device", 7, 400);
       }
       else
       {
@@ -81,7 +81,7 @@ class ausleihe
         if ($device_1['device_type_id'] != $usercardtype && $device_1['device_lend_user_id'] != 0) // Rückgabe
           self::return($device_1['device_id']);
         else if ($device_1['device_type_id'] != $usercardtype) // Keine Rückgabe möglich
-          throw new Exception("Device kann nicht zurückgegeben werden, weil es nicht ausgeliehen wird", 4);
+          throw new Exception("Device kann nicht zurückgegeben werden, weil es nicht ausgeliehen wird", 4, 400);
         else if ($device_1['device_type_id'] == $usercardtype) // Info
           self::info($user['user_id']);
       }
@@ -89,7 +89,7 @@ class ausleihe
     else
     {
       // Input $uid_1 is empty
-      throw new Exception("Device oder Usercard mit uid $uid_1 nicht gefunden. Bitte wenden Sie sich an einen Administrator", 3);
+      throw new Exception("Device oder Usercard mit uid $uid_1 nicht gefunden. Bitte wenden Sie sich an einen Administrator", 3, 400);
     }
   }
 
@@ -116,7 +116,7 @@ class ausleihe
     $sql = "SELECT * FROM event WHERE event_device_id = '$device_id' AND event_end IS NULL";
     $find_events = $pdo->query($sql)->fetchAll();
     if (count($find_events) > 1)
-      throw new Exception('In Event wurden '.count($find_events).' Einträge statt 1 gefunden. Device wurde nicht zurückgegeben. Bitte wenden Sie sich an einen Administrator', 9);
+      throw new Exception('In Event wurden '.count($find_events).' Einträge statt 1 gefunden. Device wurde nicht zurückgegeben. Bitte wenden Sie sich an einen Administrator', 9, 400);
     
     // Update device_lend_user_id
     $sql = "UPDATE devices SET device_lend_user_id = '0' WHERE device_id = '$device_id'";

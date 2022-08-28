@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require "classes/exception_handler.php";
+require 'classes/exception_handler.php';
 require 'vendor/autoload.php';
 
 use Firebase\JWT\JWT;
