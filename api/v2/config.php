@@ -111,7 +111,7 @@ function authorize($file)
 	$sth = $pdo->prepare($sql);
 	$sth->execute();
 	$file_id = $sth->fetch();
-	if (array_key_exists("permissions", $decoded) && array_key_exists("permission_id", $file_id) && in_array($file_id["permission_id"], (array) $decoded["permissions"]))
+	if (array_key_exists("permissions", $decoded) && $file_id && in_array($file_id["permission_id"], (array) $decoded["permissions"]))
 		return true;
 	else
 	{
