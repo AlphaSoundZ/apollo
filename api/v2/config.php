@@ -1,21 +1,7 @@
 <?php
 declare(strict_types=1);
 
-set_exception_handler(function ($e) {
-	$data["response"] = $e->getCode();
-	$data["message"] = $e->getMessage();
-	echo json_encode($data);
-	
-	$status_code = array("100","101","200","201","202","203","204","205","206","300","301","302","303","304","305","306","307","400","401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416","417","500","501","502","503","504","505");
-	
-	if(in_array($e->getCode(), $status_code))
-		http_response_code($e->getCode());
-	else
-		http_response_code(400);
-	
-	die;
-} );
-
+require "classes/exception_handler.php";
 require 'vendor/autoload.php';
 
 use Firebase\JWT\JWT;
@@ -25,7 +11,6 @@ use Firebase\JWT\Key;
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
 if (!$dotenv->safeLoad())
 	throw new Exception("Could not load .env file", 400);
-
 
 $__host = $_ENV['HOST'];
 $__db = $_ENV['DB'];

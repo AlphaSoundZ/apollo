@@ -1,16 +1,12 @@
 <?php
 
-set_exception_handler(function ($e, $code) {
-  global $data;
-  $data["response"] = $e->getCode();
-  $data["message"] = $e->getMessage();
-  echo json_encode($data);
-  http_response_code(400);
-  die;
-} );
-
 require "config.php";
+
 global $pdo, $usercardtype, $data, $device_1, $device_2;
+
+// set response format to json
+header("Content-Type: application/json");
+
 authorize("book");
 $data['message'] = NULL;
 $input = getData("POST", ["uid_1"]);
@@ -51,10 +47,10 @@ class ausleihe
         $device_2 = $pdo->query($sql)->fetch();
 
         if (!$device_2)
-          throw new Exception("Device mit uid $uid_2 nicht gefunden. Bitte wenden Sie sich mit dem Device an einen Administrator", 3);
+          throw new Exception("Device mit uid $uid_2 nicht gefunden. Bitte wenden Sie sich mit dem Device an einen Administrator", 400, 3);
 
         if ($device_2['device_type_id'] == $usercardtype)
-          throw new Exception("Eine Usercard kann nicht ausgeliehen werden", 7);
+          throw new Exception("Eine Usercard kann nicht ausgeliehen werden", 400, 7);
         
         // Ausleihe
         // ist $uid_1 eine usercard und $uid_2 ein Gerät?
@@ -109,7 +105,7 @@ class ausleihe
     $pdo->query($sql);
 
     $data['message'] = "Gerät ausgeliehen";
-    $data['response'] = 200;
+    $data['response'] = 0;
   }
   
   private static function return($device_id)
@@ -131,7 +127,7 @@ class ausleihe
     $pdo->query($sql);
 
     $data['message'] = "Gerät zurückgegeben";
-    $data['response'] = 200;
+    $data['response'] = 1;
     http_response_code(200);
   }
 
@@ -167,7 +163,7 @@ class ausleihe
     }
 
     $data['message'] = "Info zu User erfolgt";
-    $data['response'] = 200;
+    $data['response'] = 2;
     http_response_code(200);
   }
 
