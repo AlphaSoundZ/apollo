@@ -302,15 +302,16 @@ CREATE TABLE `token` (
   `token_id` int(11) NOT NULL,
   `token_username` text NOT NULL,
   `token_password` text NOT NULL,
-  `token_permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`token_permissions`))
+  `token_permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`token_permissions`)),
+  `token_last_change` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Daten für Tabelle `token`
 --
 
-INSERT INTO `token` (`token_id`, `token_username`, `token_password`, `token_permissions`) VALUES
-(1, 'test_usr', '$2a$12$.is8OnwyAMIRvQ.jxTki3ubntBpOk9LCnbOdyWI7eaWw2bYNXDFsC', '[1, 2, 3, 4, 5, 6]');
+INSERT INTO `token` (`token_id`, `token_username`, `token_password`, `token_permissions`, `token_last_change`) VALUES
+(1, 'test_usr', '$2a$12$.is8OnwyAMIRvQ.jxTki3ubntBpOk9LCnbOdyWI7eaWw2bYNXDFsC', '[1, 2, 3, 4, 5, 6]', 2022-08-27 00:00:00);
 
 -- --------------------------------------------------------
 
