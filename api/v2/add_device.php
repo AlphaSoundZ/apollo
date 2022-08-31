@@ -42,7 +42,7 @@ class addToDB
         $stmt= $pdo->prepare($sql);
         $stmt->execute(["type" => $type]);
         if (!$stmt->fetch())
-            throw new Exception("Type does not exist", 400);
+            throw new CustomException(Response::TYPE_NOT_FOUND, "TYPE_NOT_FOUND", 400);
         
         // Check if device is already in database
         $sql = "SELECT * FROM devices WHERE device_uid = :device_uid";
@@ -50,7 +50,7 @@ class addToDB
         $stmt->execute(["device_uid" => $device_uid]);
         $result = $stmt->fetch();
         if ($result)
-            throw new Exception("Device already exists", 400);
+            throw new CustomException(Response::DEVICE_ALREADY_EXISTS, "DEVICE_ALREADY_EXISTS", 400);
         return true;
     }
 }

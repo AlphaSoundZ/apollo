@@ -44,4 +44,6 @@ abstract class Response extends BasicEnum {
 	const RETURN_NOT_POSSIBLE = "Device kann nicht zurückgegeben werden"; // Device not lent
 	const RETURN_SUCCESS = "Device wurde zurückgegeben"; // Device returned
 	const INFO_SUCCESS = "Info wird ausgegeben"; // Info sent
+	const TYPE_NOT_FOUND = "Device Typ nicht gefunden"; // Device type does not exist in database
+	const DEVICE_ALREADY_EXISTS = "Device existiert bereits"; // Device already exists in database
 }
