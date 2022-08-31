@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 
-require 'classes/exception_handler.php';
-require 'classes/response_keys.php';
+require 'classes/exception_handler_class.php';
+require 'classes/response_keys_class.php';
 require 'vendor/autoload.php';
 
 use Firebase\JWT\JWT;
@@ -21,7 +21,7 @@ $__dsn = "mysql:host=$__host;dbname=$__db;charset=UTF8";
 $jwt_key = $_ENV['JWT_KEY'];
 
 $pdo = new PDO($__dsn, $__username, $__password);
-//$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $usercardtype = $pdo->query("SELECT * FROM property_device_type WHERE device_type_name = 'Usercard'")->fetch();
 $usercardtype = $usercardtype['device_type_id'];
 $multiuser = $pdo->query("SELECT * FROM property_class WHERE class_name = 'Lehrer'")->fetch();
