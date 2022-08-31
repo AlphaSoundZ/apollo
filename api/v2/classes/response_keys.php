@@ -36,10 +36,10 @@ abstract class Response extends BasicEnum {
 	const SUCCESS = "Request erfolgreich bearbeitet";
 	const DEVICE_NOT_FOUND = "Usercard / Device ist in der Datenbank nicht verfügbar"; // Devcies not found in database
 	const NOT_ALLOWED = "Dieser Request konnte aufgrund von fehlender Permission nicht ausgeführt werden"; // User is not allowed to do this action (permission missing)
-	const NOT_AUTHORIZED = "Token ist nicht autorisiert. Username oder Passwort ist falsch"; // Token not valid, or username/password wrong
+	const NOT_AUTHORIZED = "Token ist nicht autorisiert"; // Token not valid, or username/password wrong
 	const NOT_ALLOWED_FOR_THIS_CLASS = "Es ist Ihnen nicht erlaubt mehrere Devices auszuleihen"; // User already lending but is no MultiUser
 	const NOT_ALLOWED_FOR_THIS_DEVICE = "Das Device wird bereits ausgeliehen"; // Device already lending
-	const REQUIRED_DATA_MISSING = "Daten fehlen"; // Required data missing
+	const REQUIRED_DATA_MISSING = "Input fehlt"; // Required data missing
 	const WRONG_DEVICE_TYPE = "Falscher Device Typ"; // Not a valid device type
 	const RETURN_NOT_POSSIBLE = "Device kann nicht zurückgegeben werden"; // Device not lent
 	const RETURN_SUCCESS = "Device wurde zurückgegeben"; // Device returned
