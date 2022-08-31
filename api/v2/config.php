@@ -7,10 +7,9 @@ require 'vendor/autoload.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
-
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
 if (!$dotenv->safeLoad())
-	throw new Exception("Could not load .env file", 400);
+	throw new CustomException("Could not load .env file", 9, 400);
 
 $__host = $_ENV['HOST'];
 $__db = $_ENV['DB'];
