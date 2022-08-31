@@ -54,11 +54,3 @@ class addToDB
         return true;
     }
 }
-
-set_exception_handler(function ($e) {
-	$response["response"] = $e->getCode();
-	$response["message"] = $e->getMessage();
-	echo json_encode($response);
-	http_response_code($e->getCode());
-	die;
-} );

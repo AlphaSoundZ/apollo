@@ -29,11 +29,17 @@ abstract class BasicEnum {
 		$values = array_values(self::getConstants());
 		return in_array($value, $values, $strict);
 	}
+
+	public static function success($message, $response_code) {
+		http_response_code(200);
+		echo json_encode(["response" => $response_code, "message" => $message]);
+		die;
+	}
 }
 
 abstract class Response extends BasicEnum {
 	const UNEXPECTED_ERROR = "Internal Server Error: "; // Default
-	const SUCCESS = "Request erfolgreich bearbeitet";
+	const SUCCESS = "Success";
 	const DEVICE_NOT_FOUND = "Usercard / Device ist in der Datenbank nicht verfügbar"; // Devcies not found in database
 	const NOT_ALLOWED = "Dieser Request konnte aufgrund von fehlender Permission nicht ausgeführt werden"; // User is not allowed to do this action (permission missing)
 	const NOT_AUTHORIZED = "Token ist nicht autorisiert"; // Token not valid, or username/password wrong
