@@ -1,10 +1,10 @@
 <?php
 require_once "config.php";
-class ausleihe
+class Booking
 {
   public static function execute($uid_1, $uid_2 = null)
   {
-    global $pdo, $usercardtype, $multiuser;
+    global $pdo, $multiuser;
     
     // Fetch first device with $uid_1
     $sql = "SELECT * FROM devices LEFT JOIN property_device_type ON devices.device_type = property_device_type.device_type_id WHERE devices.device_uid = '$uid_1'";
@@ -12,7 +12,7 @@ class ausleihe
 
     if (!empty($device_1))
     {
-      if ($device_1['device_type_id'] == $usercardtype)
+      if ($device_1['device_type_id'] == $_SERVER['USERCARD_TYPE'])
       {
         $sql = "SELECT * FROM user LEFT JOIN property_class ON property_class.class_id = user.user_class WHERE user_usercard_id = '{$device_1['device_id']}'";
         $user = $pdo->query($sql)->fetch();
@@ -26,12 +26,12 @@ class ausleihe
         if (!$device_2)
 					throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $uid_2)", "DEVICE_NOT_FOUND", 400);
 
-        if ($device_2['device_type_id'] == $usercardtype)
+        if ($device_2['device_type_id'] == $_SERVER['USERCARD_TYPE'])
           throw new CustomException(Response::WRONG_DEVICE_TYPE, "WRONG_DEVICE_TYPE", 400);
         
         // Ausleihe
         // ist $uid_1 eine usercard und $uid_2 ein Gerät?
-        if ($device_1['device_type_id'] == $usercardtype && $device_2['device_type_id'] != $usercardtype) 
+        if ($device_1['device_type_id'] == $_SERVER['USERCARD_TYPE'] && $device_2['device_type_id'] != $_SERVER['USERCARD_TYPE']) 
         { // Darf der User ein Device ausleihen?
           $sql = "SELECT * FROM devices WHERE device_lend_user_id = '{$user['user_id']}'";
           $status = $pdo->query($sql)->fetchAll();
@@ -42,21 +42,21 @@ class ausleihe
           if ($device_2['device_lend_user_id'] != 0)
             throw new CustomException(Response::NOT_ALLOWED_FOR_THIS_DEVICE, "NOT_ALLOWED_FOR_THIS_DEVICE", 400);
           // Keine Probleme, Gerät kann ausgeliehen werden
-          self::lend($user['user_id'], $device_2['device_id']);
+          return self::lend($user['user_id'], $device_2['device_id']);
         }
-        if ($device_1['device_type_id'] != $usercardtype || $device_2['device_type_id'] == $usercardtype)
+        if ($device_1['device_type_id'] != $_SERVER['USERCARD_TYPE'] || $device_2['device_type_id'] == $_SERVER['USERCARD_TYPE'])
           throw new CustomException(Response::WRONG_DEVICE_TYPE, "WRONG_DEVICE_TYPE", 400);
       }
       else
       {
-        // Rückgabe
+        // Rückgabe oder Info
         // ist $uid_1 ein Gerät?
-        if ($device_1['device_type_id'] != $usercardtype && $device_1['device_lend_user_id'] != 0) // Rückgabe
-          self::return($device_1['device_id']);
-        else if ($device_1['device_type_id'] != $usercardtype) // Keine Rückgabe möglich
+        if ($device_1['device_type_id'] != $_SERVER['USERCARD_TYPE'] && $device_1['device_lend_user_id'] != 0) // Rückgabe
+          return self::return($device_1['device_id']);
+        else if ($device_1['device_type_id'] != $_SERVER['USERCARD_TYPE']) // Keine Rückgabe möglich
           throw new CustomException(Response::RETURN_NOT_POSSIBLE, "RETURN_NOT_POSSIBLE", 400);
-        else if ($device_1['device_type_id'] == $usercardtype) // Info
-          self::info($user['user_id']);
+        else if ($device_1['device_type_id'] == $_SERVER['USERCARD_TYPE']) // Info
+          return self::info($user['user_id']);
       }
     }
     else
@@ -68,7 +68,7 @@ class ausleihe
 
   private static function lend($user_id, $device_id)
   {
-    global $pdo, $data;
+    global $pdo;
     // Update device_lend_user_id
     $sql = "UPDATE devices SET device_lend_user_id = $user_id WHERE device_id = '$device_id'";
     $pdo->query($sql);
@@ -77,13 +77,12 @@ class ausleihe
     $sql = "INSERT INTO event (event_id, event_user_id, event_device_id, event_begin, event_end) VALUES (NULL, '$user_id', '$device_id', CURRENT_TIMESTAMP, NULL)";
     $pdo->query($sql);
 
-    $data['message'] = "Gerät ausgeliehen";
-    $data['response'] = 0;
+    return "BOOKING_SUCCESS";
   }
   
   private static function return($device_id)
   {
-    global $pdo, $data;
+    global $pdo;
 
     // Event table security check of multiple lends of the same device
     $sql = "SELECT * FROM event WHERE event_device_id = '$device_id' AND event_end IS NULL";
@@ -99,14 +98,12 @@ class ausleihe
     $sql = "UPDATE event SET event_end = CURRENT_TIMESTAMP WHERE event_device_id = '$device_id' AND event_end IS NULL";
     $pdo->query($sql);
 
-    $data['message'] = "Gerät zurückgegeben";
-    $data['response'] = 1;
-    http_response_code(200);
+    return "RETURN_SUCCESS";
   }
 
   private static function info($user_id)
   {
-    global $pdo, $data;
+    global $pdo;
 
     // Fetch user info
     $sql = "SELECT * FROM user LEFT JOIN property_class ON property_class.class_id = user.user_class WHERE user_id = '$user_id'";
@@ -134,10 +131,8 @@ class ausleihe
         $data['user']['history'][$i]['device_type'] = $history[$i]['device_type_name'];
       }
     }
-
-    $data['message'] = "Info zu User erfolgt";
-    $data['response'] = 2;
-    http_response_code(200);
+    // data muss noch zurückgegeben werden
+    return "INFO_SUCCESS";
   }
 
 }

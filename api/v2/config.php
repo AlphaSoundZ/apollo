@@ -22,10 +22,10 @@ $jwt_key = $_ENV['JWT_KEY'];
 
 $pdo = new PDO($__dsn, $__username, $__password);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$usercardtype = $pdo->query("SELECT * FROM property_device_type WHERE device_type_name = 'Usercard'")->fetch();
-$usercardtype = $usercardtype['device_type_id'];
-$multiuser = $pdo->query("SELECT * FROM property_class WHERE class_name = 'Lehrer'")->fetch();
-$multiuser = $multiuser['class_id']; // multiuser is allowed to borrow more than one device
+// $usercardtype = $pdo->query("SELECT * FROM property_device_type WHERE device_type_name = 'Usercard'")->fetch();
+// $usercardtype = $usercardtype['device_type_id'];
+// $multiuser = $pdo->query("SELECT * FROM property_class WHERE class_name = 'Lehrer'")->fetch();
+// $multiuser = $multiuser['class_id']; // multiuser is allowed to borrow more than one device
 
 function getData($method, $requirements = [])
 {

@@ -91,13 +91,13 @@ class add_user {
         return $response;
     }
     function execute($firstname, $lastname, $class, $uid, $response_code) {
-        global $pdo, $usercardtype;
+        global $pdo;
         if ($response_code == 3)
         {
             // create usercard
             $sql = "INSERT INTO devices (device_id, device_type, device_uid, device_lend_user_id) VALUES (NULL, :device_type, :uid, NULL)";
             $stmt= $pdo->prepare($sql);
-            $status = $stmt->execute(["device_type" => $usercardtype, "uid" => $uid]);
+            $status = $stmt->execute(["device_type" => $_SERVER["USERCARD_TYPE"], "uid" => $uid]);
         }
         // usercard id
 

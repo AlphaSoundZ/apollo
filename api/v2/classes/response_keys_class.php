@@ -35,6 +35,11 @@ abstract class BasicEnum {
 		echo json_encode(["response" => $response_code, "message" => $message]);
 		die;
 	}
+
+	public static function getValue($name)
+	{
+		return self::getConstants()[$name];
+	}
 }
 
 abstract class Response extends BasicEnum {
@@ -50,6 +55,7 @@ abstract class Response extends BasicEnum {
 	const RETURN_NOT_POSSIBLE = "Device kann nicht zurückgegeben werden"; // Device not lent
 	const RETURN_SUCCESS = "Device wurde zurückgegeben"; // Device returned
 	const INFO_SUCCESS = "Info wird ausgegeben"; // Info sent
+	const BOOKING_SUCCESS = "Ausleihe erfolgreich"; // Booking successfull
 	const TYPE_NOT_FOUND = "Device Typ nicht gefunden"; // Device type does not exist in database
 	const DEVICE_ALREADY_EXISTS = "Device existiert bereits"; // Device already exists in database
 }
