@@ -88,7 +88,7 @@ class ausleihe
     else
     {
       // Input $uid_1 is empty
-      throw new CustomException("Device oder Usercard mit uid $uid_1 nicht gefunden. Bitte wenden Sie sich an einen Administrator", 3, 400);
+      throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $uid_1)", "DEVICE_NOT_FOUND", 400);
     }
   }
 
@@ -115,7 +115,7 @@ class ausleihe
     $sql = "SELECT * FROM event WHERE event_device_id = '$device_id' AND event_end IS NULL";
     $find_events = $pdo->query($sql)->fetchAll();
     if (count($find_events) > 1)
-      throw new CustomException('In Event wurden '.count($find_events).' Einträge statt 1 gefunden. Device wurde nicht zurückgegeben. Bitte wenden Sie sich an einen Administrator', 9, 400);
+			throw new CustomException('In Event wurden '.count($find_events).' Einträge statt 1 gefunden. Device wurde nicht zurückgegeben. Bitte wenden Sie sich an einen Administrator', 9, 400);
     
     // Update device_lend_user_id
     $sql = "UPDATE devices SET device_lend_user_id = '0' WHERE device_id = '$device_id'";
@@ -168,7 +168,7 @@ class ausleihe
 
 }
 
-function message($messageID) {
+/*function message($messageID) {
   global $data;
   $data['response'] = $messageID;
   switch ($messageID) {
@@ -203,6 +203,6 @@ function message($messageID) {
     $data['message'] = $data['message']."Unexpected Error (".$messageID.") ";
     $data['response'] = 9;
   }
-}
+}*/
 
 echo json_encode($data);

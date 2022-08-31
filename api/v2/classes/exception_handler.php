@@ -12,10 +12,12 @@ set_exception_handler(function ($e) {
 
 class CustomException extends Exception
 {
-    public $response_code = 9;
+	public $response_code = 9;
 
     public function __construct($message, $response_code, $code) {
         parent::__construct($message, $code);
+        if (!Response::isValidName($response_code)) // if 
+        	throw new Exception("Internal Server Error: Invalid response code", 500);
         $this->response_code = $response_code;
     }
 }
