@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 require 'classes/exception_handler.php';
-require 'classes/enum.php';
+require 'classes/response_keys.php';
 require 'vendor/autoload.php';
 
 use Firebase\JWT\JWT;
