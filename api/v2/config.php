@@ -55,7 +55,7 @@ function getData($method, $requirements = [])
 	return $input;
 }
 
-function authorize($file)
+function authorize($file = null)
 {
 	global $pdo, $jwt_key;
 	if (isset($_SERVER["HTTP_AUTHORIZATION"])) $given_token = $_SERVER["HTTP_AUTHORIZATION"];
@@ -76,10 +76,13 @@ function authorize($file)
 	$stmt = $pdo->prepare($stmt);
 	$stmt->execute();
 	$login_data = $stmt->fetch();
-	$token_last_change = strtotime($login_data['token_last_change']) * 1000;
-	if (!$login_data || $login_data <= $token_last_change)
-		throw new CustomException(Response::NOT_AUTHORIZED . " Username oder Passwort falsch", "NOT_AUTHORIZED", 401);
-		
+	$token_last_change = strtotime($login_data['token_last_change']);
+	if (!$login_data || $decoded["iat"] <= $token_last_change)
+		throw new CustomException(Response::NOT_AUTHORIZED . ": Username oder Passwort falsch", "NOT_AUTHORIZED", 401);
+
+
+	if (!$file)
+		return true;
 	
 	// check if token has the right permissions:
 	$sql = "SELECT * FROM property_token_permissions WHERE permission_text = '{$file}'";

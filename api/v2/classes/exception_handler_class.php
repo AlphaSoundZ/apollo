@@ -17,7 +17,7 @@ class CustomException extends Exception
     public function __construct($message, $response_code, $code) {
         parent::__construct($message, $code);
         if (!Response::isValidName($response_code))
-        	throw new Exception("Internal Server Error: Invalid response code");
+        	throw new Exception("Invalid response code");
         $this->response_code = $response_code;
     }
 }
