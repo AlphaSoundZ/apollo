@@ -58,4 +58,5 @@ abstract class Response extends BasicEnum {
 	const BOOKING_SUCCESS = "Ausleihe erfolgreich"; // Booking successfull
 	const TYPE_NOT_FOUND = "Device Typ nicht gefunden"; // Device type does not exist in database
 	const DEVICE_ALREADY_EXISTS = "Device existiert bereits"; // Device already exists in database
+	const BAD_REQUEST = "Bad Request"; // Bad request
 }
