@@ -21,16 +21,32 @@ class delete
         return "SUCCESS";
     }
 
-    static function reset($table, $reset_id)
+    static function reset($table, $reset_id, $condition = null)
     {
         global $pdo;
-        $sth = $pdo->query("SELECT COUNT(1) FROM $table");
-        $count = $sth->fetchAll();
+        $sql = "SELECT COUNT(1) FROM $table";
+        $sql .= ($condition) ? " WHERE $condition" : "";
+        $sth = $pdo->query($sql);
+        $countCondition = $sth->fetchAll();
+
+        $sql = "SELECT COUNT(1) FROM $table";
+        $sth = $pdo->query($sql);
+        $countAll = $sth->fetchAll();
+
+        if (!$countAll)
+            throw new CustomException("$table table ist leer", "BAD_REQUEST", 400);
+        else if ($condition && empty($countCondition[0]["COUNT(1)"]))
+            throw new CustomException("In $table wurden keine löschbaren Zeilen gefunden", "BAD_REQUEST", 400);
         
-        $sql = ($reset_id) ? "TRUNCATE TABLE $table" : "DELETE FROM $table";
+        $sql = ($reset_id && !$condition) ? "TRUNCATE TABLE $table" : "DELETE FROM $table";
+        $sql .= ($condition) ? " WHERE $condition" : "";
+
+        if ($countCondition[0]["COUNT(1)"] == $countAll[0]["COUNT(1)"] && $reset_id)
+            $sql = "TRUNCATE TABLE $table";
+        
         $sth = $pdo->prepare($sql);
         $sth->execute();
-        return $count[0]["COUNT(1)"];
+        return $countCondition[0]["COUNT(1)"];
     }
 
     private static function getIndentityColumn($table)
