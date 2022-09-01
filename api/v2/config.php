@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+header("Content-Type: application/json");
+
 require 'classes/exception_handler_class.php';
 require 'classes/response_keys_class.php';
 require 'vendor/autoload.php';

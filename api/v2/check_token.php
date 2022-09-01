@@ -13,10 +13,8 @@ $jwt = explode(" ", $given_token)[1];
 try {
     $decoded = JWT::decode($jwt, new Key($jwt_key, 'HS256'));
     $decoded = (array) $decoded;
-    Response::success(Response::SUCCESS . ": Token ist valide", "SUCCESS");
-    // http_response_code(200);
-    // $response["permissions"] = array_values((array) $decoded["permissions"]);;
-    // echo json_encode($response);
+    $permissions["permissions"] = array_values((array) $decoded["permissions"]);
+    Response::success(Response::SUCCESS . ": Token ist valide", "SUCCESS", $permissions);
 } catch (Exception $e) {
     throw new CustomException(Response::NOT_AUTHORIZED, "INVALID_TOKEN", 400);
 }

@@ -2,12 +2,19 @@
 require_once "config.php";
 class Booking
 {
-  public static function execute($uid_1, $uid_2 = null)
+  function __construct($uid_1, $uid_2 = null)
+  {
+    $this->uid_1 = $uid_1;
+    $this->uid_2 = $uid_2;
+    $this->data = null;
+  }
+  
+  public function Execute()
   {
     global $pdo, $multiuser;
     
-    // Fetch first device with $uid_1
-    $sql = "SELECT * FROM devices LEFT JOIN property_device_type ON devices.device_type = property_device_type.device_type_id WHERE devices.device_uid = '$uid_1'";
+    // Fetch first device with $this->uid_1
+    $sql = "SELECT * FROM devices LEFT JOIN property_device_type ON devices.device_type = property_device_type.device_type_id WHERE devices.device_uid = '$this->uid_1'";
     $device_1 = $pdo->query($sql)->fetch();
 
     if (!empty($device_1))
@@ -18,19 +25,19 @@ class Booking
         $user = $pdo->query($sql)->fetch();
       }
       
-      if (!empty($uid_2)) // Ausleihe oder Rückgabe
+      if (!empty($this->uid_2)) // Ausleihe oder Rückgabe
       {
-        $sql = "SELECT * FROM devices LEFT JOIN property_device_type ON devices.device_type = property_device_type.device_type_id WHERE devices.device_uid = '$uid_2'";
+        $sql = "SELECT * FROM devices LEFT JOIN property_device_type ON devices.device_type = property_device_type.device_type_id WHERE devices.device_uid = '$this->uid_2'";
         $device_2 = $pdo->query($sql)->fetch();
 
         if (!$device_2)
-					throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $uid_2)", "DEVICE_NOT_FOUND", 400);
+					throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $this->uid_2)", "DEVICE_NOT_FOUND", 400);
 
         if ($device_2['device_type_id'] == $_SERVER['USERCARD_TYPE'])
           throw new CustomException(Response::WRONG_DEVICE_TYPE, "WRONG_DEVICE_TYPE", 400);
         
         // Ausleihe
-        // ist $uid_1 eine usercard und $uid_2 ein Gerät?
+        // ist $this->uid_1 eine usercard und $this->uid_2 ein Gerät?
         if ($device_1['device_type_id'] == $_SERVER['USERCARD_TYPE'] && $device_2['device_type_id'] != $_SERVER['USERCARD_TYPE']) 
         { // Darf der User ein Device ausleihen?
           $sql = "SELECT * FROM devices WHERE device_lend_user_id = '{$user['user_id']}'";
@@ -50,23 +57,32 @@ class Booking
       else
       {
         // Rückgabe oder Info
-        // ist $uid_1 ein Gerät?
+        // ist $this->uid_1 ein Gerät?
         if ($device_1['device_type_id'] != $_SERVER['USERCARD_TYPE'] && $device_1['device_lend_user_id'] != 0) // Rückgabe
           return self::return($device_1['device_id']);
         else if ($device_1['device_type_id'] != $_SERVER['USERCARD_TYPE']) // Keine Rückgabe möglich
           throw new CustomException(Response::RETURN_NOT_POSSIBLE, "RETURN_NOT_POSSIBLE", 400);
         else if ($device_1['device_type_id'] == $_SERVER['USERCARD_TYPE']) // Info
-          return self::info($user['user_id']);
+        {
+          return $this->info($user['user_id']);
+        }
       }
     }
     else
     {
-      // Input $uid_1 is empty
-      throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $uid_1)", "DEVICE_NOT_FOUND", 400);
+      // Input $this->uid_1 is empty
+      throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $this->uid_1)", "DEVICE_NOT_FOUND", 400);
     }
   }
 
-  private static function lend($user_id, $device_id)
+  public function fetchUserData()
+  {
+    if ($this->data)
+      return $this->data;
+    return [];
+  }
+
+  private function lend($user_id, $device_id)
   {
     global $pdo;
     // Update device_lend_user_id
@@ -80,7 +96,7 @@ class Booking
     return "BOOKING_SUCCESS";
   }
   
-  private static function return($device_id)
+  private function return($device_id)
   {
     global $pdo;
 
@@ -101,7 +117,7 @@ class Booking
     return "RETURN_SUCCESS";
   }
 
-  private static function info($user_id)
+  private function info($user_id)
   {
     global $pdo;
 
@@ -114,21 +130,21 @@ class Booking
     $status = $pdo->query($sql)->fetchAll() or false;
     
     // General user info
-    $data['user']['firstname'] = $user['user_firstname'];
-    $data['user']['lastname'] = $user['user_lastname'];
-    $data['user']['user_id'] = $user_id;
-    $data['user']['class'] = $user['class_name'];
-    $data['user']['status'] = $status;
+    $this->data['user']['firstname'] = $user['user_firstname'];
+    $this->data['user']['lastname'] = $user['user_lastname'];
+    $this->data['user']['user_id'] = $user_id;
+    $this->data['user']['class'] = $user['class_name'];
+    $this->data['user']['status'] = $status;
 
     // History of devices
-    $history_stm = "SELECT devices.device_type, devices.device_id, property_device_type.device_type_id, property_device_type.device_type_name, event.* FROM event LEFT JOIN devices ON event.event_device_id = devices.device_id LEFT JOIN property_device_type ON property_device_type.device_type_id = devices.device_type WHERE event_user_id = '".$data['user']['user_id']."' ORDER BY event_begin DESC LIMIT 20";
+    $history_stm = "SELECT devices.device_type, devices.device_id, property_device_type.device_type_id, property_device_type.device_type_name, event.* FROM event LEFT JOIN devices ON event.event_device_id = devices.device_id LEFT JOIN property_device_type ON property_device_type.device_type_id = devices.device_type WHERE event_user_id = '".$this->data['user']['user_id']."' ORDER BY event_begin DESC LIMIT 20";
     $history = $pdo->query($history_stm)->fetchAll();
     if ($history) {
       for ($i=0;$i < count($history); $i++) {
-        $data['user']['history'][$i]['device_id'] = $history[$i]['event_device_id'];
-        $data['user']['history'][$i]['begin'] = $history[$i]['event_begin'];
-        $data['user']['history'][$i]['end'] = $history[$i]['event_end'];
-        $data['user']['history'][$i]['device_type'] = $history[$i]['device_type_name'];
+        $this->data['user']['history'][$i]['device_id'] = $history[$i]['event_device_id'];
+        $this->data['user']['history'][$i]['begin'] = $history[$i]['event_begin'];
+        $this->data['user']['history'][$i]['end'] = $history[$i]['event_end'];
+        $this->data['user']['history'][$i]['device_type'] = $history[$i]['device_type_name'];
       }
     }
     // data muss noch zurückgegeben werden
