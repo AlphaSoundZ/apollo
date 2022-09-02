@@ -58,13 +58,13 @@ abstract class Response extends BasicEnum {
 	const RETURN_SUCCESS = "Device wurde zurückgegeben"; // Device returned
 	const INFO_SUCCESS = "Info wird ausgegeben"; // Info sent
 	const BOOKING_SUCCESS = "Ausleihe erfolgreich"; // Booking successfull
-	const TYPE_NOT_FOUND = "Device Typ nicht gefunden"; // Device type does not exist in database
+	const DEVICE_TYPE_NOT_FOUND = "Device Typ nicht gefunden"; // Device type does not exist in database
 	const DEVICE_ALREADY_EXISTS = "Device existiert bereits"; // Device already exists in database
 	const USER_ALREADY_EXISTS = "User existiert bereits"; // Device already exists in database
 	const USERCARD_ALREADY_ASSIGNED = "Usercard ist bereits einem User zugewiesen"; // Usercard already assigned to a user
 	const USERCARD_ALREADY_EXISTS = "Usercard existiert bereits"; // Usercard already exists in database
 	const BAD_REQUEST = "Bad Request"; // Bad request
 	const CLASS_NOT_FOUND = "Klasse nicht gefunden"; // Class not found in database
-	const ASSIGN_USERCARD_ONLY = "Nur Zuweisung"; // Usercard only needs to assign to user
-	const CREATE_USERCARD = "Usercard erstellen"; // Usercard successfully created
+	const USER_NOT_FOUND = "User nicht gefunden"; // User not found in database
+	const USER_ALREADY_ASSIGNED = "User ist bereits einer Usercard zugewiesen"; // User already assigned to a user
 }
