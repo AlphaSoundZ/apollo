@@ -9,10 +9,12 @@ class Create
         $sql = "INSERT INTO devices (device_id, device_type, device_uid, device_lend_user_id) VALUES (NULL, :device_type, :device_uid, '0'  )";
         $stmt= $pdo->prepare($sql);
         $stmt->execute(["device_type" => $device_type, "device_uid" => $device_uid]);
-        
-        http_response_code(200);
-        echo json_encode(["response" => "200", "message" => "success"]);
-        return true;
+
+        $sql = "SELECT device_id FROM devices WHERE device_uid = :device_uid";
+        $stmt= $pdo->prepare($sql);
+        $stmt->execute(["device_uid" => $device_uid]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result["device_id"];
     }
     public static function checkDevice($device_uid)
     {

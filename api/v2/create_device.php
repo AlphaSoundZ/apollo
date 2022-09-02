@@ -16,4 +16,4 @@ if (!$type_name)
 
 $id = Create::createDevice($data["rfid_code"], $data["type"]);
 
-Response::success("$type wurde erstellt (id: $id)", "SUCCESS", ["device_id" => $id, "device_type_name" => $type_name]);
+Response::success("$type_name wurde erstellt (id: $id)", "SUCCESS", ["device_id" => "$id", "device_type_name" => $type_name]);
