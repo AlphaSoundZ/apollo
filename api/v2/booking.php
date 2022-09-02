@@ -11,10 +11,13 @@ Wenn nur rfid1:
 */
 
 authorize("book");
-$input = getData("POST", ["uid_1"]);
-$uid_1 = $input["uid_1"];
-$uid_2 = (!empty($input["uid_2"])) ? $input["uid_2"] : null;
+
+$data = getData("POST", ["uid_1"]);
+$uid_1 = $data["uid_1"];
+$uid_2 = (!empty($data["uid_2"])) ? $data["uid_2"] : null;
+
 $booking = new Booking($uid_1, $uid_2);
 $response_code = $booking->execute();
 $response["data"] = $booking->fetchUserData();
+
 Response::success(Response::getValue($response_code), $response_code, $response);
