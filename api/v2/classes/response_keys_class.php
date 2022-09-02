@@ -30,12 +30,6 @@ abstract class BasicEnum {
 		return in_array($value, $values, $strict);
 	}
 
-	public static function success($message, $response_code, $custom = []) {
-		http_response_code(200);
-		echo json_encode(array_merge(["response" => $response_code, "message" => $message], $custom));
-		die;
-	}
-
 	public static function getValue($name)
 	{
 		return self::getConstants()[$name];
@@ -59,4 +53,10 @@ abstract class Response extends BasicEnum {
 	const TYPE_NOT_FOUND = "Device Typ nicht gefunden"; // Device type does not exist in database
 	const DEVICE_ALREADY_EXISTS = "Device existiert bereits"; // Device already exists in database
 	const BAD_REQUEST = "Bad Request"; // Bad request
+
+	public static function success($message, $response_code, $custom = []) {
+		http_response_code(200);
+		echo json_encode(array_merge(["response" => $response_code, "message" => $message], $custom));
+		die;
+	}
 }
