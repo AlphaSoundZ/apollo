@@ -5,6 +5,7 @@ declare(strict_types=1);
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 header("Access-Control-Allow-Methods: *");
+header("Access-Control-Max-Age: 6000");
 header("Content-Type: application/json");
 
 // Check if request method is OPTIONS. If so, die directly, so that no other code gets executed.
