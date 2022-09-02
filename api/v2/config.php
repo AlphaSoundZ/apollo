@@ -1,8 +1,17 @@
 <?php
+
 declare(strict_types=1);
 
 header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: *");
+header("Access-Control-Allow-Methods: *");
 header("Content-Type: application/json");
+
+// Check if request method is OPTIONS. If so, die directly, so that no other code gets executed.
+if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
+	die;
+}
+
 
 require 'classes/exception_handler_class.php';
 require 'classes/response_keys_class.php';
@@ -40,15 +49,13 @@ function getData($method, $requirements = [])
 	if (empty($input))
 		throw new CustomException(Response::REQUIRED_DATA_MISSING, "REQUIRED_DATA_MISSING", 400);
 
-	if (isset($requirements) && $input)
-	{
+	if (isset($requirements) && $input) {
 		$errors = [];
 		foreach ($requirements as $r) {
 			if (!array_key_exists($r, $input) || empty($input[$r]))
 				array_push($errors, $r);
 		}
-		if (!empty($errors))
-		{
+		if (!empty($errors)) {
 			$errors = implode(", ", $errors);
 			throw new CustomException(Response::REQUIRED_DATA_MISSING . " ($errors)", "REQUIRED_DATA_MISSING", 400);
 		}
@@ -84,7 +91,7 @@ function authorize($file = null)
 
 	if (!$file)
 		return true;
-	
+
 	// check if token has the right permissions:
 	$sql = "SELECT * FROM property_token_permissions WHERE permission_text = '{$file}'";
 	$sth = $pdo->prepare($sql);
