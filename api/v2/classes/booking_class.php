@@ -135,6 +135,7 @@ class Booking
     $this->data['user']['user_id'] = $user_id;
     $this->data['user']['class'] = $user['class_name'];
     $this->data['user']['status'] = $status;
+    $this->data['user']['multiuser'] = ($user['user_class'] == $_SERVER['MULTIUSER']) ? true : false;
 
     // History of devices
     $history_stm = "SELECT devices.device_type, devices.device_id, property_device_type.device_type_id, property_device_type.device_type_name, event.* FROM event LEFT JOIN devices ON event.event_device_id = devices.device_id LEFT JOIN property_device_type ON property_device_type.device_type_id = devices.device_type WHERE event_user_id = '".$this->data['user']['user_id']."' ORDER BY event_begin DESC LIMIT 20";
