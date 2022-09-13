@@ -8,5 +8,6 @@
 </head>
 <body>
     <h1>Ausleihe Control Panel</h1>
+    <p>text</p>
 </body>
 </html>
