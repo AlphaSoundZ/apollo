@@ -2,6 +2,10 @@
 require_once "config.php";
 class Booking
 {
+  public $uid_1;
+  public $uid_2;
+  public $data;
+
   function __construct($uid_1, $uid_2 = null)
   {
     $this->uid_1 = $uid_1;
@@ -11,7 +15,7 @@ class Booking
   
   public function Execute()
   {
-    global $pdo, $multiuser;
+    global $pdo;
     
     // Fetch first device with $this->uid_1
     $sql = "SELECT * FROM devices LEFT JOIN property_device_type ON devices.device_type = property_device_type.device_type_id WHERE devices.device_uid = '$this->uid_1'";
@@ -19,7 +23,7 @@ class Booking
 
     if (!empty($device_1))
     {
-      if ($device_1['device_type_id'] == $_SERVER['USERCARD_TYPE'])
+      if ($device_1['device_type_id'] == $_ENV['USERCARD_TYPE'])
       {
         $sql = "SELECT * FROM user LEFT JOIN property_class ON property_class.class_id = user.user_class WHERE user_usercard_id = '{$device_1['device_id']}'";
         $user = $pdo->query($sql)->fetch();
@@ -33,16 +37,16 @@ class Booking
         if (!$device_2)
 					throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $this->uid_2)", "DEVICE_NOT_FOUND", 400);
 
-        if ($device_2['device_type_id'] == $_SERVER['USERCARD_TYPE'])
+        if ($device_2['device_type_id'] == $_ENV['USERCARD_TYPE'])
           throw new CustomException(Response::WRONG_DEVICE_TYPE, "WRONG_DEVICE_TYPE", 400);
         
         // Ausleihe
         // ist $this->uid_1 eine usercard und $this->uid_2 ein Gerät?
-        if ($device_1['device_type_id'] == $_SERVER['USERCARD_TYPE'] && $device_2['device_type_id'] != $_SERVER['USERCARD_TYPE']) 
+        if ($device_1['device_type_id'] == $_ENV['USERCARD_TYPE'] && $device_2['device_type_id'] != $_ENV['USERCARD_TYPE']) 
         { // Darf der User ein Device ausleihen?
           $sql = "SELECT * FROM devices WHERE device_lend_user_id = '{$user['user_id']}'";
           $status = $pdo->query($sql)->fetchAll();
-          if ($status && $user['user_class'] != $multiuser)
+          if ($status && $user['user_class'] != $_ENV['MULTIUSER'])
             throw new CustomException(Response::NOT_ALLOWED_FOR_THIS_CLASS, "NOT_ALLOWED_FOR_THIS_CLASS", 400);
           
           // Wird das auszuleihende Gerät bereits ausgeliehen?
@@ -51,18 +55,18 @@ class Booking
           // Keine Probleme, Gerät kann ausgeliehen werden
           return self::lend($user['user_id'], $device_2['device_id']);
         }
-        if ($device_1['device_type_id'] != $_SERVER['USERCARD_TYPE'] || $device_2['device_type_id'] == $_SERVER['USERCARD_TYPE'])
+        if ($device_1['device_type_id'] != $_ENV['USERCARD_TYPE'] || $device_2['device_type_id'] == $_ENV['USERCARD_TYPE'])
           throw new CustomException(Response::WRONG_DEVICE_TYPE, "WRONG_DEVICE_TYPE", 400);
       }
       else
       {
         // Rückgabe oder Info
         // ist $this->uid_1 ein Gerät?
-        if ($device_1['device_type_id'] != $_SERVER['USERCARD_TYPE'] && $device_1['device_lend_user_id'] != 0) // Rückgabe
+        if ($device_1['device_type_id'] != $_ENV['USERCARD_TYPE'] && $device_1['device_lend_user_id'] != 0) // Rückgabe
           return self::return($device_1['device_id']);
-        else if ($device_1['device_type_id'] != $_SERVER['USERCARD_TYPE']) // Keine Rückgabe möglich
+        else if ($device_1['device_type_id'] != $_ENV['USERCARD_TYPE']) // Keine Rückgabe möglich
           throw new CustomException(Response::RETURN_NOT_POSSIBLE, "RETURN_NOT_POSSIBLE", 400);
-        else if ($device_1['device_type_id'] == $_SERVER['USERCARD_TYPE']) // Info
+        else if ($device_1['device_type_id'] == $_ENV['USERCARD_TYPE']) // Info
         {
           return $this->info($user['user_id']);
         }

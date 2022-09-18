@@ -7,6 +7,6 @@ $data = getData("POST", ["username", "password"]);
 $username = $data["username"];
 $password = $data["password"];
 
-$token["jwt"] = Token::getToken($username, $password, $_SERVER["JWT_KEY"]);
+$token["jwt"] = Token::getToken($username, $password, $_ENV["JWT_KEY"]);
 
 Response::success(Response::SUCCESS, "SUCCESS", $token);

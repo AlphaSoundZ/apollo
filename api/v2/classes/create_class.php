@@ -64,7 +64,7 @@ class Create
     public static function checkUsercard($uid)
     {
         global $pdo;
-        $sql = "SELECT * FROM devices WHERE device_uid = :uid AND device_type = '{$_SERVER["USERCARD_TYPE"]}'";
+        $sql = "SELECT * FROM devices WHERE device_uid = :uid AND device_type = '{$_ENV["USERCARD_TYPE"]}'";
         $sth = $pdo->prepare($sql);
         $sth->execute(["uid" => $uid]);
         $usercard = $sth->fetch();
@@ -118,7 +118,7 @@ class Create
         // create usercard
         $sql = "INSERT INTO devices (device_id, device_type, device_uid, device_lend_user_id) VALUES (NULL, :device_type, :uid, NULL)";
         $stmt= $pdo->prepare($sql);
-        $status = $stmt->execute(["device_type" => $_SERVER["USERCARD_TYPE"], "uid" => $uid]);
+        $status = $stmt->execute(["device_type" => $_ENV["USERCARD_TYPE"], "uid" => $uid]);
         
         // Usercard ID holen
         $sql = "SELECT * FROM devices WHERE device_uid = :uid";
