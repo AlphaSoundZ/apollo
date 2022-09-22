@@ -53,6 +53,7 @@ class Booking
           if ($device_2['device_lend_user_id'] != 0)
             throw new CustomException(Response::NOT_ALLOWED_FOR_THIS_DEVICE, "NOT_ALLOWED_FOR_THIS_DEVICE", 400);
           // Keine Probleme, Gerät kann ausgeliehen werden
+          $this->info($user['user_id']);
           return self::lend($user['user_id'], $device_2['device_id']);
         }
         if ($device_1['device_type_id'] != $_ENV['USERCARD_TYPE'] || $device_2['device_type_id'] == $_ENV['USERCARD_TYPE'])
@@ -130,8 +131,8 @@ class Booking
     $user = $pdo->query($sql)->fetch();
 
     // Fetch user Status and if true fetch the device data
-    $sql = "SELECT * FROM devices WHERE device_lend_user_id = '$user_id'";
-    $status = $pdo->query($sql)->fetchAll() or false;
+    $sql = "SELECT device_id, device_type FROM devices WHERE device_lend_user_id = '$user_id'";
+    $status = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC) or false;
     
     // General user info
     $this->data['user']['firstname'] = $user['user_firstname'];
