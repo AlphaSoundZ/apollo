@@ -53,7 +53,8 @@ class Booking
           if ($device_2['device_lend_user_id'] != 0)
             throw new CustomException(Response::NOT_ALLOWED_FOR_THIS_DEVICE, "NOT_ALLOWED_FOR_THIS_DEVICE", 400);
           // Keine Probleme, Gerät kann ausgeliehen werden
-          $this->info($user['user_id']);
+          $this->userInfo($user['user_id']);
+          $this->deviceInfo($device_2['device_id']);
           return self::lend($user['user_id'], $device_2['device_id']);
         }
         if ($device_1['device_type_id'] != $_ENV['USERCARD_TYPE'] || $device_2['device_type_id'] == $_ENV['USERCARD_TYPE'])
@@ -64,12 +65,18 @@ class Booking
         // Rückgabe oder Info
         // ist $this->uid_1 ein Gerät?
         if ($device_1['device_type_id'] != $_ENV['USERCARD_TYPE'] && $device_1['device_lend_user_id'] != 0) // Rückgabe
+        {
+          $sql = "SELECT * FROM user WHERE user_id = '{$device_1['device_lend_user_id']}'";
+          $user = $pdo->query($sql)->fetch();
+          $this->userInfo($user['user_id']);
+          $this->deviceInfo($device_1['device_id']);
           return self::return($device_1['device_id']);
+        }
         else if ($device_1['device_type_id'] != $_ENV['USERCARD_TYPE']) // Keine Rückgabe möglich
           throw new CustomException(Response::RETURN_NOT_POSSIBLE, "RETURN_NOT_POSSIBLE", 400);
         else if ($device_1['device_type_id'] == $_ENV['USERCARD_TYPE']) // Info
         {
-          return $this->info($user['user_id']);
+          return $this->userInfo($user['user_id']);
         }
       }
     }
@@ -122,7 +129,7 @@ class Booking
     return "RETURN_SUCCESS";
   }
 
-  private function info($user_id)
+  private function userInfo($user_id)
   {
     global $pdo;
 
@@ -152,7 +159,24 @@ class Booking
         $this->data['user']['history'][$i]['device_type'] = $history[$i]['device_type_name'];
       }
     }
-    // data muss noch zurückgegeben werden
+    return "INFO_SUCCESS";
+  }
+
+  private function deviceInfo($device_id)
+  {
+    global $pdo;
+    // If device_id is set, fetch device info
+    if ($device_id)
+    {
+      $sql = "SELECT * FROM devices 
+        LEFT JOIN property_device_type ON property_device_type.device_type_id = devices.device_type 
+        WHERE device_id = '$device_id'";
+      $device = $pdo->query($sql)->fetch();
+      $this->data['device']['device_id'] = $device['device_id'];
+      $this->data['device']['device_type_id'] = $device['device_type_id'];
+      $this->data['device']['device_type_name'] = $device['device_type_name'];
+    }
+
     return "INFO_SUCCESS";
   }
 
