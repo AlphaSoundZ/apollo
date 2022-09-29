@@ -17,3 +17,4 @@ echo "Last Commit Message: ".$commit->getSubject()."<br>";
 <form target="_blank" action="updateServerPull.php">
     <input type="submit" value="update">
 </form>
+

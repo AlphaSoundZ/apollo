@@ -5,5 +5,4 @@ $git = new CzProject\GitPhp\Git;
 // create repo object
 $repo = $git->open('./');
 
-// $repo->pull();
-$repo->execute("pull");
+echo "response: ".$repo->execute("pull")[0];
