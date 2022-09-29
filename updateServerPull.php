@@ -6,4 +6,4 @@ $git = new CzProject\GitPhp\Git;
 $repo = $git->open('./');
 
 // $repo->pull();
-$repo->execute("git pull");
+$repo->execute("pull");
