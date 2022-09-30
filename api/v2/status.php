@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <?php
 require 'config.php';
+
+header("Content-Type: text/html; charset=UTF-8");
+
 global $pdo;
 
 $sql_1 = "SELECT * FROM event LEFT JOIN user ON event.event_user_id = user.user_id 
