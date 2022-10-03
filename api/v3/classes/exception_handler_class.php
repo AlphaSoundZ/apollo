@@ -6,7 +6,11 @@ set_exception_handler(function ($e) {
       echo json_encode(["response" => $e->response_code, "message" => $e->getMessage()]);
     } else {
       http_response_code(500);
-      echo json_encode(["response" => 500, "message" => "Internal Server Error: ".$e->getMessage()]);
+      $line = $e->getLine();
+      $path = $e->getFile();
+      $file = basename($path);         // $file is set to "index.php"
+      $file = basename($path, ".php"); // $file is set to "index"
+      echo json_encode(["response" => 500, "message" => "Internal Server Error (line $line in $file): ".$e->getMessage()]);
     }
   } );
 
