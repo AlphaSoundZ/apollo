@@ -20,10 +20,13 @@ $response["response"] = "";
 
 
 $table = new table();
-$response["table"] = $table->selectTable($data["table"], $data["column"], $data["filter"]);
+$response["data"] = $table->selectTable($data["table"], $data["column"], $data["filter"]);
 if (isset($data["search"]))
 {
-    $limit = (isset($data["search"]["limit"])) ? $data["search"]["limit"] : "";
-    $response["search"] = $table->search($data["search"]["value"], $response["table"], $data["search"]["column"]);
+    $response["data"] = $table->search($data["search"]["value"], $response["data"], $data["search"]["column"]);
+    
+    // reduce the array to only the first 10 results
+    if (isset($data["search"]["limit"]) && $data["search"]["limit"] !== 0)
+        $response["data"] = array_slice($response["data"], 0, $data["search"]["limit"]);
 }
 echo json_encode($response); // return the response

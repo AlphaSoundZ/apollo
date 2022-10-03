@@ -19,15 +19,20 @@ $router->get('/status', function () {
     require 'status.php';
 });
 
-$router->get('/user/select/{column}/{param}', function ($column, $param) {
+$router->get('/user/select/{column}/{param}/{limit}', function ($column, $param, $limit = 0) {
     require 'classes/search_class.php';
     $response["message"] = "";
     $response["response"] = "";
 
     $table = new table();
-    $selectedTable = $table->selectTable([["table" => "user"]], ["user_id", "user_firstname", "user_lastname"], ["limit" => 10]);
+    $selectedTable = $table->selectTable([["table" => "user"]], ["user_id", "user_firstname", "user_lastname"]);
     // $limit = (isset($data["search"]["limit"])) ? $data["search"]["limit"] : "";
-    $response["search"] = $table->search($param, $selectedTable, ["user_id"]);
+    $response["data"] = $table->search($param, $selectedTable, ["user_id"]);
+
+    // reduce the array to only the first 10 results
+    if ($limit !== 0)
+        $response["data"] = array_slice($response["data"], 0, $limit);
+    
     echo json_encode($response, JSON_PRETTY_PRINT); // return the response
 });
 
