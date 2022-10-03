@@ -19,16 +19,29 @@ $router->get('/status', function () {
     require 'status.php';
 });
 
-$router->get('/user/select/{column}/{param}/{limit}', function ($column, $param, $limit = 0) {
+$router->get('/user/select/{column}/([^/]+)(/\d+)?', function ($column, $param, $limit = 0) {
     require 'classes/search_class.php';
     $response["message"] = "";
     $response["response"] = "";
+    $response["search"] = $param;
+
+    switch ($column)
+    {
+        case "name":
+            $search_by = ["user_firstname", "user_lastname"];
+            break;
+        case "id":
+            $search_by = ["user_id"];
+            break;
+        default:
+            $search_by = ["user_id", "user_firstname", "user_lastname"];
+            break;
+    }
 
     $table = new table();
-    $selectedTable = $table->selectTable([["table" => "user"]], ["user_id", "user_firstname", "user_lastname"]);
+    $selectedTable = $table->selectTable([["table" => "user"]], ["*"]);
     // $limit = (isset($data["search"]["limit"])) ? $data["search"]["limit"] : "";
-    $response["data"] = $table->search($param, $selectedTable, ["user_id"]);
-
+    $response["data"] = $table->search($param, $selectedTable, $search_by);
     // reduce the array to only the first 10 results
     if ($limit !== 0)
         $response["data"] = array_slice($response["data"], 0, $limit);
