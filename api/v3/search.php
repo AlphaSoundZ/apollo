@@ -11,7 +11,7 @@ response codes:
 require 'config.php';
 require 'classes/search_class.php';
 
-// authorize("search");
+authorize("search");
 
 // get input:
 $data = getData("POST", ["table"]);

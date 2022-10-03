@@ -20,6 +20,8 @@ $router->get('/status', function () {
 });
 
 $router->get('/user/select/{column}/([^/]+)(/\d+)?', function ($column, $param, $limit = 0) {
+    authorize("search");
+    
     require 'classes/search_class.php';
     $response["message"] = "";
     $response["response"] = "";
