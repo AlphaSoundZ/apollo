@@ -19,35 +19,30 @@ $router->get('/status', function () {
     require 'status.php';
 });
 
-$router->get('/user/select/{column}/([^/]+)(/\d+)?', function ($column, $param, $limit = 0) {
-    authorize("search");
-    
+$router->get('/user', function () {
     require 'classes/search_class.php';
+    // authorize("search");
+
+    $limit = (isset($_GET["limit"]) && $_GET["limit"] > 0) ? $_GET["limit"] : 0;
+    $page = ($limit !== 0 && !isset($_GET["page"])) ? 0 : null;
+    $page = ($limit !== 0 && isset($_GET["page"])) ? $_GET["page"] : $page;
+    $query = (isset($_GET["query"])) ? $_GET["query"] : null;
+    
     $response["message"] = "";
     $response["response"] = "";
-    $response["search"] = $param;
 
-    switch ($column)
+    if ($query)
     {
-        case "name":
-            $search_by = ["user_firstname", "user_lastname"];
-            break;
-        case "id":
-            $search_by = ["user_id"];
-            break;
-        default:
-            $search_by = ["user_id", "user_firstname", "user_lastname"];
-            break;
+        $response["message"] = "Suche erfolgreich";
+        $response["query"] = $query;
+        $response["data"] = Select::search([["table" => "user"]], ["user_id", "user_firstname", "user_lastname"], $query, $limit);
+    }
+    else
+    {
+        $response["message"] = "Alle Benutzer";
+        $response["data"] = Select::select([["table" => "user"]], ["user_id", "user_firstname"], ["page" => $page, "size" => $limit]);
     }
 
-    $table = new table();
-    $selectedTable = $table->selectTable([["table" => "user"]], ["*"]);
-    // $limit = (isset($data["search"]["limit"])) ? $data["search"]["limit"] : "";
-    $response["data"] = $table->search($param, $selectedTable, $search_by);
-    // reduce the array to only the first 10 results
-    if ($limit !== 0)
-        $response["data"] = array_slice($response["data"], 0, $limit);
-    
     echo json_encode($response, JSON_PRETTY_PRINT); // return the response
 });
 

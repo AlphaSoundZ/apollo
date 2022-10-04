@@ -1,10 +1,16 @@
 <?php
-class table {
-    function selectTable($table, $column, $filter = []) {
+class Select {
+    /**
+     * @param array $table
+     * @param array $columns
+     * @param array $filter (optional)
+     * @return array returns the table with the selected columns
+     */
+    static function select($table, $columns, $filter = []) {
         global $pdo, $response;
         $first_table = $table[0]["table"];
         array_shift($table);
-        $column = implode(", ", $column);
+        $column = implode(", ", $columns);
         $join = "";
 
         foreach ($table as $key => $t)
@@ -16,7 +22,7 @@ class table {
         }
         $sql = "SELECT $column FROM $first_table $join";
         if (isset($filter["orderby"]) && isset($filter["direction"])) $sql .= ' ORDER BY '.$filter["orderby"].' '.$filter["direction"].' ';
-        if (isset($filter["size"]) && isset($filter["page"])) $sql .= ' LIMIT '.$filter["size"].' OFFSET '.$filter["page"].' ';
+        if (isset($filter["size"]) && isset($filter["page"])) $sql .= ' LIMIT '.$filter["size"].' OFFSET '.$filter["page"]*$filter["size"].' ';
 
         $sth = $pdo->prepare($sql);
         $sth->execute();
@@ -26,7 +32,25 @@ class table {
         return $result;
     }
 
-    static function search($needles, $haystack, $filter) {
+    static function search($table, $columns, $needles, $limit = 0) {
+        $table_data = self::select($table, $columns);
+        $result = self::searchalgo($needles, $table_data, $columns);
+        if ($limit !== 0)
+            $result = array_slice($result, 0, $limit);
+        return $result;
+    }
+
+    static function strictsearch($needles, $table, $column)
+    {
+        global $pdo, $response;
+        $sql = "SELECT * FROM $table WHERE $column LIKE '%$needles%'";
+        $sth = $pdo->prepare($sql);
+        $sth->execute();
+        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
+        return $result;
+    }
+
+    private static function searchalgo($needles, $haystack, $filter) {
         global $response;
         $result = array();
         $needles = explode(" ", strtolower($needles));

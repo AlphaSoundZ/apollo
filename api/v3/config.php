@@ -35,10 +35,13 @@ function getData($method, $requirements = [])
 	if ($method === "POST")
 		$input = (isset($_POST)) ? json_decode(file_get_contents("php://input"), true) : false;
 	elseif ($method === "GET")
-		$input = (isset($_GET)) ? json_decode($_GET['data'], true) : false;
+		$input = (isset($_GET)) ? $_GET : false;
 
 	if (empty($input))
-		throw new CustomException(Response::REQUIRED_DATA_MISSING, "REQUIRED_DATA_MISSING", 400);
+	{
+		$errors = implode(", ", $requirements);
+		throw new CustomException(Response::REQUIRED_DATA_MISSING . " ($errors)", "REQUIRED_DATA_MISSING", 400);
+	}
 
 	if (isset($requirements) && $input)
 	{
