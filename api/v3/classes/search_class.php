@@ -40,10 +40,10 @@ class Select {
         return $result;
     }
 
-    static function strictsearch($needles, $table, $column)
+    static function strictsearch($table, $column, $needle)
     {
         global $pdo, $response;
-        $sql = "SELECT * FROM $table WHERE $column LIKE '%$needles%'";
+        $sql = "SELECT * FROM $table WHERE $column LIKE '$needle'";
         $sth = $pdo->prepare($sql);
         $sth->execute();
         $result = $sth->fetchAll(PDO::FETCH_ASSOC);

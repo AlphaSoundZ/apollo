@@ -19,6 +19,7 @@ $router->get('/status', function () {
     require 'status.php';
 });
 
+// get all users or search for user using ?query=
 $router->get('/user', function () {
     require 'classes/search_class.php';
     // authorize("search");
@@ -42,6 +43,20 @@ $router->get('/user', function () {
         $response["message"] = "Alle Benutzer";
         $response["data"] = Select::select([["table" => "user"]], ["user_id", "user_firstname"], ["page" => $page, "size" => $limit]);
     }
+
+    echo json_encode($response, JSON_PRETTY_PRINT); // return the response
+});
+
+// get user by id
+$router->get('/user/(\d+)', function ($id) {
+    require 'classes/search_class.php';
+    // authorize("search");
+
+    $response["message"] = "";
+    $response["response"] = "";
+
+    $response["message"] = "Benutzer gefunden";
+    $response["data"] = Select::strictsearch("user", "user_id", $id);
 
     echo json_encode($response, JSON_PRETTY_PRINT); // return the response
 });
