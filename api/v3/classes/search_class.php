@@ -16,8 +16,8 @@ class Select {
         foreach ($table as $key => $t)
         {
             $table_name = $t['table'];
-            $link_1 = $t['link'][0];
-            $link_2 = $t['link'][1];
+            $link_1 = $t['join'][0];
+            $link_2 = $t['join'][1];
             $join .= " LEFT JOIN $table_name ON $link_1 = $link_2";
         }
         $sql = "SELECT $column FROM $first_table $join";

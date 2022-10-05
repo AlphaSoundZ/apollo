@@ -36,12 +36,12 @@ $router->get('/user', function () {
     {
         $response["message"] = "Suche erfolgreich";
         $response["query"] = $query;
-        $response["data"] = Select::search([["table" => "user"]], ["user_id", "user_firstname", "user_lastname"], $query, $limit);
+        $response["data"] = Select::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name"], $query, $limit);
     }
     else
     {
         $response["message"] = "Alle Benutzer";
-        $response["data"] = Select::select([["table" => "user"]], ["user_id", "user_firstname"], ["page" => $page, "size" => $limit]);
+        $response["data"] = Select::select([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name"], ["page" => $page, "size" => $limit]);
     }
 
     // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
@@ -59,7 +59,7 @@ $router->get('/user/(\d+)', function ($id) {
     $response["message"] = "Benutzer gefunden";
     $response["data"] = Select::strictsearch("user", "user_id", $id);
 
-    echo json_encode($response, JSON_PRETTY_PRINT); // return the response
+    echo json_encode($response); // return the response
 });
 
 $router->run();
