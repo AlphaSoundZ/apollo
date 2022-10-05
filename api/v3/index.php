@@ -62,4 +62,31 @@ $router->get('/user/(\d+)', function ($id) {
     echo json_encode($response); // return the response
 });
 
+// get device by id
+
+// get all devices or search for device using ?query=
+
+$router->get('/device(/\d+)?', function ($id = null) {
+    require 'classes/search_class.php';
+    // authorize("search");
+
+    $response["message"] = "";
+    $response["response"] = "";
+    if ($id == null)
+    {
+        $response["message"] = "Alle Geräte";
+        $response["data"] = Select::select([["table" => "devices"]], ["device_id"]);
+    }
+    else
+    {
+        $response["message"] = "Gerät gefunden";
+        $response["data"] = Select::strictsearch("devices", "device_id", $id);
+        if (empty($response["data"]))
+            $response["message"] = "Gerät nicht gefunden";
+        else
+            $response["message"] = "Gerät gefunden";
+    }
+    echo json_encode($response); // return the response
+});
+
 $router->run();
