@@ -44,7 +44,8 @@ $router->get('/user', function () {
         $response["data"] = Select::select([["table" => "user"]], ["user_id", "user_firstname"], ["page" => $page, "size" => $limit]);
     }
 
-    echo json_encode($response, JSON_PRETTY_PRINT); // return the response
+    // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
+    echo json_encode($response); // return the response
 });
 
 // get user by id
