@@ -4,6 +4,25 @@ require 'vendor/autoload.php';
 
 $router = new \Bramus\Router\Router;
 
+/*
+API
+
+User:
+    GET /user
+    GET /user?query
+    GET /user?booking=true
+    GET /user/:id
+    options: page (>=0), size (>0), strict (true / false)
+
+Devices:
+    GET /device
+    GET /device/:id
+    GET /device?booking=true
+    options: page (>=0), size (>0), strict (true / false)
+
+*/
+
+
 $router->set404('/', function() {
     header('HTTP/1.1 404 Not Found');
     header('Content-Type: application/json');
@@ -19,7 +38,6 @@ $router->get('/status', function () {
     require 'status.php';
 });
 
-// get all user or search for user using ?query=
 $router->get('/user(/\d+)?', function($id = null) {
     require 'classes/search_class.php';
     // authorize("search");
@@ -29,10 +47,10 @@ $router->get('/user(/\d+)?', function($id = null) {
 
     $booking = (isset($_GET["booking"])) ? $_GET["booking"] : null;
 
-    $limit = (isset($_GET["limit"]) && $_GET["limit"] > 0) ? $_GET["limit"] : 0;
-    $page = ($limit !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
+    $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
+    $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
     
-    if ($id !== null)
+    if ($id !== null) // search for user with $id
     {
         $response["data"] = Select::strictSearch("user", "user_id", $id);
         if (isset($response["data"]))
@@ -40,57 +58,56 @@ $router->get('/user(/\d+)?', function($id = null) {
         else
             $response["message"] = "Benutzer nicht gefunden";
     }
-    else if (isset($booking))
+    else if (isset($booking)) // show all booking users
     {
-        $response["data"] = Select::select([["table" => "user"], ["table" => "devices", "join" => ["user.user_usercard_id", "devices.device_id"]], ["table" => "event", "join" => ["user.user_id", "event.event_user_id"]]], ["user.user_id", "user.user_firstname", "user.user_lastname", "sum(case when event.event_end is null and event.event_user_id = user.user_id then 1 else 0 end)"], ["orderby" => "user.lastname", "page" => $page, "size" => $limit, "groupby" => "user.user_id"]);
+        $response["data"] = Select::select([["table" => "user"], ["table" => "devices", "join" => ["user.user_usercard_id", "devices.device_id"]], ["table" => "event", "join" => ["user.user_id", "event.event_user_id"]]], ["user.user_id", "user.user_firstname", "user.user_lastname", "sum(case when event.event_end is null and event.event_user_id = user.user_id then 1 else 0 end) AS amount"], ["page" => $page, "size" => $size, "groupby" => "user.user_id"]);
     }
-    else
+    else // show all users or search for user using ?query=
     {
         $query = (isset($_GET["query"])) ? $_GET["query"] : null;
         $strict = (isset($_GET["strict"]) && $_GET["strict"] == "true") ? true : false;
 
         if ($query)
         {
-            $response["message"] = "Suche erfolgreich";
             $response["query"] = $query;
-
-            $options = ["page" => $page, "size" => $limit, "strict" => $strict];
-            
-            $response["data"] = Select::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name"], $query, $options);
-            if ($response["data"] == null)
-                $response["message"] = "Keine Ergebnisse";
+            $response["data"] = Select::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name"], $query, ["page" => $page, "size" => $size, "strict" => $strict]);
+            $response["message"] = ($response["data"]) ? "Suche erfolgreich" : "Keine Ergebnisse";
         }
         else
         {
             $response["message"] = "Alle Benutzer";
-            $response["data"] = Select::select([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name"], ["page" => $page, "size" => $limit]);
+            $response["data"] = Select::select([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name"], ["page" => $page, "size" => $size]);
         }
     }
     
     // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
-    echo json_encode($response, JSON_PRETTY_PRINT); // return the response
+    echo json_encode($response); // return the response
 });
 
-// get all devices or search for device using ?query=
 $router->get('/device(/\d+)?', function ($id = null) {
     require 'classes/search_class.php';
     // authorize("search");
 
+    $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
+    $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
+
     $response["message"] = "";
     $response["response"] = "";
-    if ($id == null)
+    $booking = (isset($_GET["booking"])) ? $_GET["booking"] : null;
+
+    if ($id !== null) // search for device with $id
+    {
+        $response["data"] = Select::strictSearch("devices", "device_id", $id);
+        $response["message"] = ($response["data"]) ? "Gerät gefunden" : "Gerät mit der ID nicht gefunden";
+    }
+    else if ($booking == "true") // show all booked devices
+    {
+        $response["data"] = Select::select([["table" => "devices"], ["table" => "user", "join" => ["user.user_id", "devices.device_lend_user_id"]], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_name", "user.user_id", "user.user_firstname", "user.user_lastname"], ["page" => $page, "size" => $size, "groupby" => "devices.device_id"]);
+    }
+    else // show every device
     {
         $response["message"] = "Alle Geräte";
-        $response["data"] = Select::select([["table" => "devices"]], ["device_id"]);
-    }
-    else
-    {
-        $response["message"] = "Gerät gefunden";
-        $response["data"] = Select::strictSearch("devices", "device_id", $id);
-        if (isset($response["data"]))
-            $response["message"] = "Gerät gefunden";
-        else
-            $response["message"] = "Gerät nicht gefunden";
+        $response["data"] = Select::select([["table" => "devices"]], ["device_id", "device_uid"], ["page" => $page, "size" => $size]);
     }
     echo json_encode($response); // return the response
 });

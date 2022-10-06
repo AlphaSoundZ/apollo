@@ -24,8 +24,8 @@ class Select {
 
         if (isset($options["groupby"])) $sql .= ' GROUP BY '.$options["groupby"];
         if (isset($options["orderby"]) && isset($options["direction"])) $sql .= ' ORDER BY '.$options["orderby"].' '.$options["direction"];
-        if (isset($options["size"]) && isset($options["page"])) $sql .= ' LIMIT '.$options["size"].' OFFSET '.$options["page"]*$options["size"];
-
+        if (isset($options["size"]) && isset($options["page"]) && $options["size"] != 0) $sql .= ' LIMIT '.$options["size"].' OFFSET '.$options["page"]*$options["size"];
+        
         $sth = $pdo->prepare($sql);
         $sth->execute();
         $result = $sth->fetchAll(PDO::FETCH_ASSOC);
