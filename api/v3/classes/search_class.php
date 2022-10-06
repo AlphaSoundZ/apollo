@@ -34,7 +34,7 @@ class Select {
         return $result;
     }
 
-    static function search($table, $columns, $needles, $options = []) {
+    static function search($table, $columns, $search_in_colomns, $needles, $options = []) {
         global $pdo, $response;
         $page = 0;
         $size = null;
@@ -56,19 +56,9 @@ class Select {
         else $strict = false;
         
         $haystack = self::select($table, $columns, $options);
-        $result = self::searchalgo($needles, $haystack, $columns, $strict);
+        $result = self::searchalgo($needles, $haystack, $search_in_colomns, $strict);
         if ($size !== 0)
             $result = array_slice($result, $size*$page, $size);
-        return $result;
-    }
-
-    static function strictSearch($table, $column, $needle, $options = [])
-    {
-        global $pdo, $response;
-        $sql = "SELECT * FROM $table WHERE $column LIKE '$needle'";
-        $sth = $pdo->prepare($sql);
-        $sth->execute();
-        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
         return $result;
     }
 
