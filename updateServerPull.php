@@ -5,4 +5,5 @@ require 'vendor/autoload.php';
 $git = new CzProject\GitPhp\Git;
 $repo = $git->open('./');
 
-echo "response: ".$repo->pull("origin");
+$response = $repo->pull("origin");
+echo "updated";
