@@ -81,12 +81,17 @@ class Select {
                 }
                 $average = ($average !== 0) ? ($best + $last_best)/2 : $best;
             }
-                if (($average >= 50 && $strict == false) || ($average == 100 && $strict == true))
+            if ($strict == false && $average >= 50)
                 array_push($result, ["accordance" => $average, "data" => $haystack[$row]]);
+            else if ($average == 100)
+                array_push($result, $haystack[$row]);
+
         }
-        
-        $column_accordance = array_column($result, 'accordance');
-        array_multisort($column_accordance, SORT_DESC, $result);
+        if ($strict == false)
+        {
+            $column_accordance = array_column($result, 'accordance');
+            array_multisort($column_accordance, SORT_DESC, $result);
+        }
         $response["message"] = "search success";
         $response["response"] = 0;
         return $result;
