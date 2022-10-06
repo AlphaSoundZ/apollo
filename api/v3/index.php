@@ -62,10 +62,47 @@ $router->get('/user/(\d+)', function ($id) {
     echo json_encode($response); // return the response
 });
 
-// get device by id
+// get all user or search for user using ?query=
+$router->get('/user/(\d+)?', function($id = null) {
+    require 'classes/search_class.php';
+    // authorize("search");
+
+    if ($id !== null)
+    {
+        $response["data"] = Select::strictsearch("user", "user_id", $id);
+        if (isset($response["data"]))
+            $response["message"] = "Benutzer gefunden";
+        else
+            $response["message"] = "Benutzer nicht gefunden";
+    }
+    else
+    {
+        $limit = (isset($_GET["limit"]) && $_GET["limit"] > 0) ? $_GET["limit"] : 0;
+        $page = ($limit !== 0 && !isset($_GET["page"])) ? 0 : null;
+        $page = ($limit !== 0 && isset($_GET["page"])) ? $_GET["page"] : $page;
+        $query = (isset($_GET["query"])) ? $_GET["query"] : null;
+        
+        $response["message"] = "";
+        $response["response"] = "";
+
+        if ($query)
+        {
+            $response["message"] = "Suche erfolgreich";
+            $response["query"] = $query;
+            $response["data"] = Select::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name"], $query, $limit);
+        }
+        else
+        {
+            $response["message"] = "Alle Benutzer";
+            $response["data"] = Select::select([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name"], ["page" => $page, "size" => $limit]);
+        }
+    }
+    
+    // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
+    echo json_encode($response); // return the response\
+});
 
 // get all devices or search for device using ?query=
-
 $router->get('/device(/\d+)?', function ($id = null) {
     require 'classes/search_class.php';
     // authorize("search");
@@ -81,10 +118,10 @@ $router->get('/device(/\d+)?', function ($id = null) {
     {
         $response["message"] = "Gerät gefunden";
         $response["data"] = Select::strictsearch("devices", "device_id", $id);
-        if (empty($response["data"]))
-            $response["message"] = "Gerät nicht gefunden";
-        else
+        if (isset($response["data"]))
             $response["message"] = "Gerät gefunden";
+        else
+            $response["message"] = "Gerät nicht gefunden";
     }
     echo json_encode($response); // return the response
 });
