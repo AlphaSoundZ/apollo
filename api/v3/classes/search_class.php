@@ -3,10 +3,10 @@ class Select {
     /**
      * @param array $table
      * @param array $columns
-     * @param array $filter (optional)
+     * @param array $options (optional)
      * @return array returns the table with the selected columns
      */
-    static function select($table, $columns, $filter = []) {
+    static function select($table, $columns, $options = []) {
         global $pdo, $response;
         $first_table = $table[0]["table"];
         array_shift($table);
@@ -21,8 +21,10 @@ class Select {
             $join .= " LEFT JOIN $table_name ON $link_1 = $link_2";
         }
         $sql = "SELECT $column FROM $first_table $join";
-        if (isset($filter["orderby"]) && isset($filter["direction"])) $sql .= ' ORDER BY '.$filter["orderby"].' '.$filter["direction"].' ';
-        if (isset($filter["size"]) && isset($filter["page"])) $sql .= ' LIMIT '.$filter["size"].' OFFSET '.$filter["page"]*$filter["size"].' ';
+
+        if (isset($options["groupby"])) $sql .= ' GROUP BY '.$options["groupby"];
+        if (isset($options["orderby"]) && isset($options["direction"])) $sql .= ' ORDER BY '.$options["orderby"].' '.$options["direction"];
+        if (isset($options["size"]) && isset($options["page"])) $sql .= ' LIMIT '.$options["size"].' OFFSET '.$options["page"]*$options["size"];
 
         $sth = $pdo->prepare($sql);
         $sth->execute();
@@ -32,15 +34,35 @@ class Select {
         return $result;
     }
 
-    static function search($table, $columns, $needles, $limit = 0) {
-        $table_data = self::select($table, $columns);
-        $result = self::searchalgo($needles, $table_data, $columns);
-        if ($limit !== 0)
-            $result = array_slice($result, 0, $limit);
+    static function search($table, $columns, $needles, $options = []) {
+        global $pdo, $response;
+        $page = 0;
+        $size = null;
+        if (array_key_exists("page", $options))
+        {
+            $page = $options["page"];
+            unset($options["page"]);
+        }
+        if (array_key_exists("size", $options))
+        {
+            $size = $options["size"];
+            unset($options["size"]);
+        }
+        if (array_key_exists("strict", $options) && $options["strict"] == true)
+        {
+            $strict = true;
+            unset($options["strict"]);
+        }
+        else $strict = false;
+        
+        $haystack = self::select($table, $columns, $options);
+        $result = self::searchalgo($needles, $haystack, $columns, $strict);
+        if ($size !== 0)
+            $result = array_slice($result, $size*$page, $size);
         return $result;
     }
 
-    static function strictSearch($table, $column, $needle)
+    static function strictSearch($table, $column, $needle, $options = [])
     {
         global $pdo, $response;
         $sql = "SELECT * FROM $table WHERE $column LIKE '$needle'";
@@ -50,7 +72,7 @@ class Select {
         return $result;
     }
 
-    private static function searchalgo($needles, $haystack, $filter) {
+    private static function searchalgo($needles, $haystack, $columns, $strict = false) {
         global $response;
         $result = array();
         $needles = explode(" ", strtolower($needles));
@@ -61,15 +83,16 @@ class Select {
             foreach($needles as $needle)
             {
                 $last_best = $best;
-                for ($column = 0; $column < count($filter); $column++)
+                for ($column = 0; $column < count($columns); $column++)
                 {
-                    $value = $haystack[$row][$filter[$column]];
+                    $value = $haystack[$row][$columns[$column]];
                     similar_text(strtolower($needle),strtolower($value),$percent);
                     $best = max($best, round($percent, 1));
                 }
                 $average = ($average !== 0) ? ($best + $last_best)/2 : $best;
             }
-            array_push($result, ["accordance" => $average, "data" => $haystack[$row]]);
+                if (($average >= 50 && $strict == false) || ($average == 100 && $strict == true))
+                array_push($result, ["accordance" => $average, "data" => $haystack[$row]]);
         }
         
         $column_accordance = array_column($result, 'accordance');

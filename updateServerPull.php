@@ -1,8 +1,8 @@
 <?php
 require 'vendor/autoload.php';
 
-$git = new CzProject\GitPhp\Git;
 // create repo object
+$git = new CzProject\GitPhp\Git;
 $repo = $git->open('./');
 
-echo "response: ".$repo->execute("pull")[0];
+echo "response: ".$repo->pull("origin");
