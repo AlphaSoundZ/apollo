@@ -21,6 +21,21 @@ Devices:
     GET /device?booking=true
     options: page (>=0), size (>0), strict (true / false)
 
+Was noch fehlt:
+
+    GET /user/:id/history
+    GET /device/:id/history
+    GET /device/:uid/history
+    GET /class/
+    GET /user?account=true
+
+    create / change / delete
+        /user
+        /device
+        /class
+        /token
+        /permissions
+        /devicetypes
 */
 
 
