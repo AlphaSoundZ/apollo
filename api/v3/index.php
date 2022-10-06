@@ -19,57 +19,17 @@ $router->get('/status', function () {
     require 'status.php';
 });
 
-// get all users or search for user using ?query=
-$router->get('/user', function () {
-    require 'classes/search_class.php';
-    // authorize("search");
-
-    $limit = (isset($_GET["limit"]) && $_GET["limit"] > 0) ? $_GET["limit"] : 0;
-    $page = ($limit !== 0 && !isset($_GET["page"])) ? 0 : null;
-    $page = ($limit !== 0 && isset($_GET["page"])) ? $_GET["page"] : $page;
-    $query = (isset($_GET["query"])) ? $_GET["query"] : null;
-    
-    $response["message"] = "";
-    $response["response"] = "";
-
-    if ($query)
-    {
-        $response["message"] = "Suche erfolgreich";
-        $response["query"] = $query;
-        $response["data"] = Select::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name"], $query, $limit);
-    }
-    else
-    {
-        $response["message"] = "Alle Benutzer";
-        $response["data"] = Select::select([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name"], ["page" => $page, "size" => $limit]);
-    }
-
-    // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
-    echo json_encode($response); // return the response
-});
-
-// get user by id
-$router->get('/user/(\d+)', function ($id) {
-    require 'classes/search_class.php';
-    // authorize("search");
-
-    $response["message"] = "";
-    $response["response"] = "";
-
-    $response["message"] = "Benutzer gefunden";
-    $response["data"] = Select::strictsearch("user", "user_id", $id);
-
-    echo json_encode($response); // return the response
-});
-
 // get all user or search for user using ?query=
-$router->get('/user/(\d+)?', function($id = null) {
+$router->get('/user(/\d+)?', function($id = null) {
     require 'classes/search_class.php';
     // authorize("search");
+
+    $response["response"] = "";
+    $response["message"] = "";
 
     if ($id !== null)
     {
-        $response["data"] = Select::strictsearch("user", "user_id", $id);
+        $response["data"] = Select::strictSearch("user", "user_id", $id);
         if (isset($response["data"]))
             $response["message"] = "Benutzer gefunden";
         else
@@ -81,15 +41,22 @@ $router->get('/user/(\d+)?', function($id = null) {
         $page = ($limit !== 0 && !isset($_GET["page"])) ? 0 : null;
         $page = ($limit !== 0 && isset($_GET["page"])) ? $_GET["page"] : $page;
         $query = (isset($_GET["query"])) ? $_GET["query"] : null;
-        
-        $response["message"] = "";
-        $response["response"] = "";
+        $strict = (isset($_GET["strict"])) ? $_GET["strict"] : null;
 
         if ($query)
         {
-            $response["message"] = "Suche erfolgreich";
-            $response["query"] = $query;
-            $response["data"] = Select::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name"], $query, $limit);
+            if ($strict == "true")
+            {
+                $response["message"] = "Suche erfolgreich";
+                $response["query"] = $query;
+                $response["data"] = Select::strictSearch([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name"], $query, $limit);
+            }
+            else
+            {
+                $response["message"] = "Suche erfolgreich";
+                $response["query"] = $query;
+                $response["data"] = Select::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name"], $query, $limit);
+            }
         }
         else
         {
@@ -117,7 +84,7 @@ $router->get('/device(/\d+)?', function ($id = null) {
     else
     {
         $response["message"] = "Gerät gefunden";
-        $response["data"] = Select::strictsearch("devices", "device_id", $id);
+        $response["data"] = Select::strictSearch("devices", "device_id", $id);
         if (isset($response["data"]))
             $response["message"] = "Gerät gefunden";
         else

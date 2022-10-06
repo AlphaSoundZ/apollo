@@ -40,7 +40,7 @@ class Select {
         return $result;
     }
 
-    static function strictsearch($table, $column, $needle)
+    static function strictSearch($table, $column, $needle)
     {
         global $pdo, $response;
         $sql = "SELECT * FROM $table WHERE $column LIKE '$needle'";
