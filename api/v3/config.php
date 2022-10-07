@@ -22,6 +22,7 @@ $__password = $_ENV['PASSWORD'];
 $__dsn = "mysql:host=$__host;dbname=$__db;charset=UTF8";
 
 $jwt_key = $_ENV['JWT_KEY'];
+$authorization_bool = (isset($_ENV['AUTHORIZATION'])) ? $_ENV['AUTHORIZATION'] : 1;
 
 $pdo = new PDO($__dsn, $__username, $__password);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -61,7 +62,11 @@ function getData($method, $requirements = [])
 
 function authorize($file = null)
 {
-	global $pdo, $jwt_key;
+	global $pdo, $jwt_key, $authorization_bool;
+
+	if ($authorization_bool == 0)
+		return true;
+	
 	if (isset($_SERVER["HTTP_AUTHORIZATION"])) $given_token = $_SERVER["HTTP_AUTHORIZATION"];
 	else throw new CustomException(Response::NOT_AUTHORIZED, "NOT_AUTHORIZED", 401);
 	$jwt = explode(" ", $given_token)[1];
