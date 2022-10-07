@@ -57,7 +57,7 @@ $router->get('/status', function () {
 
 $router->get('/user(/\d+)?', function($id = null) {
     require 'classes/search_class.php';
-    // authorize("search");
+    authorize("search");
 
     $response["response"] = "";
     $response["message"] = "";
@@ -101,7 +101,7 @@ $router->get('/user(/\d+)?', function($id = null) {
 
 $router->get('/user(/\d+)/history', function($id) {
     require 'classes/search_class.php';
-    // authorize("search");
+    authorize("search");
 
     $response["response"] = "";
     $response["message"] = "";
@@ -123,7 +123,7 @@ $router->get('/user(/\d+)/history', function($id) {
 
 $router->get('/device(/.*+)?', function ($id = null) {
     require 'classes/search_class.php';
-    // authorize("search");
+    authorize("search");
 
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
@@ -152,7 +152,7 @@ $router->get('/device(/.*+)?', function ($id = null) {
 
 $router->get('/booking/history(/\d+)?', function ($id = null) { // Device Type fehlt
     require 'classes/search_class.php';
-    // authorize("search");
+    authorize("search");
 
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;

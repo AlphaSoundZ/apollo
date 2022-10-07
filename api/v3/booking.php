@@ -10,7 +10,7 @@ Wenn nur rfid1:
 - Oder Info für Usercard
 */
 
-// authorize("book");
+authorize("book");
 
 $data = getData("POST", ["uid_1"]);
 $uid_1 = $data["uid_1"];
