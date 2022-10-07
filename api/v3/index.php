@@ -36,6 +36,7 @@ Was noch fehlt:
         /token
         /permissions
         /devicetypes
+        /booking
 */
 
 
@@ -98,6 +99,22 @@ $router->get('/user(/\d+)?', function($id = null) {
     echo json_encode($response); // return the response
 });
 
+$router->get('/user(/\d+)/history', function($id) {
+    require 'classes/search_class.php';
+    // authorize("search");
+
+    $response["response"] = "";
+    $response["message"] = "";
+
+    $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
+    $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
+
+    $response["data"] = Select::search([["table" => "event"], ["table" => "user", "join" => ["user.user_id", "event.event_user_id"], ["table" => "devices", "join" => ["devices.device_id", "event.event_device_id"]], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]]], ["event.event_user_id", "event.event_begin", "event.event_start", "event.event_device_id", ""], ["user_id"], $id, ["strict" => true]);
+    $response["message"] = ($response["data"]) ? "Benutzer gefunden" : "Benutzer nicht gefunden";
+
+    return json_encode($response);
+});
+
 $router->get('/device(/.*+)?', function ($id = null) {
     require 'classes/search_class.php';
     // authorize("search");
@@ -127,7 +144,7 @@ $router->get('/device(/.*+)?', function ($id = null) {
     echo json_encode($response); // return the response
 });
 
-$router->get('/book/history(/\d+)?', function ($id = null) { // Device Type fehlt
+$router->get('/booking/history(/\d+)?', function ($id = null) { // Device Type fehlt
     require 'classes/search_class.php';
     // authorize("search");
 
