@@ -121,7 +121,7 @@ $router->get('/user(/\d+)/history', function($id) {
     echo json_encode($response);
 });
 
-$router->get('/device(/.*+)?', function ($id = null) {
+$router->get('/device(/[^/]+)?', function ($id = null) {
     require 'classes/search_class.php';
     authorize("search");
 
@@ -137,7 +137,7 @@ $router->get('/device(/.*+)?', function ($id = null) {
         $response["data"] = Select::search([["table" => "devices"], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name"], ["device_id", "device_uid"], $id, ["strict" => true]);
         $response["message"] = ($response["data"]) ? "Gerät gefunden" : "Gerät nicht gefunden";
     }
-    else if ($booking == "true") // show all booked devices
+    else if ($booking == "true") // show all booked devices - DOES NOT WORK
     {
         $response["data"] = Select::select([["table" => "devices"], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]], ["table" => "user", "join" => ["user.user_id", "devices.device_lend_user_id"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name", "user.user_id", "user.user_firstname", "user.user_lastname"], ["page" => $page, "size" => $size, "groupby" => "devices.device_id"]);
         $response["message"] = ($response["data"]) ? "Alle gebuchten Geräte" : "Es werden derzeit keine Geräte gebucht";
