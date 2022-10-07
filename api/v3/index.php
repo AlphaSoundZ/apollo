@@ -109,7 +109,7 @@ $router->get('/user(/\d+)/history', function($id) {
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
 
-    $response["data"] = Select::search([["table" => "event"], ["table" => "user", "join" => ["user.user_id", "event.event_user_id"]]], ["event.event_user_id", "user.user_firstname", "user.user_lastname", "event.event_begin", "event.event_end", "event.event_multi_booking_id"], ["event_user_id"], $id, ["page" => $page, "size" => $size, "strict" => true, "groupby" => "event.event_multi_booking_id"]);
+    $response["data"] = Select::search([["table" => "event"]], ["event.event_user_id", "event.event_begin", "event.event_end", "event.event_multi_booking_id"], ["event_user_id"], $id, ["page" => $page, "size" => $size, "strict" => true, "groupby" => "event.event_multi_booking_id", "orderby" => "event.event_multi_booking_id", "direction" => "DESC"]);
     if (!$response["data"])
     {
         $response["message"] = "Keine Events gefunden";
