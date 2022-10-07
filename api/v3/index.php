@@ -109,10 +109,16 @@ $router->get('/user(/\d+)/history', function($id) {
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
 
-    $response["data"] = Select::search([["table" => "event"], ["table" => "user", "join" => ["user.user_id", "event.event_user_id"], ["table" => "devices", "join" => ["devices.device_id", "event.event_device_id"]], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]]], ["event.event_user_id", "event.event_begin", "event.event_start", "event.event_device_id", ""], ["user_id"], $id, ["strict" => true]);
-    $response["message"] = ($response["data"]) ? "Benutzer gefunden" : "Benutzer nicht gefunden";
+    $response["data"] = Select::search([["table" => "event"], ["table" => "user", "join" => ["user.user_id", "event.event_user_id"], ["table" => "devices", "join" => ["devices.device_id", "event.event_device_id"]], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]]], ["user.user_id", "event.event_begin", "event.event_end", "event.event_device_id"], ["user_id"], $id, ["orderby" => "event.event_begin", "direction" => "ASC", "strict" => true]);
+    if (!$response["data"])
+    {
+        $response["message"] = "Benutzer nicht gefunden";
+        echo json_encode($response);
+        return;
+    }
+    $response["message"] = "Benutzer gefunden";
 
-    return json_encode($response);
+    echo json_encode($response);
 });
 
 $router->get('/device(/.*+)?', function ($id = null) {

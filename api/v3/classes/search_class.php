@@ -27,7 +27,7 @@ class Select {
         if (isset($options["having"])) $sql .= ' having '.$options["having"];
         if (isset($options["orderby"]) && isset($options["direction"])) $sql .= ' ORDER BY '.$options["orderby"].' '.$options["direction"];
         if (isset($options["size"]) && isset($options["page"]) && $options["size"] != 0) $sql .= ' LIMIT '.$options["size"].' OFFSET '.$options["page"]*$options["size"];
-        
+
         $sth = $pdo->prepare($sql);
         $sth->execute();
         $result = $sth->fetchAll(PDO::FETCH_ASSOC);
