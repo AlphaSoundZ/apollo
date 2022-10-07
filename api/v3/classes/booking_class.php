@@ -108,11 +108,18 @@ class Booking
 
     $sql = "SELECT max(event_multi_booking_id) FROM event";
     $latest_mulit_id_of_all = $pdo->query($sql)->fetch();
-
-    $multi_id = $events[0]['event_multi_booking_id']; // when multi id is not gonna change
-
-    if (strtotime("now") > strtotime($events[0]["event_end"]) && end($events)["event_end"] != null)
-      $multi_id = $latest_mulit_id_of_all[0] + 1;
+    if ($latest_mulit_id_of_all)
+    {
+      if ($events)
+      {
+        $multi_id = $events[0]['event_multi_booking_id']; // when multi id is not gonna change
+        if (strtotime("now") > strtotime($events[0]["event_end"]) && end($events)["event_end"] != null)
+          $multi_id = $latest_mulit_id_of_all[0] + 1;
+      }
+      else
+        $multi_id = $latest_mulit_id_of_all[0] + 1; // new multi id, because of first booking
+  
+    }
 
     // Update event using timestamp
     $sql = "INSERT INTO event (event_id, event_user_id, event_device_id, event_begin, event_end, event_multi_booking_id) VALUES (NULL, '$user_id', '$device_id', CURRENT_TIMESTAMP, NULL, '$multi_id')";
