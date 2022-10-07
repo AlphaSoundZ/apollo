@@ -22,9 +22,13 @@ class Select {
         }
         $sql = "SELECT $column FROM $first_table $join";
 
+        if (isset($options["where"])) $sql .= ' WHERE '.$options["where"];
         if (isset($options["groupby"])) $sql .= ' GROUP BY '.$options["groupby"];
+        if (isset($options["having"])) $sql .= ' having '.$options["having"];
         if (isset($options["orderby"]) && isset($options["direction"])) $sql .= ' ORDER BY '.$options["orderby"].' '.$options["direction"];
         if (isset($options["size"]) && isset($options["page"]) && $options["size"] != 0) $sql .= ' LIMIT '.$options["size"].' OFFSET '.$options["page"]*$options["size"];
+
+        echo $sql;
         
         $sth = $pdo->prepare($sql);
         $sth->execute();
@@ -39,21 +43,13 @@ class Select {
         $page = 0;
         $size = null;
         if (array_key_exists("page", $options))
-        {
             $page = $options["page"];
-            unset($options["page"]);
-        }
         if (array_key_exists("size", $options))
-        {
             $size = $options["size"];
-            unset($options["size"]);
-        }
-        if (array_key_exists("strict", $options) && $options["strict"] == true)
-        {
-            $strict = true;
-            unset($options["strict"]);
-        }
-        else $strict = false;
+        $strict = (array_key_exists("strict", $options) && $options["strict"] == true) ? true : false;
+        unset($options["page"]);
+        unset($options["size"]);
+        unset($options["strict"]);
         
         $haystack = self::select($table, $columns, $options);
         $result = self::searchalgo($needles, $haystack, $search_in_colomns, $strict);
