@@ -118,7 +118,6 @@ class Booking
       }
       else
         $multi_id = $latest_mulit_id_of_all[0] + 1; // new multi id, because of first booking
-  
     }
 
     // Update event using timestamp
