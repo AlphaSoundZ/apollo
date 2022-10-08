@@ -1,11 +1,5 @@
 <?php
 class Select {
-    /**
-     * @param array $table
-     * @param array $columns
-     * @param array $options (optional)
-     * @return array returns the table with the selected columns
-     */
     static function select($table, $columns, $options = []) {
         global $pdo, $response;
         $first_table = $table[0]["table"];
