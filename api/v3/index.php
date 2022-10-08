@@ -4,42 +4,6 @@ require 'vendor/autoload.php';
 
 $router = new \Bramus\Router\Router;
 
-/*
-API
-
-User:
-    GET /user
-    GET /user?query
-    GET /user?booking=true
-    GET /user/:id
-    options: page (>=0), size (>0), strict (true / false)
-
-Devices:
-    GET /device
-    GET /device/:id
-    GET /device/:uid
-    GET /device?booking=true
-    options: page (>=0), size (>0), strict (true / false)
-
-Was noch fehlt:
-
-    GET /user/:id/history
-    GET /device/:id/history
-    GET /device/:uid/history
-    GET /class/
-    GET /user?account=true
-
-    create / change / delete
-        /user
-        /device
-        /class
-        /token
-        /permissions
-        /devicetypes
-        /booking
-*/
-
-
 $router->set404('/', function() {
     header('HTTP/1.1 404 Not Found');
     header('Content-Type: application/json');
