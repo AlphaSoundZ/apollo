@@ -4,11 +4,11 @@ require_once "config.php";
 class user // not tested yet
 {
     /**
-     * @param $user_firstname string User's first name
-     * @param $user_lastname string User's last name
-     * @param $user_class int User's class id
-     * @param $user_usercard_id int User's usercard id (optional)
-     * @param $create_token array(int) User's permissions (optional)
+     * @param user_firstname string User's first name
+     * @param user_lastname string User's last name
+     * @param user_class int User's class id
+     * @param user_usercard_id int User's usercard id (optional)
+     * @param create_token array(int) User's permissions (optional)
      */
     public static function create($user_firstname, $user_lastname, $user_class, $user_usercard_id = null, $create_token = [])
     {
