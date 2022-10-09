@@ -67,4 +67,6 @@ abstract class Response extends BasicEnum {
 	const CLASS_NOT_FOUND = "Klasse nicht gefunden"; // Class not found in database
 	const USER_NOT_FOUND = "User nicht gefunden"; // User not found in database
 	const USER_ALREADY_ASSIGNED = "User ist bereits einer Usercard zugewiesen"; // User already assigned to a user
+	const PERMISSION_NOT_FOUND = "Token Permission nicht gefunden"; // Permission not found in databases
+	const USER_ALREADY_ASSIGNED_TO_TOKEN = "User ist bereits einem Token zugewiesen"; // User already assigned to a token
 }
