@@ -17,12 +17,12 @@ class user // not tested yet
 
         if (isset($user_usercard_id))
         {
-            $sql = "SELECT * FROM devices WHERE device_id = :device_id";
+            $sql = "SELECT * FROM usercard WHERE usercard_id = :usercard_id";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute(["device_id" => $user_usercard_id]);
+            $stmt->execute(["usercard_id" => $user_usercard_id]);
             $result = $stmt->fetch();
             if (!$result)
-                throw new customException(Response::DEVICE_NOT_FOUND, "DEVICE_NOT_FOUND", 400);
+                throw new customException(Response::USERCARD_NOT_FOUND, "USERCARD_NOT_FOUND", 400);
 
             $sql = "SELECT * FROM user WHERE user_usercard_id = :user_usercard_id";
             $stmt = $pdo->prepare($sql);

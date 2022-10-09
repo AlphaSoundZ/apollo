@@ -6,15 +6,11 @@ class Create
     public static function createDevice($device_uid, $device_type)
     {
         global $pdo;
-        $sql = "INSERT INTO devices (device_id, device_type, device_uid, device_lend_user_id) VALUES (NULL, :device_type, :device_uid, '0'  )";
+        $sql = "INSERT INTO devices (device_id, device_type, device_uid, device_lend_user_id) VALUES (NULL, :device_type, :device_uid, '0')";
         $stmt= $pdo->prepare($sql);
         $stmt->execute(["device_type" => $device_type, "device_uid" => $device_uid]);
 
-        $sql = "SELECT device_id FROM devices WHERE device_uid = :device_uid";
-        $stmt= $pdo->prepare($sql);
-        $stmt->execute(["device_uid" => $device_uid]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result["device_id"];
+        return $pdo->lastInsertId();
     }
     public static function checkDevice($device_uid)
     {
@@ -64,13 +60,13 @@ class Create
     public static function checkUsercard($uid)
     {
         global $pdo;
-        $sql = "SELECT * FROM devices WHERE device_uid = :uid AND device_type = '{$_ENV["USERCARD_TYPE"]}'";
+        $sql = "SELECT * FROM usercard WHERE usercard_uid = :uid";
         $sth = $pdo->prepare($sql);
         $sth->execute(["uid" => $uid]);
         $usercard = $sth->fetch();
 
         if (!$usercard)
-            return "DEVICE_NOT_FOUND";
+            return "USERCARD_NOT_FOUND";
 
         $sql = "SELECT * FROM user WHERE user_usercard_id = :usercard_id";
         $sth = $pdo->prepare($sql);
@@ -112,21 +108,15 @@ class Create
 
         return $result["user_id"];
     }
-    public static function createUsercard($uid)
+    public static function createUsercard($uid, $usercard_type)
     {
         global $pdo;
         // create usercard
-        $sql = "INSERT INTO devices (device_id, device_type, device_uid, device_lend_user_id) VALUES (NULL, :device_type, :uid, NULL)";
+        $sql = "INSERT INTO usercard (usercard_id, usercard_type, usercard_uid) VALUES (NULL, :device_type, :uid)";
         $stmt= $pdo->prepare($sql);
-        $status = $stmt->execute(["device_type" => $_ENV["USERCARD_TYPE"], "uid" => $uid]);
-        
-        // Usercard ID holen
-        $sql = "SELECT * FROM devices WHERE device_uid = :uid";
-        $sth = $pdo->prepare($sql);
-        $sth->execute(["uid" => $uid]);
-        $usercard_id = $sth->fetch();
-        
-        return $usercard_id["device_id"];
+        $status = $stmt->execute(["device_type" => $usercard_type, "uid" => $uid]);
+
+        return $pdo->lastInsertId();
     }  
     public static function bindUserToUsercard($user_id, $usercard_id)
     {

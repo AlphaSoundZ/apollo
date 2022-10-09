@@ -43,17 +43,15 @@ abstract class BasicEnum {
 }
 
 abstract class Response extends BasicEnum {
-	// Device includes Usercard and Devices that can be lend to users
 
 	const UNEXPECTED_ERROR = "Internal Server Error: "; // Default
 	const SUCCESS = "Success";
-	const DEVICE_NOT_FOUND = "Usercard / Device ist in der Datenbank nicht verfügbar"; // Devcies not found in database
+	const DEVICE_NOT_FOUND = "Device ist in der Datenbank nicht verfügbar"; // Devcies not found in database
 	const NOT_ALLOWED = "Dieser Request konnte aufgrund von fehlender Permission nicht ausgeführt werden"; // User is not allowed to do this action (permission missing)
 	const NOT_AUTHORIZED = "Token ist nicht autorisiert"; // Token not valid, or username/password wrong
 	const NOT_ALLOWED_FOR_THIS_CLASS = "Es ist Ihnen nicht erlaubt mehrere Devices auszuleihen"; // User already lending but is no MultiUser
 	const NOT_ALLOWED_FOR_THIS_DEVICE = "Das Device wird bereits ausgeliehen"; // Device already lending
 	const REQUIRED_DATA_MISSING = "Input fehlt"; // Required data missing
-	const WRONG_DEVICE_TYPE = "Falscher Device Typ"; // Not a valid device type
 	const RETURN_NOT_POSSIBLE = "Device kann nicht zurückgegeben werden"; // Device not lent
 	const RETURN_SUCCESS = "Device wurde zurückgegeben"; // Device returned
 	const INFO_SUCCESS = "Info wird ausgegeben"; // Info sent
@@ -69,4 +67,7 @@ abstract class Response extends BasicEnum {
 	const USER_ALREADY_ASSIGNED = "User ist bereits einer Usercard zugewiesen"; // User already assigned to a user
 	const PERMISSION_NOT_FOUND = "Token Permission nicht gefunden"; // Permission not found in databases
 	const USER_ALREADY_ASSIGNED_TO_TOKEN = "User ist bereits einem Token zugewiesen"; // User already assigned to a token
+	const USERCARD_NOT_FOUND = "Usercard nicht gefunden"; // Usercard not found in database
+	const UID_NOT_FOUND = "UID nicht gefunden"; // UID not found in database
+	const UID_ALREADY_EXISTS = "UID existiert bereits"; // UID already exists in database
 }

@@ -9,7 +9,7 @@ function prebook($user_id, $amount, $prebook_begin, $prebook_end)
     $date = date("H:i:s", strtotime($prebook_begin));
     global $pdo;
     
-    $sql = "SELECT * FROM devices WHERE device_type != {$_ENV['USERCARD_TYPE']}";
+    $sql = "SELECT * FROM devices";
     $sth = $pdo->prepare($sql);
     $sth->execute();
     $highest_amount = count($sth->fetchAll());

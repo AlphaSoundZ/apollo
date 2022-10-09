@@ -14,7 +14,7 @@ class Booking
     $this->data = null;
   }
   
-  public function Execute()
+  public function execute()
   {
     global $pdo;
     
@@ -22,12 +22,17 @@ class Booking
     $sql = "SELECT * FROM devices LEFT JOIN property_device_type ON devices.device_type = property_device_type.device_type_id WHERE devices.device_uid = '$this->uid_1'";
     $device_1 = $pdo->query($sql)->fetch();
 
-    if (!empty($device_1))
+    // Fetch first device with $this->uid_1
+    $sql = "SELECT * FROM usercard WHERE usercard.usercard_uid = '$this->uid_1'";
+    $usercard = $pdo->query($sql)->fetch();
+
+    if (!empty($device_1) || !empty($usercard))
     {
-      if ($device_1['device_type_id'] == $_ENV['USERCARD_TYPE'])
+      if ($usercard)
       {
-        $sql = "SELECT * FROM user LEFT JOIN property_class ON property_class.class_id = user.user_class WHERE user_usercard_id = '{$device_1['device_id']}'";
+        $sql = "SELECT * FROM user LEFT JOIN property_class ON property_class.class_id = user.user_class WHERE user_usercard_id = '{$usercard['usercard_id']}'";
         $user = $pdo->query($sql)->fetch();
+        $device_1 = $usercard;
       }
       
       if (!empty($this->uid_2)) // Ausleihe oder Rückgabe
@@ -37,13 +42,10 @@ class Booking
 
         if (!$device_2)
 					throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $this->uid_2)", "DEVICE_NOT_FOUND", 400);
-
-        if ($device_2['device_type_id'] == $_ENV['USERCARD_TYPE'])
-          throw new CustomException(Response::WRONG_DEVICE_TYPE, "WRONG_DEVICE_TYPE", 400);
         
         // Ausleihe
         // ist $this->uid_1 eine usercard und $this->uid_2 ein Gerät?
-        if ($device_1['device_type_id'] == $_ENV['USERCARD_TYPE'] && $device_2['device_type_id'] != $_ENV['USERCARD_TYPE']) 
+        if ($usercard && $device_2) 
         { // Darf der User ein Device ausleihen?
           $sql = "SELECT * FROM devices WHERE device_lend_user_id = '{$user['user_id']}'";
           $status = $pdo->query($sql)->fetchAll();
@@ -58,14 +60,12 @@ class Booking
           $this->deviceInfo($device_2['device_id']);
           return self::lend($user['user_id'], $device_2['device_id']);
         }
-        if ($device_1['device_type_id'] != $_ENV['USERCARD_TYPE'] || $device_2['device_type_id'] == $_ENV['USERCARD_TYPE'])
-          throw new CustomException(Response::WRONG_DEVICE_TYPE, "WRONG_DEVICE_TYPE", 400);
       }
       else
       {
         // Rückgabe oder Info
         // ist $this->uid_1 ein Gerät?
-        if ($device_1['device_type_id'] != $_ENV['USERCARD_TYPE'] && $device_1['device_lend_user_id'] != 0) // Rückgabe
+        if (!$usercard && $device_1['device_lend_user_id'] != 0) // Rückgabe
         {
           $sql = "SELECT * FROM user WHERE user_id = '{$device_1['device_lend_user_id']}'";
           $user = $pdo->query($sql)->fetch();
@@ -73,9 +73,9 @@ class Booking
           $this->deviceInfo($device_1['device_id']);
           return self::return($device_1['device_id']);
         }
-        else if ($device_1['device_type_id'] != $_ENV['USERCARD_TYPE']) // Keine Rückgabe möglich
+        else if (!$usercard) // Keine Rückgabe möglich
           throw new CustomException(Response::RETURN_NOT_POSSIBLE, "RETURN_NOT_POSSIBLE", 400);
-        else if ($device_1['device_type_id'] == $_ENV['USERCARD_TYPE']) // Info
+        else if ($usercard) // Info
         {
           return $this->userInfo($user['user_id']);
         }
@@ -84,7 +84,7 @@ class Booking
     else
     {
       // Input $this->uid_1 is empty
-      throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $this->uid_1)", "DEVICE_NOT_FOUND", 400);
+      throw new CustomException(Response::UID_NOT_FOUND . " (uid: $this->uid_1)", "UID_NOT_FOUND", 400);
     }
   }
 
