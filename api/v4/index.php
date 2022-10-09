@@ -8,11 +8,10 @@ $router->set404('/', function() {
     header('HTTP/1.1 404 Not Found');
     header('Content-Type: application/json');
 
-    $jsonArray = array();
-    $jsonArray['response'] = "404";
-    $jsonArray['message'] = "route not defined";
+    $response['response'] = "404";
+    $response['message'] = "route not defined";
 
-    echo json_encode($jsonArray);
+    Response::success($response["message"], "SUCCESS", $response["data"]);
 });
 
 $router->get('/status', function () {
@@ -60,7 +59,7 @@ $router->get('/user(/\d+)?', function($id = null) {
     }
     
     // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
-    echo json_encode($response); // return the response
+    Response::success($response["message"], "SUCCESS", $response["data"]);
 });
 
 $router->get('/user(/\d+)/history', function($id) {
@@ -82,7 +81,7 @@ $router->get('/user(/\d+)/history', function($id) {
     }
     $response["message"] = "Events zu diesem Benutzer gefunden";
 
-    echo json_encode($response);
+    Response::success($response["message"], "SUCCESS", $response["data"]);
 });
 
 $router->get('/device(/[^/]+)?', function ($id = null) {
@@ -111,7 +110,7 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
         $response["message"] = "Alle Geräte";
         $response["data"] = Select::select([["table" => "devices"], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name"], ["page" => $page, "size" => $size]);
     }
-    echo json_encode($response); // return the response
+    Response::success($response["message"], "SUCCESS", $response["data"]);
 });
 
 $router->get('/booking/history(/\d+)?', function ($id = null) { // Device Type fehlt
@@ -134,7 +133,7 @@ $router->get('/booking/history(/\d+)?', function ($id = null) { // Device Type f
         $response["message"] = "Alle Buchungen";
         $response["data"] = Select::select([["table" => "event"], ["table" => "user", "join" => ["user.user_id", "event.event_user_id"]], ["table" => "devices", "join" => ["devices.device_id", "event.event_device_id"]]], ["event_id", "event_begin", "event_end", "user.user_id", "user.user_firstname", "user.user_lastname", "devices.device_id", "devices.device_uid"], ["page" => $page, "size" => $size]);
     }
-    echo json_encode($response, JSON_PRETTY_PRINT); // return the response
+    Response::success($response["message"], "SUCCESS", $response["data"]);
 });
 
 $router->run();
