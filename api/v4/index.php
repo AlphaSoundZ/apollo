@@ -11,7 +11,7 @@ $router->set404('/', function() {
     $response['response'] = "404";
     $response['message'] = "route not defined";
 
-    Response::success($response["message"], "SUCCESS", $response["data"]);
+    Response::success($response["message"], "SUCCESS");
 });
 
 $router->get('/status', function () {
@@ -59,7 +59,7 @@ $router->get('/user(/\d+)?', function($id = null) {
     }
     
     // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
-    Response::success($response["message"], "SUCCESS", $response["data"]);
+    Response::success($response["message"], $response["response"], $response["data"]);
 });
 
 $router->get('/user(/\d+)/history', function($id) {
