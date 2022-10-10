@@ -75,11 +75,11 @@ $router->get('/user(/\d+)/history', function($id) {
     $response["data"] = Select::search([["table" => "event"]], ["event.event_user_id", "event.event_begin", "event.event_end", "event.event_multi_booking_id"], ["event_user_id"], $id, ["page" => $page, "size" => $size, "strict" => true, "groupby" => "event.event_multi_booking_id", "orderby" => "event.event_multi_booking_id", "direction" => "DESC"]);
     if (!$response["data"])
     {
-        $response["message"] = "Keine Events gefunden";
+        $response["message"] = "Keine Buchungen gefunden";
         echo json_encode($response);
         return;
     }
-    $response["message"] = "Events zu diesem Benutzer gefunden";
+    $response["message"] = "Buchungen zu diesem Benutzer gefunden";
 
     Response::success($response["message"], "SUCCESS", $response["data"]);
 });
@@ -100,7 +100,7 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
         $response["data"] = Select::search([["table" => "devices"], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name"], ["device_id", "device_uid"], $id, ["strict" => true]);
         $response["message"] = ($response["data"]) ? "Gerät gefunden" : "Gerät nicht gefunden";
     }
-    else if ($booking == "true") // show all booked devices - DOES NOT WORK
+    else if ($booking == "true") // show all booked devices
     {
         $response["data"] = Select::select([["table" => "devices"], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]], ["table" => "user", "join" => ["user.user_id", "devices.device_lend_user_id"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name", "user.user_id", "user.user_firstname", "user.user_lastname"], ["page" => $page, "size" => $size, "where" => "devices.device_lend_user_id != 0"]);
         $response["message"] = ($response["data"]) ? "Alle gebuchten Geräte" : "Es werden derzeit keine Geräte gebucht";
@@ -113,7 +113,7 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
     Response::success($response["message"], "SUCCESS", $response["data"]);
 });
 
-$router->get('/booking/history(/\d+)?', function ($id = null) { // Device Type fehlt
+$router->get('/device(/[^/]+)/history', function ($id) {
     require 'classes/search_class.php';
     authorize("search");
 
@@ -123,16 +123,27 @@ $router->get('/booking/history(/\d+)?', function ($id = null) { // Device Type f
     $response["message"] = "";
     $response["response"] = "";
 
-    if ($id !== null) // search for booking with $id
+    // check if device exists
+    $device = Select::search([["table" => "devices"]], ["device_id", "device_uid"], ["device_id", "device_uid"], $id, ["strict" => true]);
+    if (!$device)
     {
-        $response["data"] = Select::search([["table" => "event"], ["table" => "user", "join" => ["user.user_id", "event.event_user_id"]], ["table" => "devices", "join" => ["devices.device_id", "event.event_device_id"]], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["event_id", "event_begin", "event_end", "user.user_id", "user.user_firstname", "user.user_lastname", "devices.device_id", "devices.device_uid", "property_device_type.device_tye_name"], ["user_id"], $id, ["page" => $page, "size" => $size, "strict" => true]);
-        $response["message"] = ($response["data"]) ? "Buchung gefunden" : "Buchung mit der ID nicht gefunden";
+        $response["message"] = "Gerät nicht gefunden";
+        echo json_encode($response);
+        return;
     }
-    else // show all bookings
+
+    // if $id is an $uid
+    $id = $device[0]["device_id"];
+
+    $response["data"] = Select::search([["table" => "event"]], ["event.event_device_id", "event.event_begin", "event.event_end", "event.event_multi_booking_id"], ["event_device_id"], $id, ["page" => $page, "size" => $size, "strict" => true]);
+    if (!$response["data"])
     {
-        $response["message"] = "Alle Buchungen";
-        $response["data"] = Select::select([["table" => "event"], ["table" => "user", "join" => ["user.user_id", "event.event_user_id"]], ["table" => "devices", "join" => ["devices.device_id", "event.event_device_id"]]], ["event_id", "event_begin", "event_end", "user.user_id", "user.user_firstname", "user.user_lastname", "devices.device_id", "devices.device_uid"], ["page" => $page, "size" => $size]);
+        $response["message"] = "Keine Buchungen gefunden";
+        echo json_encode($response);
+        return;
     }
+    $response["message"] = "Buchungen zu diesem Benutzer gefunden";
+
     Response::success($response["message"], "SUCCESS", $response["data"]);
 });
 
