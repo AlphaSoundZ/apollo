@@ -84,6 +84,40 @@ $router->get('/user(/\d+)/history', function($id) {
     Response::success($response["message"], "SUCCESS", $response["data"]);
 });
 
+$router->get('/device/type(/\d+)?', function ($id = null) {
+    require 'classes/search_class.php';
+    authorize("search");
+
+    $response["message"] = "";
+    $response["response"] = "";
+
+    $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
+    $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
+
+    if ($id) // search for class with $id
+    {
+        $response["data"] = Select::search([["table" => "property_device_type"]], ["*"], ["device_type_id"], $id, ["strict" => true]);
+        $response["message"] = ($response["data"]) ? "Gerätetyp gefunden" : "Gerätetyp nicht gefunden";
+    }
+    else // show every class
+    {
+        $query = (isset($_GET["query"])) ? $_GET["query"] : null;
+        $strict = (isset($_GET["strict"]) && $_GET["strict"] == "true") ? true : false;
+        
+        if ($query)
+        {
+            $response["data"] = Select::search([["table" => "property_device_type"]], ["*"], ["device_type_name"], $query, ["strict" => $strict]);
+            $response["message"] = ($response["data"]) ? "Gerätetyp gefunden" : "Gerätetyp nicht gefunden";
+        }
+        else
+        {
+            $response["message"] = "Alle Gerätetypen";
+            $response["data"] = Select::select([["table" => "property_device_type"]], ["*"], ["page" => $page, "size" => $size]);
+        }
+    }
+    Response::success($response["message"], "SUCCESS", $response["data"]);
+});
+
 $router->get('/device(/[^/]+)?', function ($id = null) {
     require 'classes/search_class.php';
     authorize("search");
@@ -159,7 +193,7 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
 
     if ($id) // search for class with $id
     {
-        $response["data"] = Select::search([["table" => "property_class"]], ["class_id", "class_name"], ["class_id"], $id, ["strict" => true]);
+        $response["data"] = Select::search([["table" => "property_class"]], ["*"], ["class_id"], $id, ["strict" => true]);
         $response["message"] = ($response["data"]) ? "Klasse gefunden" : "Klasse nicht gefunden";
     }
     else // show every class
@@ -175,7 +209,7 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
         else
         {
             $response["message"] = "Alle Klassen";
-            $response["data"] = Select::select([["table" => "property_class"]], ["class_id", "class_name"], ["page" => $page, "size" => $size]);
+            $response["data"] = Select::select([["table" => "property_class"]], ["*"], ["page" => $page, "size" => $size]);
         }
     }
     Response::success($response["message"], "SUCCESS", $response["data"]);
