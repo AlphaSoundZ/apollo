@@ -215,4 +215,38 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
     Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
+$router->get('/usercard/type(/\d+)?', function ($id = null) {
+    require 'classes/search_class.php';
+    authorize("search");
+
+    $response["message"] = "";
+    $response["response"] = "";
+
+    $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
+    $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
+
+    if ($id) // search for usercard type with $id
+    {
+        $response["data"] = Select::search([["table" => "property_usercard_type"]], ["*"], ["usercard_type_id"], $id, ["strict" => true]);
+        $response["message"] = ($response["data"]) ? "User Indentifikation gefunden" : "User Indentifikation nicht gefunden";
+    }
+    else // show every usercard type
+    {
+        $query = (isset($_GET["query"])) ? $_GET["query"] : null;
+        $strict = (isset($_GET["strict"]) && $_GET["strict"] == "true") ? true : false;
+        
+        if ($query)
+        {
+            $response["data"] = Select::search([["table" => "property_usercard_type"]], ["*"], ["usercard_type_name"], $query, ["strict" => $strict]);
+            $response["message"] = ($response["data"]) ? "User Indentifikation gefunden" : "User Indentifikation nicht gefunden";
+        }
+        else
+        {
+            $response["message"] = "Alle User Indentifikationen";
+            $response["data"] = Select::select([["table" => "property_usercard_type"]], ["*"], ["page" => $page, "size" => $size]);
+        }
+    }
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+});
+
 $router->run();
