@@ -59,7 +59,7 @@ $router->get('/user(/\d+)?', function($id = null) {
     }
     
     // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
-    Response::success($response["message"], $response["response"], $response["data"]);
+    Response::success($response["message"], $response["response"], ["data" => $response["data"]]);
 });
 
 $router->get('/user(/\d+)/history', function($id) {
@@ -81,7 +81,7 @@ $router->get('/user(/\d+)/history', function($id) {
     }
     $response["message"] = "Buchungen zu diesem Benutzer gefunden";
 
-    Response::success($response["message"], "SUCCESS", $response["data"]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
 $router->get('/device/type(/\d+)?', function ($id = null) {
@@ -115,7 +115,7 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
             $response["data"] = Select::select([["table" => "property_device_type"]], ["*"], ["page" => $page, "size" => $size]);
         }
     }
-    Response::success($response["message"], "SUCCESS", $response["data"]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
 $router->get('/device(/[^/]+)?', function ($id = null) {
@@ -144,7 +144,7 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
         $response["message"] = "Alle Geräte";
         $response["data"] = Select::select([["table" => "devices"], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name"], ["page" => $page, "size" => $size]);
     }
-    Response::success($response["message"], "SUCCESS", $response["data"]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
 $router->get('/device(/[^/]+)/history', function ($id) {
@@ -178,7 +178,7 @@ $router->get('/device(/[^/]+)/history', function ($id) {
     }
     $response["message"] = "Buchungen zu diesem Benutzer gefunden";
 
-    Response::success($response["message"], "SUCCESS", $response["data"]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
 $router->get('/user/class(/\d+)?', function ($id = null) {
@@ -212,7 +212,7 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
             $response["data"] = Select::select([["table" => "property_class"]], ["*"], ["page" => $page, "size" => $size]);
         }
     }
-    Response::success($response["message"], "SUCCESS", $response["data"]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
 $router->run();
