@@ -131,7 +131,7 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
 
     if ($id !== null) // search for device with $id or uid
     {
-        $response["data"] = Select::search([["table" => "devices"], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name"], ["device_id", "device_uid"], $id, ["strict" => true]);
+        $response["data"] = Select::search([["table" => "devices"], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name"], ["device_id", "device_uid", "device_type_name"], $id, ["strict" => true]);
         $response["message"] = ($response["data"]) ? "Gerät gefunden" : "Gerät nicht gefunden";
     }
     else if ($booking == "true") // show all booked devices
