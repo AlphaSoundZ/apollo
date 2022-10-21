@@ -18,7 +18,7 @@ $router->get('/status', function () {
     require 'status.php';
 });
 
-$router->get('/user(/\d+)?', function($id = null) {
+$router->get('/user(/[^/]+)?', function($id = null) {
     require 'classes/search_class.php';
     authorize("search");
 
@@ -32,7 +32,7 @@ $router->get('/user(/\d+)?', function($id = null) {
     
     if ($id !== null) // search for user with $id
     {
-        $response["data"] = Select::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], ["user_id"], $id, ["strict" => true]);
+        $response["data"] = Select::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], ["user_id", "class_name"], $id, ["strict" => true]);
         $response["message"] = ($response["data"]) ? "Benutzer gefunden" : "Benutzer nicht gefunden";
     }
     else if (isset($booking) && $booking == "true") // show all booking users
