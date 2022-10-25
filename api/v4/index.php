@@ -272,4 +272,71 @@ $router->get('/usercard(/[^/]+)?', function ($id = null) {
     Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
+$router->get('/token(/\d+)?', function ($id = null) {
+    require 'classes/search_class.php';
+    authorize("search");
+
+    $response["response"] = "";
+    $response["message"] = "";
+
+    $booking = (isset($_GET["booking"])) ? $_GET["booking"] : null;
+
+    $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
+    $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
+    
+    if ($id !== null) // search for user with $id
+    {
+        $response["data"] = Select::search([["table" => "token"], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "token.token_permissions", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], ["token_id"], $id, ["strict" => true]);
+        for ($i = 0; $i < count($response["data"]); $i++)
+        {
+            $permission_list = Select::select([["table" => "property_token_permissions"]], ["*"]);
+            $decoded = json_decode($response["data"][$i]["token_permissions"]);
+            for ($j = 0; $j < count($decoded); $j++)
+                $new_permission_list[$decoded[$j]] = $permission_list[array_search($decoded[$j], array_column($permission_list, "permission_id"))]["permission_text"];
+            $response["data"][$i]["token_permissions"] = $new_permission_list;
+        }
+        $response["message"] = ($response["data"]) ? "Token gefunden" : "Token nicht gefunden";
+    }
+    else // show all users or search for user using ?query=
+    {
+        $query = (isset($_GET["query"])) ? $_GET["query"] : null;
+        $strict = (isset($_GET["strict"]) && $_GET["strict"] == "true") ? true : false;
+
+        if ($query)
+        {
+            $response["query"] = $query;
+            $response["data"] = Select::search([["table" => "token"], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "token.token_permissions", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], ["token_username"], $query, ["page" => $page, "size" => $size, "strict" => $strict]);
+            
+            $permission_list = Select::select([["table" => "property_token_permissions"]], ["*"]);
+            for ($i = 0; $i < count($response["data"]); $i++)
+            {
+                unset($new_permission_list);
+                $decoded = json_decode($response["data"][$i]["data"]["token_permissions"]);
+                for ($j = 0; $j < count($decoded); $j++)
+                    $new_permission_list[$decoded[$j]] = $permission_list[array_search($decoded[$j], array_column($permission_list, "permission_id"))]["permission_text"];
+                $response["data"][$i]["token_permissions"] = $new_permission_list;
+            }
+            $response["message"] = ($response["data"]) ? "Suche erfolgreich" : "Keine Ergebnisse";
+        }
+        else
+        {
+            $response["message"] = "Alle Tokens";
+            $response["data"] = Select::select([["table" => "token"], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "token.token_permissions", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], ["page" => $page, "size" => $size]);
+            
+            $permission_list = Select::select([["table" => "property_token_permissions"]], ["*"]);
+            for ($i = 0; $i < count($response["data"]); $i++)
+            {
+                unset($new_permission_list);
+                $decoded = json_decode($response["data"][$i]["token_permissions"]);
+                for ($j = 0; $j < count($decoded); $j++)
+                    $new_permission_list[$decoded[$j]] = $permission_list[array_search($decoded[$j], array_column($permission_list, "permission_id"))]["permission_text"];
+                $response["data"][$i]["token_permissions"] = $new_permission_list;
+            }
+        }
+    }
+    
+    // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
+    Response::success($response["message"], $response["response"], ["data" => $response["data"]]);
+});
+
 $router->run();
