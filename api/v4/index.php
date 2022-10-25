@@ -311,7 +311,11 @@ $router->get('/token(/\d+)?', function ($id = null) {
             for ($i = 0; $i < count($response["data"]); $i++)
             {
                 unset($new_permission_list);
-                $decoded = json_decode($response["data"][$i]["data"]["token_permissions"]);
+                if ($strict)
+                    $decoded = json_decode($response["data"][$i]["token_permissions"]);
+                else
+                    $decoded = json_decode($response["data"][$i]["data"]["token_permissions"]);
+
                 for ($j = 0; $j < count($decoded); $j++)
                     $new_permission_list[$decoded[$j]] = $permission_list[array_search($decoded[$j], array_column($permission_list, "permission_id"))]["permission_text"];
                 $response["data"][$i]["token_permissions"] = $new_permission_list;
