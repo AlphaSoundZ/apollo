@@ -9,7 +9,7 @@ $response["response"] = "";
 $inputData = getData("POST", ["table", "columns", "string", "seperator", "enclosure", "escape"]);
 $table = $inputData["table"];
 $columns = $inputData["columns"];
-$data = str_getcsv($inputData["string"], $inputData["seperator"], $inputData["enclosure"]);
+$data = str_getcsv($inputData["string"], $inputData["seperator"], $inputData["enclosure"], $inputData["escape"]);
 
 $errors = csv::checkForError($columns, $data);
 
@@ -56,6 +56,17 @@ class csv
         }
         return $errorCounter;
     }
+
+    /*static public function basicImport($filename, $columns, $table, $path = __DIR__ . "/../../../uploads/csv/")
+    {
+        global $pdo;
+        $csvFilePath = "import-template.csv";
+        $file = fopen($csvFilePath, "r");
+        $columns_str = implode(", ", $columns);
+        while (($row = fgetcsv($file)) !== FALSE) {
+            self::addRow($table, $columns, $row);
+        }
+    }*/
     
 }
 ?>
