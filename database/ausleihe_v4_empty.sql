@@ -16,12 +16,10 @@
 
 
 -- Exportiere Datenbank Struktur für ausleihe_v4
-DROP DATABASE IF EXISTS `ausleihe_v4`;
 CREATE DATABASE IF NOT EXISTS `ausleihe_v4` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 USE `ausleihe_v4`;
 
 -- Exportiere Struktur von Tabelle ausleihe_v4.devices
-DROP TABLE IF EXISTS `devices`;
 CREATE TABLE IF NOT EXISTS `devices` (
   `device_id` int(11) NOT NULL AUTO_INCREMENT,
   `device_type` int(11) NOT NULL,
@@ -33,7 +31,6 @@ CREATE TABLE IF NOT EXISTS `devices` (
 -- Daten Export vom Benutzer nicht ausgewählt
 
 -- Exportiere Struktur von Tabelle ausleihe_v4.event
-DROP TABLE IF EXISTS `event`;
 CREATE TABLE IF NOT EXISTS `event` (
   `event_id` int(11) NOT NULL AUTO_INCREMENT,
   `event_user_id` int(11) NOT NULL,
@@ -47,7 +44,6 @@ CREATE TABLE IF NOT EXISTS `event` (
 -- Daten Export vom Benutzer nicht ausgewählt
 
 -- Exportiere Struktur von Tabelle ausleihe_v4.prebook
-DROP TABLE IF EXISTS `prebook`;
 CREATE TABLE IF NOT EXISTS `prebook` (
   `prebook_id` int(11) NOT NULL AUTO_INCREMENT,
   `prebook_user_id` int(11) NOT NULL,
@@ -60,7 +56,6 @@ CREATE TABLE IF NOT EXISTS `prebook` (
 -- Daten Export vom Benutzer nicht ausgewählt
 
 -- Exportiere Struktur von Tabelle ausleihe_v4.property_class
-DROP TABLE IF EXISTS `property_class`;
 CREATE TABLE IF NOT EXISTS `property_class` (
   `class_id` int(11) NOT NULL AUTO_INCREMENT,
   `class_name` text NOT NULL,
@@ -70,7 +65,6 @@ CREATE TABLE IF NOT EXISTS `property_class` (
 -- Daten Export vom Benutzer nicht ausgewählt
 
 -- Exportiere Struktur von Tabelle ausleihe_v4.property_device_type
-DROP TABLE IF EXISTS `property_device_type`;
 CREATE TABLE IF NOT EXISTS `property_device_type` (
   `device_type_id` int(11) NOT NULL AUTO_INCREMENT,
   `device_type_name` text NOT NULL,
@@ -80,7 +74,6 @@ CREATE TABLE IF NOT EXISTS `property_device_type` (
 -- Daten Export vom Benutzer nicht ausgewählt
 
 -- Exportiere Struktur von Tabelle ausleihe_v4.property_token_permissions
-DROP TABLE IF EXISTS `property_token_permissions`;
 CREATE TABLE IF NOT EXISTS `property_token_permissions` (
   `permission_id` int(11) NOT NULL AUTO_INCREMENT,
   `permission_text` text NOT NULL,
@@ -90,7 +83,6 @@ CREATE TABLE IF NOT EXISTS `property_token_permissions` (
 -- Daten Export vom Benutzer nicht ausgewählt
 
 -- Exportiere Struktur von Tabelle ausleihe_v4.property_usercard_type
-DROP TABLE IF EXISTS `property_usercard_type`;
 CREATE TABLE IF NOT EXISTS `property_usercard_type` (
   `usercard_type_id` int(11) NOT NULL AUTO_INCREMENT,
   `usercard_type_name` text NOT NULL,
@@ -100,20 +92,27 @@ CREATE TABLE IF NOT EXISTS `property_usercard_type` (
 -- Daten Export vom Benutzer nicht ausgewählt
 
 -- Exportiere Struktur von Tabelle ausleihe_v4.token
-DROP TABLE IF EXISTS `token`;
 CREATE TABLE IF NOT EXISTS `token` (
   `token_id` int(11) NOT NULL AUTO_INCREMENT,
   `token_username` text NOT NULL,
   `token_password` text NOT NULL,
-  `token_permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`token_permissions`)),
   `token_last_change` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`token_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
+-- Exportiere Struktur von Tabelle ausleihe_v4.token_link_permissions
+CREATE TABLE IF NOT EXISTS `token_link_permissions` (
+  `link_permission_id` int(11) NOT NULL AUTO_INCREMENT,
+  `link_token_id` int(11) NOT NULL,
+  `link_token_permission_id` int(11) NOT NULL,
+  PRIMARY KEY (`link_permission_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Daten Export vom Benutzer nicht ausgewählt
+
 -- Exportiere Struktur von Tabelle ausleihe_v4.user
-DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_firstname` text NOT NULL,
@@ -127,7 +126,6 @@ CREATE TABLE IF NOT EXISTS `user` (
 -- Daten Export vom Benutzer nicht ausgewählt
 
 -- Exportiere Struktur von Tabelle ausleihe_v4.usercard
-DROP TABLE IF EXISTS `usercard`;
 CREATE TABLE IF NOT EXISTS `usercard` (
   `usercard_id` int(11) NOT NULL AUTO_INCREMENT,
   `usercard_type` int(11) NOT NULL,
