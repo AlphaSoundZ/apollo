@@ -146,6 +146,7 @@ class Booking
     $this->data['user']['lastname'] = $user['user_lastname'];
     $this->data['user']['user_id'] = $user_id;
     $this->data['user']['class'] = $user['class_name'];
+    $this->data['user']['multiuser'] = ($user['user_class'] == $_ENV['MULTIUSER']) ? true : false;
     $this->data['user']['status'] = $status;
 
     // History of devices
