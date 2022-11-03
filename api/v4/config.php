@@ -75,15 +75,18 @@ function authorize($file = null)
 		throw new CustomException(Response::NOT_AUTHORIZED . " ({$e->getMessage()})", "NOT_AUTHORIZED", 401);
 	}
 
-	// check if iat and username in payload are correct
+	// check if iat and username/password in payload are correct
 
 	$stmt = "SELECT * FROM token WHERE token_id = '{$decoded['sub']}'";
 	$stmt = $pdo->prepare($stmt);
 	$stmt->execute();
 	$login_data = $stmt->fetch();
-	$token_last_change = strtotime($login_data['token_last_change']);
-	if (!$login_data || $decoded["iat"] <= $token_last_change)
+	if (!$login_data)
 		throw new CustomException(Response::NOT_AUTHORIZED . ": Username oder Passwort falsch", "NOT_AUTHORIZED", 401);
+	
+	$token_last_change = strtotime($login_data['token_last_change']);
+	if ($decoded["iat"] <= $token_last_change)
+		throw new CustomException(Response::NOT_AUTHORIZED . ": Token ist abgelaufen", "NOT_AUTHORIZED", 401);
 
 
 	if (!$file)
