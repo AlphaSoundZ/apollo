@@ -30,7 +30,7 @@ abstract class BasicEnum {
 		return in_array($value, $values, $strict);
 	}
 
-	public static function success($message, $response_code, $custom = []) {
+	public static function success($message, $response_code = Response::SUCCESS, $custom = []) {
 		http_response_code(200);
 		echo json_encode(array_merge(["response" => $response_code, "message" => $message], $custom));
 		die;
@@ -70,4 +70,5 @@ abstract class Response extends BasicEnum {
 	const USERCARD_NOT_FOUND = "Usercard nicht gefunden"; // Usercard not found in database
 	const UID_NOT_FOUND = "UID nicht gefunden"; // UID not found in database
 	const UID_ALREADY_EXISTS = "UID existiert bereits"; // UID already exists in database
+	const INSERT_ERROR = "Fehler beim Einfügen in die Datenbank"; // Error while inserting into database
 }

@@ -21,6 +21,20 @@ Response::success(count($rows) . " Zeilen wurden eingefügt");
 
 class csv
 {
+    /*public function __construct(string $table, array $columns, string $string, string $seperator, string $linebreak, string $enclosure = "")
+    {
+        $rows = str_getcsv($string, $linebreak);
+        for ($i = 0; $i < count($rows); $i++)
+            $data[$i] = str_getcsv($rows[$i], $seperator, $enclosure);
+        
+        $this->table = $table;
+        $this->columns = $columns;
+        $this->data = $data;
+        $this->seperator = $seperator;
+        $this->linebreak = $linebreak;
+        $this->enclosure = $enclosure;
+    }*/
+
     static public function add($table, $columns, $data, $global = [])
     {
         for ($i = 0; $i < count($data); $i++)
