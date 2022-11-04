@@ -5,13 +5,7 @@ require 'vendor/autoload.php';
 $router = new \Bramus\Router\Router;
 
 $router->set404('/', function() {
-    header('HTTP/1.1 404 Not Found');
-    header('Content-Type: application/json');
-
-    $response['response'] = "404";
-    $response['message'] = "route not defined";
-
-    Response::success($response["message"], "SUCCESS");
+    throw new CustomException(Response::ROUTE_NOT_DEFINED, "ROUTE_NOT_DEFINED", 404);
 });
 
 $router->get('/status', function () {
@@ -22,7 +16,6 @@ $router->get('/user(/[^/]+)?', function($id = null) {
     require 'classes/search_class.php';
     authorize("search");
 
-    $response["response"] = "";
     $response["message"] = "";
 
     $booking = (isset($_GET["booking"])) ? $_GET["booking"] : null;
@@ -59,14 +52,13 @@ $router->get('/user(/[^/]+)?', function($id = null) {
     }
     
     // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
-    Response::success($response["message"], $response["response"], ["data" => $response["data"]]);
+    Response::success($response["message"], null, ["data" => $response["data"]]);
 });
 
 $router->get('/user(/\d+)/history', function($id) {
     require 'classes/search_class.php';
     authorize("search");
 
-    $response["response"] = "";
     $response["message"] = "";
 
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
@@ -81,7 +73,7 @@ $router->get('/user(/\d+)/history', function($id) {
     }
     $response["message"] = "Buchungen zu diesem Benutzer gefunden";
 
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], null, ["data" => $response["data"]]);
 });
 
 $router->get('/device/type(/\d+)?', function ($id = null) {
@@ -89,7 +81,6 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
     authorize("search");
 
     $response["message"] = "";
-    $response["response"] = "";
 
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
@@ -115,7 +106,7 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
             $response["data"] = Select::select([["table" => "property_device_type"]], ["*"], ["page" => $page, "size" => $size]);
         }
     }
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], null, ["data" => $response["data"]]);
 });
 
 $router->get('/device(/[^/]+)?', function ($id = null) {
@@ -126,7 +117,7 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
 
     $response["message"] = "";
-    $response["response"] = "";
+
     $booking = (isset($_GET["booking"])) ? $_GET["booking"] : null;
 
     if ($id !== null) // search for device with $id or uid
@@ -144,7 +135,7 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
         $response["message"] = "Alle Geräte";
         $response["data"] = Select::select([["table" => "devices"], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name"], ["page" => $page, "size" => $size]);
     }
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], null, ["data" => $response["data"]]);
 });
 
 $router->get('/device(/[^/]+)/history', function ($id) {
@@ -155,7 +146,6 @@ $router->get('/device(/[^/]+)/history', function ($id) {
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
 
     $response["message"] = "";
-    $response["response"] = "";
 
     // check if device exists
     $device = Select::search([["table" => "devices"]], ["device_id", "device_uid"], ["device_id", "device_uid"], $id, ["strict" => true]);
@@ -178,7 +168,7 @@ $router->get('/device(/[^/]+)/history', function ($id) {
     }
     $response["message"] = "Buchungen zu diesem Benutzer gefunden";
 
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], null, ["data" => $response["data"]]);
 });
 
 $router->get('/user/class(/\d+)?', function ($id = null) {
@@ -186,7 +176,6 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
     authorize("search");
 
     $response["message"] = "";
-    $response["response"] = "";
 
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
@@ -212,7 +201,7 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
             $response["data"] = Select::select([["table" => "property_class"]], ["*"], ["page" => $page, "size" => $size]);
         }
     }
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], null, ["data" => $response["data"]]);
 });
 
 $router->get('/usercard/type(/\d+)?', function ($id = null) {
@@ -220,7 +209,6 @@ $router->get('/usercard/type(/\d+)?', function ($id = null) {
     authorize("search");
 
     $response["message"] = "";
-    $response["response"] = "";
 
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
@@ -246,7 +234,7 @@ $router->get('/usercard/type(/\d+)?', function ($id = null) {
             $response["data"] = Select::select([["table" => "property_usercard_type"]], ["*"], ["page" => $page, "size" => $size]);
         }
     }
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], null, ["data" => $response["data"]]);
 });
 
 $router->get('/usercard(/[^/]+)?', function ($id = null) {
@@ -254,7 +242,6 @@ $router->get('/usercard(/[^/]+)?', function ($id = null) {
     authorize("search");
 
     $response["message"] = "";
-    $response["response"] = "";
 
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
@@ -269,14 +256,13 @@ $router->get('/usercard(/[^/]+)?', function ($id = null) {
         $response["message"] = "Alle User Indentifikationen";
         $response["data"] = Select::select([["table" => "usercard"], ["table" => "property_usercard_type", "join" => ["property_usercard_type.usercard_type_id", "usercard.usercard_type"]], ["table" => "user", "join" => ["user.user_id", "usercard.usercard_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["usercard.*", "property_usercard_type.usercard_type_name", "user_id", "user_firstname", "user_lastname", "class_name"], ["page" => $page, "size" => $size]);
     }
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], null, ["data" => $response["data"]]);
 });
 
 $router->get('/token(/\d+)?', function ($id = null) {
     require 'classes/search_class.php';
     authorize("search");
 
-    $response["response"] = "";
     $response["message"] = "";
 
     $booking = (isset($_GET["booking"])) ? $_GET["booking"] : null;
@@ -340,7 +326,24 @@ $router->get('/token(/\d+)?', function ($id = null) {
     }
     
     // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
-    Response::success($response["message"], $response["response"], ["data" => $response["data"]]);
+    Response::success($response["message"], null, ["data" => $response["data"]]);
+});
+
+// Post
+
+$router->post('/csv', function () {
+    require 'classes/csv.php';
+    authorize("add_csv");
+
+    $inputData = getData("POST", ["table", "columns", "string", "seperator", "linebreak"]);
+    $global = (isset($inputData["global"])) ? $inputData["global"] : [];
+    $enclosure = (isset($inputData["enclosure"])) ? $inputData["enclosure"] : "";
+
+    $csv = new Csv($inputData["table"], $inputData["columns"], $inputData["string"], $inputData["seperator"], $inputData["linebreak"], $global, $enclosure);
+    $csv->checkForError();
+    $csv->add();
+
+    Response::success(count($csv->rows) . " Zeilen wurden eingefügt");
 });
 
 $router->run();

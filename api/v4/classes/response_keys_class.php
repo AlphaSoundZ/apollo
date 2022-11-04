@@ -30,7 +30,7 @@ abstract class BasicEnum {
 		return in_array($value, $values, $strict);
 	}
 
-	public static function success($message, $response_code = Response::SUCCESS, $custom = []) {
+	public static function success($message, $response_code = "SUCCESS", $custom = []) {
 		http_response_code(200);
 		echo json_encode(array_merge(["response" => $response_code, "message" => $message], $custom));
 		die;
@@ -45,6 +45,8 @@ abstract class BasicEnum {
 abstract class Response extends BasicEnum {
 
 	const UNEXPECTED_ERROR = "Internal Server Error: "; // Default
+	const PAGE_NOT_FOUND = "Page Not Found"; // Page does not exist (404 error)
+	const ROUTE_NOT_DEFINED = "Route Not Defined"; // Route does not exist (404 error)
 	const SUCCESS = "Success";
 	const DEVICE_NOT_FOUND = "Device ist in der Datenbank nicht verfügbar"; // Devcies not found in database
 	const NOT_ALLOWED = "Dieser Request konnte aufgrund von fehlender Permission nicht ausgeführt werden"; // User is not allowed to do this action (permission missing)
