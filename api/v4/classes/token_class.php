@@ -9,19 +9,25 @@ class Token
     public static function getToken($username, $password, $key)
     {
         global $pdo;
-        $stmt = "SELECT * FROM token WHERE token_username = :username";
-        $stmt = $pdo->prepare($stmt);
+        $sql = "SELECT * FROM token WHERE token_username = :username";
+        $stmt = $pdo->prepare($sql);
         $stmt->execute(["username" => $username]);
         $login_data = $stmt->fetch();
 
         if (!$login_data || !password_verify($password, $login_data["token_password"]))
             throw new CustomException(Response::NOT_AUTHORIZED . ": Username oder Passwort falsch", "NOT_AUTHORIZED", 401);
-
-        $given_permissions = json_decode($login_data["token_permissions"]);
+        
         $token_id = $login_data["token_id"];
 
+        $sql = "SELECT link_token_permission_id FROM token_link_permissions WHERE link_token_id = :id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(["id" => $token_id]);
+        $permissions = $stmt->fetchAll(PDO::FETCH_NUM);
+        for ($i = 0; $i < count($permissions); $i++)
+            $reduced_permissions[$i] = $permissions[$i][0];
+
         $payload = [
-            'permissions' => $given_permissions,
+            'permissions' => $reduced_permissions,
             'sub' => $token_id,
             'iat' => round(microtime(true)),
         ];
@@ -48,7 +54,6 @@ class Token
         $token_last_change = strtotime($login_data['token_last_change']);
         if (!$login_data || $decoded["iat"] <= $token_last_change)
             throw new CustomException(Response::NOT_AUTHORIZED . ": Username oder Passwort falsch", "NOT_AUTHORIZED", 401);
-
         
         return array_values((array) $decoded["permissions"]);
     }
