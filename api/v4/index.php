@@ -332,7 +332,7 @@ $router->get('/token(/\d+)?', function ($id = null) {
 // Post
 
 $router->post('/csv', function () {
-    require 'classes/csv.php';
+    require 'classes/csv_class.php';
     authorize("add_csv");
 
     $inputData = getData("POST", ["table", "columns", "string", "seperator", "linebreak"]);
