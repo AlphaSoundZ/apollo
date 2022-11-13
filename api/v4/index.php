@@ -273,16 +273,10 @@ $router->get('/token(/\d+)?', function ($id = null) {
     
     if ($id !== null) // search for user with $id
     {
-        $response["data"] = Select::search([["table" => "token"], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "token.token_permissions", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], ["token_id"], $id, ["strict" => true]);
-        for ($i = 0; $i < count($response["data"]); $i++)
-        {
-            $permission_list = Select::select([["table" => "property_token_permissions"]], ["*"]);
-            $decoded = json_decode($response["data"][$i]["token_permissions"]);
-            for ($j = 0; $j < count($decoded); $j++)
-                $new_permission_list[$decoded[$j]] = $permission_list[array_search($decoded[$j], array_column($permission_list, "permission_id"))]["permission_text"];
-            $response["data"][$i]["token_permissions"] = $new_permission_list;
-        }
+        $response["data"] = Select::search([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], ["token_id"], $id, ["strict" => true, "groupby" => "token.token_id"]);
         $response["message"] = ($response["data"]) ? "Token gefunden" : "Token nicht gefunden";
+        $response["data"][0]["permission_id"] = explode(", ", $response["data"][0]["permission_id"]);
+        $response["data"][0]["permission_text"] = explode(", ", $response["data"][0]["permission_text"]);
     }
     else // show all users or search for user using ?query=
     {
@@ -292,36 +286,24 @@ $router->get('/token(/\d+)?', function ($id = null) {
         if ($query)
         {
             $response["query"] = $query;
-            $response["data"] = Select::search([["table" => "token"], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "token.token_permissions", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], ["token_username"], $query, ["page" => $page, "size" => $size, "strict" => $strict]);
+            $response["data"] = Select::search([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], ["token_username"], $query, ["strict" => $strict, "page" => $page, "size" => $size, "groupby" => "token.token_id"]);
             
-            $permission_list = Select::select([["table" => "property_token_permissions"]], ["*"]);
             for ($i = 0; $i < count($response["data"]); $i++)
             {
-                unset($new_permission_list);
-                if ($strict)
-                    $decoded = json_decode($response["data"][$i]["token_permissions"]);
-                else
-                    $decoded = json_decode($response["data"][$i]["data"]["token_permissions"]);
-
-                for ($j = 0; $j < count($decoded); $j++)
-                    $new_permission_list[$decoded[$j]] = $permission_list[array_search($decoded[$j], array_column($permission_list, "permission_id"))]["permission_text"];
-                $response["data"][$i]["token_permissions"] = $new_permission_list;
+                $response["data"][$i]["data"]["permission_id"] = explode(", ", $response["data"][$i]["data"]["permission_id"]);
+                $response["data"][$i]["data"]["permission_text"] = explode(", ", $response["data"][$i]["data"]["permission_text"]);
             }
             $response["message"] = ($response["data"]) ? "Suche erfolgreich" : "Keine Ergebnisse";
         }
         else
         {
             $response["message"] = "Alle Tokens";
-            $response["data"] = Select::select([["table" => "token"], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "token.token_permissions", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], ["page" => $page, "size" => $size]);
+            $response["data"] = Select::select([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], ["strict" => true, "page" => $page, "size" => $size, "groupby" => "token.token_id"]);
             
-            $permission_list = Select::select([["table" => "property_token_permissions"]], ["*"]);
             for ($i = 0; $i < count($response["data"]); $i++)
             {
-                unset($new_permission_list);
-                $decoded = json_decode($response["data"][$i]["token_permissions"]);
-                for ($j = 0; $j < count($decoded); $j++)
-                    $new_permission_list[$decoded[$j]] = $permission_list[array_search($decoded[$j], array_column($permission_list, "permission_id"))]["permission_text"];
-                $response["data"][$i]["token_permissions"] = $new_permission_list;
+                $response["data"][$i]["permission_id"] = explode(", ", $response["data"][$i]["permission_id"]);
+                $response["data"][$i]["permission_text"] = explode(", ", $response["data"][$i]["permission_text"]);
             }
         }
     }
