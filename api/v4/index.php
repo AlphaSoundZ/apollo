@@ -312,7 +312,7 @@ $router->get('/token(/\d+)?', function ($id = null) {
     Response::success($response["message"], null, ["data" => $response["data"]]);
 });
 
-$rounter->get('/token/validate', function () {
+$router->get('/token/validate', function () {
     $given_token = $_SERVER["HTTP_AUTHORIZATION"];
     $jwt = explode(" ", $given_token)[1];
 
@@ -372,7 +372,7 @@ $router->post('/csv', function () {
     Response::success(count($csv->rows) . " Zeilen wurden eingefügt");
 });
 
-$rounter->post('/token/authorize', function () {
+$router->post('/token/authorize', function () {
     require 'classes/token_class.php';
 
     $data = getData("POST", ["username", "password"]);
