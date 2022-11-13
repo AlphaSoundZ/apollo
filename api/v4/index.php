@@ -361,15 +361,28 @@ $router->post('/csv', function () {
     require 'classes/csv_class.php';
     authorize("add_csv");
 
-    $inputData = getData("POST", ["table", "columns", "string", "seperator", "linebreak"]);
-    $global = (isset($inputData["global"])) ? $inputData["global"] : [];
-    $enclosure = (isset($inputData["enclosure"])) ? $inputData["enclosure"] : "";
+    $data = getData("POST", ["table", "columns", "string", "seperator", "linebreak"]);
+    $global = (isset($data["global"])) ? $data["global"] : [];
+    $enclosure = (isset($data["enclosure"])) ? $data["enclosure"] : "";
 
-    $csv = new Csv($inputData["table"], $inputData["columns"], $inputData["string"], $inputData["seperator"], $inputData["linebreak"], $global, $enclosure);
+    $csv = new Csv($data["table"], $data["columns"], $data["string"], $data["seperator"], $data["linebreak"], $global, $enclosure);
     $csv->checkForError();
     $csv->add();
 
     Response::success(count($csv->rows) . " Zeilen wurden eingefügt");
+});
+
+$rounter->post('/token/authorize', function () {
+    require 'classes/token_class.php';
+
+    $data = getData("POST", ["username", "password"]);
+
+    $username = $data["username"];
+    $password = $data["password"];
+
+    $token["jwt"] = Token::getToken($username, $password, $_ENV["JWT_KEY"]);
+
+    Response::success(Response::SUCCESS, "SUCCESS", $token);
 });
 
 $router->run();
