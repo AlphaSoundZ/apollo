@@ -8,6 +8,8 @@ $router->set404('/', function() {
     throw new CustomException(Response::ROUTE_NOT_DEFINED, "ROUTE_NOT_DEFINED", 404);
 });
 
+// get
+
 $router->get('/status', function () {
     require 'status.php';
 });
@@ -40,7 +42,6 @@ $router->get('/user(/[^/]+)?', function($id = null) {
 
         if ($query)
         {
-            $response["query"] = $query;
             $response["data"] = Select::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name"], ["user_firstname", "user_lastname"], $query, ["page" => $page, "size" => $size, "strict" => $strict]);
             $response["message"] = ($response["data"]) ? "Suche erfolgreich" : "Keine Ergebnisse";
         }
@@ -326,6 +327,40 @@ $router->get('/token(/\d+)?', function ($id = null) {
     }
     
     // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
+    Response::success($response["message"], null, ["data" => $response["data"]]);
+});
+
+$router->get('/token/permission(/\d+)?', function ($id = null) {
+    require 'classes/search_class.php';
+    authorize("search");
+
+    $response["message"] = "";
+
+    $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
+    $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
+
+    if ($id !== null)
+    {
+        $response["data"] = Select::search([["table" => "property_token_permissions"]], ["permission_id", "permission_text"], ["permission_id"], $id, ["page" => $page, "size" => $size, "strict" => true]);
+        $response["message"] = ($response["data"]) ? "Suche erfolgreich" : "Keine Ergebnisse";
+    }
+    else
+    {
+        $query = (isset($_GET["query"])) ? $_GET["query"] : null;
+        $strict = (isset($_GET["strict"]) && $_GET["strict"] == "true") ? true : false;
+
+        if ($query)
+        {
+            $response["data"] = Select::search([["table" => "property_token_permissions"]], ["permission_id", "permission_text"], ["permission_text"], $query, ["page" => $page, "size" => $size, "strict" => $strict]);
+            $response["message"] = ($response["data"]) ? "Suche erfolgreich" : "Keine Ergebnisse";
+        }
+        else
+        {
+            $response["message"] = "Alle Token Permissions";
+            $response["data"] = Select::select([["table" => "property_token_permissions"]], ["permission_id", "permission_text"], ["page" => $page, "size" => $size]);
+        }
+    }
+
     Response::success($response["message"], null, ["data" => $response["data"]]);
 });
 
