@@ -128,17 +128,19 @@ class Create
     public static function property_class ($text)
     {
         global $pdo;
-        // check if class exists
-        $sql = "SELECT * FROM property_class WHERE class_name = :text";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(["text" => $text]);
-        if ($stmt->fetch())
-            throw new CustomException(Response::CLASS_ALREADY_EXISTS, "CLASS_ALREADY_EXISTS", 400);
-        
-        $sql = "INSERT INTO property_class (class_id, class_name) VALUES (NULL, :text)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(["text" => $text]);
+        try {
+            $sql = "INSERT INTO property_class (class_id, class_name) VALUES (NULL, :text)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["text" => $text]);
 
-        return $pdo->lastInsertId();
+            return $pdo->lastInsertId();
+        } catch (PDOException $th) {
+            if ($th->getCode() == 23000) // check if class exists
+                throw new CustomException(Response::CLASS_ALREADY_EXISTS, "CLASS_ALREADY_EXISTS", 400);
+            
+            // unexpected error
+            throw $th;
+        }
+
     }
 }
