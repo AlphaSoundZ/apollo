@@ -168,4 +168,45 @@ class Create
             throw $th;
         }
     }
+
+    public static function token ($username, $password, array $permissions)
+    {
+        global $pdo;
+        // check permissions
+        $sql = "SELECT permission_id FROM property_token_permissions";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        $diff = array_diff($permissions, $stmt->fetchAll(PDO::FETCH_COLUMN));
+        if ($diff)
+            throw new CustomException(Response::PERMISSION_NOT_FOUND . " (Permission id: " . implode(', ', $diff) . ")", "PERMISSION_NOT_FOUND", 400);
+        if (count($permissions) !== count(array_flip($permissions))) // check for duplicates entries in $permissions array
+            throw new CustomException(Response::DUPLICATE_ENTRY . ". Bitte geben Sie Permissions jeweils nur einmal an!" , "DUPLICATE_ENTRY", 400);
+        
+        // create token
+        $password_hash = password_hash($password, PASSWORD_BCRYPT);
+
+        try {
+            $sql = "INSERT INTO token (token_id, token_username, token_password, token_last_change) VALUES (NULL, :username, :password, CURRENT_TIMESTAMP)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["username" => $username, "password" => $password_hash]);
+            
+            $id = $pdo->lastInsertId();
+        } catch (PDOException $th) {
+            if ($th->errorInfo[1] == "1062") // check if username exists
+                throw new CustomException(Response::TOKEN_ALREADY_EXISTS, "TOKEN_ALREADY_EXISTS", 400);
+            
+            // unexpected error
+            throw $th;
+        }
+
+        // create permissions links
+        for ($i = 0; $i < count($permissions); $i++)
+        {
+            $sql = "INSERT INTO token_link_permissions (link_permission_id, link_token_id, link_token_permission_id) VALUES (NULL, :token, :permission)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["token" => $id, "permission" => $permissions[$i]]);
+        }
+        
+        return $id;
+    }
 }

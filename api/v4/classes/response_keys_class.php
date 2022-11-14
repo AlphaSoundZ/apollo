@@ -78,4 +78,6 @@ abstract class Response extends BasicEnum {
 	const CLASS_ALREADY_EXISTS = "Klasse existiert bereits"; // class already exists in database
 	const DEVICE_TYPE_ALREADY_EXISTS = "Device Typ existiert bereits"; // Device type already exists in database
 	const USERCARD_TYPE_ALREADY_EXISTS = "Usercard Typ existiert bereits"; // Usercarcd type already exists in database
+	const DUPLICATE_ENTRY = "Es wurden mehrmals der gleiche Eintrag gefunden"; // Integrity constraint violation: 1062 Duplicate entry (sql)
+	const TOKEN_ALREADY_EXISTS = "Username des Tokens existiert bereits"; // Token already exists in database
 }

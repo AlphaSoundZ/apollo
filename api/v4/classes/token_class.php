@@ -22,12 +22,10 @@ class Token
         $sql = "SELECT link_token_permission_id FROM token_link_permissions WHERE link_token_id = :id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(["id" => $token_id]);
-        $permissions = $stmt->fetchAll(PDO::FETCH_NUM);
-        for ($i = 0; $i < count($permissions); $i++)
-            $reduced_permissions[$i] = $permissions[$i][0];
+        $permissions = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
         $payload = [
-            'permissions' => $reduced_permissions,
+            'permissions' => $permissions,
             'sub' => $token_id,
             'iat' => round(microtime(true)),
         ];

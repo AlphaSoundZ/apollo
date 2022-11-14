@@ -457,4 +457,15 @@ $router->post('/usercard/type/create', function () {
     Response::success(Response::SUCCESS, "SUCCESS", ["usercard_type_id" => $id]);
 });
 
+$router->post('/token/create', function () {
+    require 'classes/create_class.php';
+    authorize("create_token");
+
+    $data = getData("POST", ["username", "password", "permissions"]);
+
+    $id = Create::token($data["username"], $data["password"], $data["permissions"]);
+
+    Response::success(Response::SUCCESS, "SUCCESS", ["token_id" => $id]);
+});
+
 $router->run();
