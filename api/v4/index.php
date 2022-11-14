@@ -480,4 +480,15 @@ $router->patch('/user/class/change', function () {
     Response::success(Response::SUCCESS, "SUCCESS");
 });
 
+$router->patch('/device/type/change', function () {
+    require "classes/update_class.php";
+    authorize("create_device_type");
+
+    $data = getData("POST", ["id", "value"]);
+
+    Update::property_device_type($data["id"], $data["value"]);
+
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
 $router->run();
