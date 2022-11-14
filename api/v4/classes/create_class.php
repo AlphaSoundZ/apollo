@@ -150,4 +150,22 @@ class Create
             throw $th;
         }
     }
+
+    public static function property_usercard_type ($text)
+    {
+        global $pdo;
+        try {
+            $sql = "INSERT INTO property_usercard_type (usercard_type_id, usercard_type_name) VALUES (NULL, :text)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["text" => $text]);
+
+            return $pdo->lastInsertId();
+        } catch (PDOException $th) {
+            if ($th->errorInfo[1] == "1062") // check if class exists
+                throw new CustomException(Response::USERCARD_TYPE_ALREADY_EXISTS, "USERCARD_TYPE_ALREADY_EXISTS", 400);
+            
+            // unexpected error
+            throw $th;
+        }
+    }
 }

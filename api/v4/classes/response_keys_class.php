@@ -76,5 +76,6 @@ abstract class Response extends BasicEnum {
 	const TOKEN_NOT_FOUND = "Token nicht gefunden"; // Token does not exist in database
 	const USERCARD_TYPE_NOT_FOUND = "Usercard Typ nicht gefunden"; // Usercard type does not exist in database
 	const CLASS_ALREADY_EXISTS = "Klasse existiert bereits"; // class already exists in database
-	const DEVICE_TYPE_ALREADY_EXISTS = "Device Typ existiert bereits"; // Device type already exists in databse
+	const DEVICE_TYPE_ALREADY_EXISTS = "Device Typ existiert bereits"; // Device type already exists in database
+	const USERCARD_TYPE_ALREADY_EXISTS = "Usercard Typ existiert bereits"; // Usercarcd type already exists in database
 }
