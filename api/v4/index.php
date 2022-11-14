@@ -385,4 +385,18 @@ $router->post('/token/authorize', function () {
     Response::success(Response::SUCCESS, "SUCCESS", $token);
 });
 
+$router->post('/user/create', function () {
+    require "classes/create_class.php";
+    authorize("create_user");
+
+    $data = getData("POST", ["firstname", "lastname", "class_id"]);
+    $usercard_id = (isset($data["usercard_id"])) ? $data["usercard_id"] : null;
+    $token_id = (isset($data["token_id"])) ? $data["token_id"] : null;
+    $ignore_duplicates = (isset($data["ignore_duplicates"])) ? $data["ignore_duplicates"] : true;
+
+    $id = Create::user($data["firstname"], $data["lastname"], $data["class_id"], $usercard_id, $token_id, $ignore_duplicates);
+
+    Response::success(Response::SUCCESS, "SUCCESS", ["user_id" => $id]);
+});
+
 $router->run();

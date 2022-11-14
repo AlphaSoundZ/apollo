@@ -3,6 +3,58 @@ require_once "config.php";
 
 class Create
 {
+    public static function user($firstname, $lastname, $class_id, $usercard_id = null, $token_id = null, $ignore_duplicates = true) 
+    {
+        global $pdo;
+        // check if class_id exists
+        $sql = "SELECT * FROM property_class WHERE class_id = :id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(["id" => $class_id]);
+        if (!$stmt->fetch())
+            throw new CustomException(Response::CLASS_NOT_FOUND, "CLASS_NOT_FOUND", 400);
+            
+        // check if usercard_id exists
+        if ($usercard_id)
+        {
+            $sql = "SELECT * FROM usercard WHERE usercard_id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["id" => $usercard_id]);
+            if (!$stmt->fetch())
+                throw new CustomException(Response::USERCARD_NOT_FOUND, "USERCARD_NOT_FOUND", 400);
+        }
+            
+        // check if token_id exists
+        if ($token_id)
+        {
+            $sql = "SELECT * FROM token WHERE token_id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["id" => $usercard_id]);
+            if (!$stmt->fetch())
+                throw new CustomException(Response::TOKEN_NOT_FOUND, "TOKEN_NOT_FOUND", 400);
+        }
+        
+        // check if user already exists (only when $ignore_duplicates is set to false)
+        if ($ignore_duplicates == false)
+        {
+            $sql = "SELECT * FROM user WHERE user_firstname = :firstname AND user_lastname = :lastname";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["firstname" => $firstname, "lastname" => $lastname]);
+            if ($stmt->fetch())
+                throw new CustomException(Response::USER_ALREADY_EXISTS, "USER_ALREADY_EXISTS", 400);
+        }
+
+        // insert user
+        $sql = "INSERT INTO user (user_id, user_firstname, user_lastname, user_class, user_token_id, user_usercard_id) VALUES (NULL, :firstname, :lastname, :class, :token, :usercard)";
+        $sth = $pdo->prepare($sql);
+        $sth->execute(["firstname" => $firstname, "lastname" => $lastname, "class" => $class_id, "token" => $token_id, "usercard" => $usercard_id]);
+
+        return $pdo->lastInsertId();
+    }
+}
+
+/*
+class Create
+{
     public static function createDevice($device_uid, $device_type)
     {
         global $pdo;
@@ -127,3 +179,4 @@ class Create
         return true;
     }
 }
+*/

@@ -73,4 +73,5 @@ abstract class Response extends BasicEnum {
 	const UID_NOT_FOUND = "UID nicht gefunden"; // UID not found in database
 	const UID_ALREADY_EXISTS = "UID existiert bereits"; // UID already exists in database
 	const INSERT_ERROR = "Fehler beim Einfügen in die Datenbank"; // Error while inserting into database
+	const TOKEN_NOT_FOUND = "Token nicht gefunden"; // Token does not exist in database
 }
