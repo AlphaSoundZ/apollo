@@ -99,6 +99,31 @@ class Create
 
         return $usercard_id;
     }
+
+    public static function device($uid, $type)
+    {
+        global $pdo;
+        // check if device exists
+        $sql = "SELECT * FROM devices WHERE device_uid = :uid";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(["uid" => $uid]);
+        if ($stmt->fetch())
+            throw new CustomException(Response::DEVICE_ALREADY_EXISTS, "DEVICE_ALREADY_EXISTS", 400);
+        
+        // check if device type exists
+        $sql = "SELECT * FROM property_device_type WHERE device_type_id = :id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(["id" => $type]);
+        if (!$stmt->fetch())
+            throw new CustomException(Response::DEVICE_TYPE_NOT_FOUND, "DEVICE_TYPE_NOT_FOUND", 400);
+        
+        // insert device
+        $sql = "INSERT INTO devices (device_id, device_type, device_uid, device_lend_user_id) VALUES (NULL, :type, :uid, NULL)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(["uid" => $uid, "type" => $type]);
+
+        return $pdo->lastInsertId();
+    }
 }
 
 /*

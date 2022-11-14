@@ -413,4 +413,15 @@ $router->post('/usercard/create', function () {
     Response::success(Response::SUCCESS, "SUCCESS", ["usercard_id" => $id]);
 });
 
+$router->post('/device/create', function () {
+    require "classes/create_class.php";
+    authorize("create_device");
+
+    $data = getData("POST", ["uid", "type"]);
+
+    $id = Create::device($data["uid"], $data["type"]);
+
+    Response::success(Response::SUCCESS, "SUCCESS", ["device_id" => $id]);
+});
+
 $router->run();
