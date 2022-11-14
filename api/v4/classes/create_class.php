@@ -6,32 +6,6 @@ class Create
     public static function user($firstname, $lastname, $class_id, $usercard_id = null, $token_id = null, $ignore_duplicates = true) 
     {
         global $pdo;
-        // check if class_id exists
-        $sql = "SELECT * FROM property_class WHERE class_id = :id";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(["id" => $class_id]);
-        if (!$stmt->fetch())
-            throw new CustomException(Response::CLASS_NOT_FOUND, "CLASS_NOT_FOUND", 400);
-            
-        // check if usercard_id exists
-        if ($usercard_id)
-        {
-            $sql = "SELECT * FROM usercard WHERE usercard_id = :id";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute(["id" => $usercard_id]);
-            if (!$stmt->fetch())
-                throw new CustomException(Response::USERCARD_NOT_FOUND, "USERCARD_NOT_FOUND", 400);
-        }
-            
-        // check if token_id exists
-        if ($token_id)
-        {
-            $sql = "SELECT * FROM token WHERE token_id = :id";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute(["id" => $usercard_id]);
-            if (!$stmt->fetch())
-                throw new CustomException(Response::TOKEN_NOT_FOUND, "TOKEN_NOT_FOUND", 400);
-        }
         
         // check if user already exists (only when $ignore_duplicates is set to false)
         if ($ignore_duplicates == false)
@@ -44,9 +18,25 @@ class Create
         }
 
         // insert user
-        $sql = "INSERT INTO user (user_id, user_firstname, user_lastname, user_class, user_token_id, user_usercard_id) VALUES (NULL, :firstname, :lastname, :class, :token, :usercard)";
-        $sth = $pdo->prepare($sql);
-        $sth->execute(["firstname" => $firstname, "lastname" => $lastname, "class" => $class_id, "token" => $token_id, "usercard" => $usercard_id]);
+        try {
+            $sql = "INSERT INTO user (user_id, user_firstname, user_lastname, user_class, user_token_id, user_usercard_id) VALUES (NULL, :firstname, :lastname, :class, :token, :usercard)";
+            $sth = $pdo->prepare($sql);
+            $sth->execute(["firstname" => $firstname, "lastname" => $lastname, "class" => $class_id, "token" => $token_id, "usercard" => $usercard_id]);
+        } catch (PDOException $th) {
+            if ($th->errorInfo[1] == "1452") // check if class exists
+            {
+                $string = $th->getMessage();
+
+                if (str_contains($string, "FK_user_property_class")) // class_id does not exist in property_class table
+                    throw new CustomException(Response::CLASS_NOT_FOUND, "CLASS_NOT_FOUND", 400);
+                if (str_contains($string, "FK_user_usercard")) // usercard_id does not exist in usercard table
+                    throw new CustomException(Response::USERCARD_NOT_FOUND, "USERCARD_NOT_FOUND", 400);
+                if (str_contains($string, "FK_user_token")) // token_id does not exist in token table
+                    throw new CustomException(Response::TOKEN_NOT_FOUND, "TOKEN_NOT_FOUND", 400);
+            }
+            // unexpected error
+            throw $th;
+        }
 
         return $pdo->lastInsertId();
     }
@@ -135,12 +125,29 @@ class Create
 
             return $pdo->lastInsertId();
         } catch (PDOException $th) {
-            if ($th->getCode() == 23000) // check if class exists
+            if ($th->errorInfo[1] == "1062") // check if class exists
                 throw new CustomException(Response::CLASS_ALREADY_EXISTS, "CLASS_ALREADY_EXISTS", 400);
             
             // unexpected error
             throw $th;
         }
+    }
 
+    public static function property_device_type ($text)
+    {
+        global $pdo;
+        try {
+            $sql = "INSERT INTO property_device_type (device_type_id, device_type_name) VALUES (NULL, :text)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["text" => $text]);
+
+            return $pdo->lastInsertId();
+        } catch (PDOException $th) {
+            if ($th->errorInfo[1] == "1062") // check if class exists
+                throw new CustomException(Response::DEVICE_TYPE_ALREADY_EXISTS, "DEVICE_TYPE_ALREADY_EXISTS", 400);
+            
+            // unexpected error
+            throw $th;
+        }
     }
 }
