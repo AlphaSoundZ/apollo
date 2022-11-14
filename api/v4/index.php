@@ -491,4 +491,15 @@ $router->patch('/device/type/change', function () {
     Response::success(Response::SUCCESS, "SUCCESS");
 });
 
+$router->patch('/usercard/type/change', function () {
+    require "classes/update_class.php";
+    authorize("create_usercard_type");
+
+    $data = getData("POST", ["id", "value"]);
+
+    Update::property_usercard_type($data["id"], $data["value"]);
+
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
 $router->run();
