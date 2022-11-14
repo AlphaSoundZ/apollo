@@ -392,11 +392,25 @@ $router->post('/user/create', function () {
     $data = getData("POST", ["firstname", "lastname", "class_id"]);
     $usercard_id = (isset($data["usercard_id"])) ? $data["usercard_id"] : null;
     $token_id = (isset($data["token_id"])) ? $data["token_id"] : null;
-    $ignore_duplicates = (isset($data["ignore_duplicates"])) ? $data["ignore_duplicates"] : true;
+    $ignore_duplicates = (isset($data["ignore_duplicates"]) && $data["ignore_duplicates"] == false) ? false : true;
 
     $id = Create::user($data["firstname"], $data["lastname"], $data["class_id"], $usercard_id, $token_id, $ignore_duplicates);
 
     Response::success(Response::SUCCESS, "SUCCESS", ["user_id" => $id]);
+});
+
+$router->post('/usercard/create', function () {
+    require "classes/create_class.php";
+    authorize("create_usercard");
+
+    $data = getData("POST", ["uid", "type"]);
+
+    $allow_reassigning = (isset($data["allow_reassigning"]) && $data["allow_reassigning"] == true) ? true : false;
+    $user_id = (isset($data["user_id"]) && $data["user_id"] == true) ? $data["user_id"] : null;
+
+    $id = Create::usercard($data["uid"], $data["type"], $user_id, $allow_reassigning);
+
+    Response::success(Response::SUCCESS, "SUCCESS", ["usercard_id" => $id]);
 });
 
 $router->run();

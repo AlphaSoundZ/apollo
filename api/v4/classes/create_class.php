@@ -50,6 +50,55 @@ class Create
 
         return $pdo->lastInsertId();
     }
+
+    public static function usercard($uid, $type, $user_id = null, $allow_reassigning = false)
+    {
+        global $pdo;
+        // check if usercard exists
+        $sql = "SELECT * FROM usercard WHERE usercard_uid = :uid";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(["uid" => $uid]);
+        if ($stmt->fetch())
+            throw new CustomException(Response::USERCARD_ALREADY_EXISTS, "USERCARD_ALREADY_EXISTS", 400);
+            
+        // check if type exists
+        $sql = "SELECT * FROM property_usercard_type WHERE usercard_type_id = :id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(["id" => $type]);
+        if (!$stmt->fetch())
+            throw new CustomException(Response::USERCARD_TYPE_NOT_FOUND, "USERCARD_TYPE_NOT_FOUND", 400);
+            
+        // check if user exists
+        if ($user_id)
+        {
+            $sql = "SELECT * FROM user WHERE user_id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["id" => $user_id]);
+            $user = $stmt->fetch();
+            if (!$user)
+                throw new CustomException(Response::USER_NOT_FOUND, "USER_NOT_FOUND", 400);
+            
+            if (isset($user["user_usercard_id"]) && $allow_reassigning == false)
+                throw new CustomException(Response::USER_ALREADY_ASSIGNED, "USER_ALREADY_ASSIGNED", 400);
+        }
+        
+        // insert usercard
+        $sql = "INSERT INTO usercard (usercard_id, usercard_type, usercard_uid) VALUES (NULL, :type, :uid)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(["type" => $type, "uid" => $uid]);
+
+        $usercard_id = $pdo->lastInsertId();
+
+        // assign user
+        if ($user_id)
+        {
+            $sql = "UPDATE user SET user_usercard_id = :usercard_id WHERE user_id = :user_id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["usercard_id" => $usercard_id, "user_id" => $user_id]);
+        }
+
+        return $usercard_id;
+    }
 }
 
 /*
