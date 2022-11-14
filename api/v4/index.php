@@ -468,4 +468,16 @@ $router->post('/token/create', function () {
     Response::success(Response::SUCCESS, "SUCCESS", ["token_id" => $id]);
 });
 
+// Patch
+$router->patch('/user/class/change', function () {
+    require "classes/update_class.php";
+    authorize("create_user_class");
+
+    $data = getData("POST", ["id", "value"]);
+
+    Update::property_class($data["id"], $data["value"]);
+
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
 $router->run();
