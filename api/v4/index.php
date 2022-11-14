@@ -424,4 +424,15 @@ $router->post('/device/create', function () {
     Response::success(Response::SUCCESS, "SUCCESS", ["device_id" => $id]);
 });
 
+$router->post('/user/class/create', function () {
+    require "classes/create_class.php";
+    authorize("create_user_class");
+    
+    $data = getData("POST", ["text"]);
+
+    $id = Create::property_class($data["text"]);
+
+    Response::success(Response::SUCCESS, "SUCCESS", ["class_id" => $id]);
+});
+
 $router->run();
