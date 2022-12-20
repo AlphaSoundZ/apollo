@@ -346,4 +346,15 @@ $router->post('/csv', function () {
     Response::success(count($csv->rows) . " Zeilen wurden eingefügt");
 });
 
+$router->post('/booking(/[^/]+)(/[^/]+)?', function ($uid_1, $uid_2 = null) {
+    require 'classes/booking_class.php';
+    authorize("book");
+
+    $booking = new Booking($uid_1, $uid_2);
+    $response_code = $booking->execute();
+    $response["data"] = $booking->fetchUserData();
+
+    Response::success(Response::getValue($response_code), $response_code, $response);
+});
+
 $router->run();
