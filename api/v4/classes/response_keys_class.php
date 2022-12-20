@@ -73,4 +73,11 @@ abstract class Response extends BasicEnum {
 	const UID_NOT_FOUND = "UID nicht gefunden"; // UID not found in database
 	const UID_ALREADY_EXISTS = "UID existiert bereits"; // UID already exists in database
 	const INSERT_ERROR = "Fehler beim Einfügen in die Datenbank"; // Error while inserting into database
+	const TOKEN_NOT_FOUND = "Token nicht gefunden"; // Token does not exist in database
+	const USERCARD_TYPE_NOT_FOUND = "Usercard Typ nicht gefunden"; // Usercard type does not exist in database
+	const CLASS_ALREADY_EXISTS = "Klasse existiert bereits"; // class already exists in database
+	const DEVICE_TYPE_ALREADY_EXISTS = "Device Typ existiert bereits"; // Device type already exists in database
+	const USERCARD_TYPE_ALREADY_EXISTS = "Usercard Typ existiert bereits"; // Usercarcd type already exists in database
+	const DUPLICATE_ENTRY = "Es wurden mehrmals der gleiche Eintrag gefunden"; // Integrity constraint violation: 1062 Duplicate entry (sql)
+	const TOKEN_ALREADY_EXISTS = "Username des Tokens existiert bereits"; // Token already exists in database
 }

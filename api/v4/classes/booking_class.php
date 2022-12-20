@@ -138,7 +138,7 @@ class Booking
 			throw new CustomException(Response::UNEXPECTED_ERROR . 'In Event wurden '.count($find_events).' Einträge statt 1 gefunden. Device wurde nicht zurückgegeben. Bitte wenden Sie sich an einen Administrator', "UNEXPECTED_ERROR", 400);
     
     // Update device_lend_user_id
-    $sql = "UPDATE devices SET device_lend_user_id = '0' WHERE device_id = '$device_id'";
+    $sql = "UPDATE devices SET device_lend_user_id = NULL WHERE device_id = '$device_id'";
     $pdo->query($sql);
 
     // Update event using timestamp

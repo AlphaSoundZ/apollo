@@ -3,127 +3,210 @@ require_once "config.php";
 
 class Create
 {
-    public static function createDevice($device_uid, $device_type)
+    public static function user($firstname, $lastname, $class_id, $usercard_id = null, $token_id = null, $ignore_duplicates = true) 
     {
         global $pdo;
-        $sql = "INSERT INTO devices (device_id, device_type, device_uid, device_lend_user_id) VALUES (NULL, :device_type, :device_uid, '0')";
-        $stmt= $pdo->prepare($sql);
-        $stmt->execute(["device_type" => $device_type, "device_uid" => $device_uid]);
-
-        return $pdo->lastInsertId();
-    }
-    public static function checkDevice($device_uid)
-    {
-        global $pdo;
-        $sql = "SELECT * FROM devices WHERE device_uid = :device_uid";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(["device_uid" => $device_uid]);
-        $result = $stmt->fetch();
-        if ($result)
-            return $result["device_id"];
-        return false;
-    }
-    public static function checkUser($firstname, $lastname)
-    {
-        global $pdo;
-        $sql = "SELECT * FROM user WHERE user_firstname = :firstname AND user_lastname = :lastname";
-        $sth = $pdo->prepare($sql);
-        $sth->execute(["firstname" => $firstname, "lastname" => $lastname]);
-        $result = $sth->fetch();
-
-        if ($result)
-            return $result["user_id"];
-        return false;
-    }
-    public static function checkDeviceType($id)
-    {
-        global $pdo;
-        $sql = "SELECT * FROM property_device_type WHERE device_type_id = :id";
-        $sth = $pdo->prepare($sql);
-        $sth->execute(["id" => $id]);
-        $result = $sth->fetch();
-        if ($result)
-            return $result["device_type_name"];
-        return false;
-    }
-    public static function checkClass($class)
-    {
-        global $pdo;
-        $sql = "SELECT * FROM property_class WHERE class_id = :class";
-        $sth = $pdo->prepare($sql);
-        $sth->execute(["class" => $class]);
-        $result = $sth->fetch();
-        if (!$result)
-            return false;
-        return true;
-    }
-    public static function checkUsercard($uid)
-    {
-        global $pdo;
-        $sql = "SELECT * FROM usercard WHERE usercard_uid = :uid";
-        $sth = $pdo->prepare($sql);
-        $sth->execute(["uid" => $uid]);
-        $usercard = $sth->fetch();
-
-        if (!$usercard)
-            return "USERCARD_NOT_FOUND";
-
-        $sql = "SELECT * FROM user WHERE user_usercard_id = :usercard_id";
-        $sth = $pdo->prepare($sql);
-        $sth->execute(["usercard_id" => $usercard["device_id"]]);
-        $result = $sth->fetch();
-        if ($result)
+        
+        // check if user already exists (only when $ignore_duplicates is set to false)
+        if ($ignore_duplicates == false)
         {
-            $user = $result["user_firstname"].' '.$result["user_lastname"];
-            return "USERCARD_ALREADY_ASSIGNED";
+            $sql = "SELECT * FROM user WHERE user_firstname = :firstname AND user_lastname = :lastname";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["firstname" => $firstname, "lastname" => $lastname]);
+            if ($stmt->fetch())
+                throw new CustomException(Response::USER_ALREADY_EXISTS, "USER_ALREADY_EXISTS", 400);
         }
 
-        return $usercard["device_id"];
+        // insert user
+        try {
+            $sql = "INSERT INTO user (user_id, user_firstname, user_lastname, user_class, user_token_id, user_usercard_id) VALUES (NULL, :firstname, :lastname, :class, :token, :usercard)";
+            $sth = $pdo->prepare($sql);
+            $sth->execute(["firstname" => $firstname, "lastname" => $lastname, "class" => $class_id, "token" => $token_id, "usercard" => $usercard_id]);
+        } catch (PDOException $th) {
+            if ($th->errorInfo[1] == "1452") // check if class exists
+            {
+                $string = $th->getMessage();
 
-    }
-    public static function checkUserForAssignement($user_id)
-    {
-        global $pdo;
-        $sql = "SELECT * FROM user WHERE user_id = :user_id";
-        $sth = $pdo->prepare($sql);
-        $sth->execute(["user_id" => $user_id]);
-        $result = $sth->fetch();
-        if (!$result || $result["user_usercard_id"] == 0 || $result["user_usercard_id"] == NULL)
-            return false;
-        return true;
-    }
-    public static function createUser($firstname, $lastname, $class)
-    {
-        global $pdo;
-        // User erstellen
-        $sql = "INSERT INTO user (user_id, user_firstname, user_lastname, user_class, user_usercard_id) VALUES (NULL, :firstname, :lastname, :class, NULL)";
-        $sth = $pdo->prepare($sql);
-        $sth->execute(["firstname" => $firstname, "lastname" => $lastname, "class" => $class]);
-        
-        // User ID holen
-        $sql = "SELECT user_id FROM user WHERE user_firstname = :firstname AND user_lastname = :lastname AND user_class = :class";
-        $sth = $pdo->prepare($sql);
-        $sth->execute(["firstname" => $firstname, "lastname" => $lastname, "class" => $class]);
-        $result = $sth->fetch();
-
-        return $result["user_id"];
-    }
-    public static function createUsercard($uid, $usercard_type)
-    {
-        global $pdo;
-        // create usercard
-        $sql = "INSERT INTO usercard (usercard_id, usercard_type, usercard_uid) VALUES (NULL, :device_type, :uid)";
-        $stmt= $pdo->prepare($sql);
-        $status = $stmt->execute(["device_type" => $usercard_type, "uid" => $uid]);
+                if (str_contains($string, "FK_user_property_class")) // class_id does not exist in property_class table
+                    throw new CustomException(Response::CLASS_NOT_FOUND, "CLASS_NOT_FOUND", 400);
+                if (str_contains($string, "FK_user_usercard")) // usercard_id does not exist in usercard table
+                    throw new CustomException(Response::USERCARD_NOT_FOUND, "USERCARD_NOT_FOUND", 400);
+                if (str_contains($string, "FK_user_token")) // token_id does not exist in token table
+                    throw new CustomException(Response::TOKEN_NOT_FOUND, "TOKEN_NOT_FOUND", 400);
+            }
+            // unexpected error
+            throw $th;
+        }
 
         return $pdo->lastInsertId();
-    }  
-    public static function bindUserToUsercard($user_id, $usercard_id)
+    }
+
+    public static function usercard($uid, $type, $user_id = null, $allow_reassigning = false)
     {
         global $pdo;
-        $sql = "UPDATE user SET user_usercard_id = :usercard_id WHERE user_id = :user_id";
-        $sth = $pdo->prepare($sql);
-        $sth->execute(["user_id" => $user_id, "usercard_id" => $usercard_id]);
-        return true;
+        // check if usercard exists
+        $sql = "SELECT * FROM usercard WHERE usercard_uid = :uid";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(["uid" => $uid]);
+        if ($stmt->fetch())
+            throw new CustomException(Response::USERCARD_ALREADY_EXISTS, "USERCARD_ALREADY_EXISTS", 400);
+            
+        // check if type exists
+        $sql = "SELECT * FROM property_usercard_type WHERE usercard_type_id = :id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(["id" => $type]);
+        if (!$stmt->fetch())
+            throw new CustomException(Response::USERCARD_TYPE_NOT_FOUND, "USERCARD_TYPE_NOT_FOUND", 400);
+            
+        // check if user exists
+        if ($user_id)
+        {
+            $sql = "SELECT * FROM user WHERE user_id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["id" => $user_id]);
+            $user = $stmt->fetch();
+            if (!$user)
+                throw new CustomException(Response::USER_NOT_FOUND, "USER_NOT_FOUND", 400);
+            
+            if (isset($user["user_usercard_id"]) && $allow_reassigning == false)
+                throw new CustomException(Response::USER_ALREADY_ASSIGNED, "USER_ALREADY_ASSIGNED", 400);
+        }
+        
+        // insert usercard
+        $sql = "INSERT INTO usercard (usercard_id, usercard_type, usercard_uid) VALUES (NULL, :type, :uid)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(["type" => $type, "uid" => $uid]);
+
+        $usercard_id = $pdo->lastInsertId();
+
+        // assign user
+        if ($user_id)
+        {
+            $sql = "UPDATE user SET user_usercard_id = :usercard_id WHERE user_id = :user_id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["usercard_id" => $usercard_id, "user_id" => $user_id]);
+        }
+
+        return $usercard_id;
+    }
+
+    public static function device($uid, $type)
+    {
+        global $pdo;
+        // check if device exists
+        $sql = "SELECT * FROM devices WHERE device_uid = :uid";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(["uid" => $uid]);
+        if ($stmt->fetch())
+            throw new CustomException(Response::DEVICE_ALREADY_EXISTS, "DEVICE_ALREADY_EXISTS", 400);
+        
+        // check if device type exists
+        $sql = "SELECT * FROM property_device_type WHERE device_type_id = :id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(["id" => $type]);
+        if (!$stmt->fetch())
+            throw new CustomException(Response::DEVICE_TYPE_NOT_FOUND, "DEVICE_TYPE_NOT_FOUND", 400);
+        
+        // insert device
+        $sql = "INSERT INTO devices (device_id, device_type, device_uid, device_lend_user_id) VALUES (NULL, :type, :uid, NULL)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(["uid" => $uid, "type" => $type]);
+
+        return $pdo->lastInsertId();
+    }
+
+    public static function property_class ($text)
+    {
+        global $pdo;
+        try {
+            $sql = "INSERT INTO property_class (class_id, class_name) VALUES (NULL, :text)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["text" => $text]);
+
+            return $pdo->lastInsertId();
+        } catch (PDOException $th) {
+            if ($th->errorInfo[1] == "1062") // check if class exists
+                throw new CustomException(Response::CLASS_ALREADY_EXISTS, "CLASS_ALREADY_EXISTS", 400);
+            
+            // unexpected error
+            throw $th;
+        }
+    }
+
+    public static function property_device_type ($text)
+    {
+        global $pdo;
+        try {
+            $sql = "INSERT INTO property_device_type (device_type_id, device_type_name) VALUES (NULL, :text)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["text" => $text]);
+
+            return $pdo->lastInsertId();
+        } catch (PDOException $th) {
+            if ($th->errorInfo[1] == "1062") // check if class exists
+                throw new CustomException(Response::DEVICE_TYPE_ALREADY_EXISTS, "DEVICE_TYPE_ALREADY_EXISTS", 400);
+            
+            // unexpected error
+            throw $th;
+        }
+    }
+
+    public static function property_usercard_type ($text)
+    {
+        global $pdo;
+        try {
+            $sql = "INSERT INTO property_usercard_type (usercard_type_id, usercard_type_name) VALUES (NULL, :text)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["text" => $text]);
+
+            return $pdo->lastInsertId();
+        } catch (PDOException $th) {
+            if ($th->errorInfo[1] == "1062") // check if class exists
+                throw new CustomException(Response::USERCARD_TYPE_ALREADY_EXISTS, "USERCARD_TYPE_ALREADY_EXISTS", 400);
+            
+            // unexpected error
+            throw $th;
+        }
+    }
+
+    public static function token ($username, $password, array $permissions)
+    {
+        global $pdo;
+        // check permissions
+        $sql = "SELECT permission_id FROM property_token_permissions";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        $diff = array_diff($permissions, $stmt->fetchAll(PDO::FETCH_COLUMN));
+        if ($diff)
+            throw new CustomException(Response::PERMISSION_NOT_FOUND . " (Permission id: " . implode(', ', $diff) . ")", "PERMISSION_NOT_FOUND", 400);
+        if (count($permissions) !== count(array_flip($permissions))) // check for duplicates entries in $permissions array
+            throw new CustomException(Response::DUPLICATE_ENTRY . ". Bitte geben Sie Permissions jeweils nur einmal an!" , "DUPLICATE_ENTRY", 400);
+        
+        // create token
+        $password_hash = password_hash($password, PASSWORD_BCRYPT);
+
+        try {
+            $sql = "INSERT INTO token (token_id, token_username, token_password, token_last_change) VALUES (NULL, :username, :password, CURRENT_TIMESTAMP)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["username" => $username, "password" => $password_hash]);
+            
+            $id = $pdo->lastInsertId();
+        } catch (PDOException $th) {
+            if ($th->errorInfo[1] == "1062") // check if username exists
+                throw new CustomException(Response::TOKEN_ALREADY_EXISTS, "TOKEN_ALREADY_EXISTS", 400);
+            
+            // unexpected error
+            throw $th;
+        }
+
+        // create permissions links
+        for ($i = 0; $i < count($permissions); $i++)
+        {
+            $sql = "INSERT INTO token_link_permissions (link_permission_id, link_token_id, link_token_permission_id) VALUES (NULL, :token, :permission)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(["token" => $id, "permission" => $permissions[$i]]);
+        }
+        
+        return $id;
     }
 }

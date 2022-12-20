@@ -27,7 +27,7 @@ $authorization_bool = (isset($_ENV['AUTHORIZATION'])) ? $_ENV['AUTHORIZATION'] :
 $pdo = new PDO($__dsn, $__username, $__password);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-function getData($method, $requirements = [])
+function getData($method, array $requirements)
 {
 	if ($method === "POST")
 		$input = (isset($_POST)) ? json_decode(file_get_contents("php://input"), true) : false;
