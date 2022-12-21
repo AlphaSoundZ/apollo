@@ -372,20 +372,6 @@ $router->post('/csv', function () {
     Response::success(count($csv->rows) . " Zeilen wurden eingefügt");
 });
 
-$router->post('/booking', function () {
-    require 'classes/booking_class.php';
-    authorize("book");
-
-    $data = getData("POST", ["uid_1"]);
-    $uid_2 = (isset($data["uid_2"])) ? $data["uid_2"] : null;
-
-    $booking = new Booking($data["uid_1"], $uid_2);
-    $response_code = $booking->execute();
-    $response["data"] = $booking->fetchUserData();
-
-    Response::success(Response::getValue($response_code), $response_code, $response);
-});
-
 $router->post('/token/authorize', function () {
     require 'classes/token_class.php';
 
@@ -515,5 +501,46 @@ $router->patch('/usercard/type/change', function () {
 
     Response::success(Response::SUCCESS, "SUCCESS");
 });
+
+// Client side routes
+$router->post('/booking', function () {
+    require 'classes/booking_class.php';
+    authorize("book");
+
+    $data = getData("POST", ["uid_1"]);
+    $uid_2 = (isset($data["uid_2"])) ? $data["uid_2"] : null;
+
+    $booking = new Booking($data["uid_1"], $uid_2);
+    $response_code = $booking->execute();
+    $response["data"] = $booking->fetchUserData();
+
+    Response::success(Response::getValue($response_code), $response_code, $response);
+});
+
+$router->post('/token/get', function () {
+    require 'classes/token_class.php';
+
+    $data = getData("POST", ["username", "password"]);
+
+    $username = $data["username"];
+    $password = $data["password"];
+
+    $token["jwt"] = Token::getToken($username, $password, $_ENV["JWT_KEY"]);
+
+    Response::success(Response::SUCCESS, "SUCCESS", $token);
+});
+
+$router->post('/token/validate', function () {
+    require 'classes/token_class.php';
+    if (!isset($_SERVER["HTTP_AUTHORIZATION"]))
+        throw new CustomException(Response::REQUIRED_DATA_MISSING . " (HTTP_AUTHORIZATION)", "REQUIRED_DATA_MISSING", 400);
+    $given_token = $_SERVER["HTTP_AUTHORIZATION"];
+    $jwt = explode(" ", $given_token)[1];
+    
+    $permissions["permissions"] = Token::validateToken($jwt, $_ENV["JWT_KEY"]);
+    
+    Response::success(Response::SUCCESS . ": Token ist valide", "SUCCESS", $permissions);
+});
+
 
 $router->run();
