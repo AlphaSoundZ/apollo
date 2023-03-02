@@ -49,7 +49,7 @@ class Booking
         { // Darf der User ein Device ausleihen?
           $sql = "SELECT * FROM devices WHERE device_lend_user_id = '{$user['user_id']}'";
           $status = $pdo->query($sql)->fetchAll();
-          if ($status && $user['user_class'] != $_ENV['MULTIUSER'])
+          if ($status && $user['multi_booking'] != 1)
             throw new CustomException(Response::NOT_ALLOWED_FOR_THIS_CLASS, "NOT_ALLOWED_FOR_THIS_CLASS", 400);
           
           // Wird das auszuleihende Gerät bereits ausgeliehen?
@@ -165,6 +165,7 @@ class Booking
     $this->data['user']['lastname'] = $user['user_lastname'];
     $this->data['user']['user_id'] = $user_id;
     $this->data['user']['class'] = $user['class_name'];
+    $this->data['user']['multi_booking'] = $user['multi_booking'];
     $this->data['user']['status'] = $status;
 
     // History of devices
