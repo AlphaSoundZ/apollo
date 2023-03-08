@@ -1,6 +1,6 @@
 # REST API-Documentation
 
-[Documentation](/docs/DOCS.md)
+[Documentation](/docs/v4/DOCS.md)
 
 ---
 
