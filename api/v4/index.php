@@ -8,8 +8,7 @@ $router->set404('/', function() {
     throw new CustomException(Response::ROUTE_NOT_DEFINED, "ROUTE_NOT_DEFINED", 404);
 });
 
-// get
-
+// Get
 $router->get('/status', function () {
     require 'status.php';
 });
@@ -356,7 +355,6 @@ $router->get('/token/permission(/\d+)?', function ($id = null) {
 });
 
 // Post
-
 $router->post('/csv', function () {
     require 'classes/csv_class.php';
     authorize("add_csv");
@@ -542,5 +540,5 @@ $router->post('/token/validate', function () {
     Response::success(Response::SUCCESS . ": Token ist valide", "SUCCESS", $permissions);
 });
 
-
+// Run the router
 $router->run();
