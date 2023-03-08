@@ -3,7 +3,7 @@ require_once "config.php";
 
 class Create
 {
-    public static function user($firstname, $lastname, $class_id, $usercard_id = null, $token_id = null, $ignore_duplicates = true) 
+    public static function user($firstname, $lastname, $class_id, $usercard_id = null, $token_id = null, $ignore_duplicates = false) 
     {
         global $pdo;
         
