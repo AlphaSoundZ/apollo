@@ -52,7 +52,7 @@ $router->get('/user(/[^/]+)?', function($id = null) {
     }
     
     // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
-    Response::success($response["message"], null, ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
 $router->get('/user(/\d+)/history', function($id) {
@@ -73,7 +73,7 @@ $router->get('/user(/\d+)/history', function($id) {
     }
     $response["message"] = "Buchungen zu diesem Benutzer gefunden";
 
-    Response::success($response["message"], null, ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
 $router->get('/device/type(/\d+)?', function ($id = null) {
@@ -106,7 +106,7 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
             $response["data"] = Select::select([["table" => "property_device_type"]], ["*"], ["page" => $page, "size" => $size]);
         }
     }
-    Response::success($response["message"], null, ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
 $router->get('/device(/[^/]+)?', function ($id = null) {
@@ -135,7 +135,7 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
         $response["message"] = "Alle Geräte";
         $response["data"] = Select::select([["table" => "devices"], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name"], ["page" => $page, "size" => $size]);
     }
-    Response::success($response["message"], null, ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
 $router->get('/device(/[^/]+)/history', function ($id) {
@@ -168,7 +168,7 @@ $router->get('/device(/[^/]+)/history', function ($id) {
     }
     $response["message"] = "Buchungen zu diesem Benutzer gefunden";
 
-    Response::success($response["message"], null, ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
 $router->get('/user/class(/\d+)?', function ($id = null) {
@@ -201,7 +201,7 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
             $response["data"] = Select::select([["table" => "property_class"]], ["*"], ["page" => $page, "size" => $size]);
         }
     }
-    Response::success($response["message"], null, ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
 $router->get('/usercard/type(/\d+)?', function ($id = null) {
@@ -234,7 +234,7 @@ $router->get('/usercard/type(/\d+)?', function ($id = null) {
             $response["data"] = Select::select([["table" => "property_usercard_type"]], ["*"], ["page" => $page, "size" => $size]);
         }
     }
-    Response::success($response["message"], null, ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
 $router->get('/usercard(/[^/]+)?', function ($id = null) {
@@ -256,7 +256,7 @@ $router->get('/usercard(/[^/]+)?', function ($id = null) {
         $response["message"] = "Alle User Indentifikationen";
         $response["data"] = Select::select([["table" => "usercard"], ["table" => "property_usercard_type", "join" => ["property_usercard_type.usercard_type_id", "usercard.usercard_type"]], ["table" => "user", "join" => ["user.user_id", "usercard.usercard_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["usercard.*", "property_usercard_type.usercard_type_name", "user_id", "user_firstname", "user_lastname", "class_name"], ["page" => $page, "size" => $size]);
     }
-    Response::success($response["message"], null, ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
 $router->get('/token(/\d+)?', function ($id = null) {
@@ -308,7 +308,7 @@ $router->get('/token(/\d+)?', function ($id = null) {
     }
     
     // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
-    Response::success($response["message"], null, ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
 $router->get('/token/validate', function () {
@@ -351,7 +351,7 @@ $router->get('/token/permission(/\d+)?', function ($id = null) {
         }
     }
 
-    Response::success($response["message"], null, ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
 // Post
