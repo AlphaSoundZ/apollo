@@ -42,7 +42,7 @@ Creates a new user.
 
 `/api/v4/user/create`
 
-##### Parameter
+##### Parameter Body
 
 | Parameter | type | Required | Description | Related Endpoint |
 | --- | --- | --- | --- | --- |
@@ -82,6 +82,51 @@ Creates a new user.
     "token_id": 1,
     "ignore_duplicates": false
 }
+```
+
+---
+
+### Get User
+
+#### Description
+
+Returns users. If no parameter is set, all users will be returned.
+
+#### Request
+
+##### HTTP-Method
+
+`GET`
+
+##### URL
+
+`/api/v4/user`
+
+##### Parameter Query
+
+| Parameter | type | Required | Description | Related Endpoint |
+| --- | --- | --- | --- | --- |
+| `booking` | boolean | no | If set to `true`, only users that are currently booking will be returned. | - |
+| `query` and `strict` | string, boolean | no | Only users that contain the string in their first or last name or both combined will be returned. Cannot be used with `booking` parameter. The default value of `strict` is `false`. If `strict` is set to `false` the query will use Levenshtein distance method instead of simple string comparison. | - |
+| `page` and `size` | integer, integer | no | The page and the size of the page. It will only return a specific range of users. The default values are 0 and 0 where all users will be returned. The first page has an index of 0. | - |
+
+
+##### Response Codes
+
+| Code | Description |
+| --- | --- |
+| `SUCCESS` | The users were returned successfully. It also succeed when no users were found! |
+
+##### Response Body
+
+| Parameter | type | Description |
+| --- | --- | --- |
+| `data` | array | An array of users. If `query` parameter is set and `strict` is `false`, then there will be an accordance parameter at each user-data |
+
+##### Example
+
+```
+/api/v4/user?query=max%20mustermann
 ```
 
 ---
