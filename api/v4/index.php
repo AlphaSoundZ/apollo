@@ -471,9 +471,28 @@ $router->patch('/user/class/change', function () {
     require "classes/update_class.php";
     authorize("create_user_class");
 
-    $data = getData("POST", ["id", "value"]);
+    $data = getData("POST", ["id"]);
 
-    Update::property_class($data["id"], $data["value"]);
+    Update::update(
+        "property_class", 
+        $data["id"], 
+        $updating_values = [
+            "class_name" => $data["name"] ?? null,
+            "multi_booking" => $data["multi_booking"] ?? null
+        ],
+        $duplicate_errorhandling = [
+            "message" => Response::CLASS_ALREADY_EXISTS, 
+            "response_code" => "CLASS_ALREADY_EXISTS"
+        ], 
+        $not_found_errorhandling = [
+            "message" => Response::CLASS_NOT_FOUND, 
+            "response_code" => "CLASS_NOT_FOUND"
+        ], 
+        $changeable_columns = [
+            "class_name",
+            "multi_booking"
+        ]
+    );
 
     Response::success(Response::SUCCESS, "SUCCESS");
 });
