@@ -115,13 +115,13 @@ class Create
         return $pdo->lastInsertId();
     }
 
-    public static function property_class ($text)
+    public static function property_class ($text, $multi_booking)
     {
         global $pdo;
         try {
-            $sql = "INSERT INTO property_class (class_id, class_name) VALUES (NULL, :text)";
+            $sql = "INSERT INTO property_class (class_id, class_name, multi_booking) VALUES (NULL, :text, :multi_booking)";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute(["text" => $text]);
+            $stmt->execute(["text" => $text, "multi_booking" => $multi_booking]);
 
             return $pdo->lastInsertId();
         } catch (PDOException $th) {

@@ -426,9 +426,9 @@ $router->post('/user/class/create', function () {
     require "classes/create_class.php";
     authorize("create_user_class");
     
-    $data = getData("POST", ["text"]);
+    $data = getData("POST", ["text", "multi_booking"]);
 
-    $id = Create::property_class($data["text"]);
+    $id = Create::property_class($data["text"], $data["multi_booking"]);
 
     Response::success(Response::SUCCESS, "SUCCESS", ["class_id" => $id]);
 });
@@ -467,13 +467,68 @@ $router->post('/token/create', function () {
 });
 
 // Patch
+$router->patch('/user/change', function () {
+    require "classes/update_class.php";
+    authorize("create_user");
+
+    $data = getData("POST", ["id"]);
+
+    Update::update(
+        "user",
+        $data["id"],
+        $updating_values = [
+            "user_firstname" => $data["firstname"] ?? null,
+            "user_lastname" => $data["lastname"] ?? null,
+            "user_class" => $data["class_id"] ?? null,
+            "user_token_id" => $data["token_id"] ?? null,
+            "user_usercard_id" => $data["usercard_id"] ?? null
+        ],
+        $duplicate_errorhandling = [
+            "message" => Response::USER_ALREADY_EXISTS, 
+            "response_code" => "USER_ALREADY_EXISTS"
+        ],
+        $not_found_errorhandling = [
+            "message" => Response::USER_NOT_FOUND, 
+            "response_code" => "USER_NOT_FOUND"
+        ],
+        $changeable_columns = [
+            "user_firstname",
+            "user_lastname",
+            "user_class",
+            "user_token_id",
+            "user_usercard_id"
+        ]
+    );
+
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
 $router->patch('/user/class/change', function () {
     require "classes/update_class.php";
     authorize("create_user_class");
 
-    $data = getData("POST", ["id", "value"]);
+    $data = getData("POST", ["id"]);
 
-    Update::property_class($data["id"], $data["value"]);
+    Update::update(
+        "property_class", 
+        $data["id"], 
+        $updating_values = [
+            "class_name" => $data["name"] ?? null,
+            "multi_booking" => $data["multi_booking"] ?? null
+        ],
+        $duplicate_errorhandling = [
+            "message" => Response::CLASS_ALREADY_EXISTS, 
+            "response_code" => "CLASS_ALREADY_EXISTS"
+        ], 
+        $not_found_errorhandling = [
+            "message" => Response::CLASS_NOT_FOUND, 
+            "response_code" => "CLASS_NOT_FOUND"
+        ], 
+        $changeable_columns = [
+            "class_name",
+            "multi_booking"
+        ]
+    );
 
     Response::success(Response::SUCCESS, "SUCCESS");
 });
@@ -482,10 +537,27 @@ $router->patch('/device/type/change', function () {
     require "classes/update_class.php";
     authorize("create_device_type");
 
-    $data = getData("POST", ["id", "value"]);
+    $data = getData("POST", ["id", "name"]);
 
-    Update::property_device_type($data["id"], $data["value"]);
-
+    Update::update(
+        "property_device_type", 
+        $data["id"], 
+        $updating_values = [
+            "device_type_name" => $data["name"]
+        ],
+        $duplicate_errorhandling = [
+            "message" => Response::DEVICE_TYPE_ALREADY_EXISTS, 
+            "response_code" => "DEVICE_TYPE_ALREADY_EXISTS"
+        ], 
+        $not_found_errorhandling = [
+            "message" => Response::DEVICE_TYPE_NOT_FOUND, 
+            "response_code" => "DEVICE_TYPE_NOT_FOUND"
+        ], 
+        $changeable_columns = [
+            "device_type_name"
+        ]
+    );
+    
     Response::success(Response::SUCCESS, "SUCCESS");
 });
 
@@ -493,9 +565,86 @@ $router->patch('/usercard/type/change', function () {
     require "classes/update_class.php";
     authorize("create_usercard_type");
 
-    $data = getData("POST", ["id", "value"]);
+    $data = getData("POST", ["id", "name"]);
 
-    Update::property_usercard_type($data["id"], $data["value"]);
+    Update::update(
+        "property_usercard_type", 
+        $data["id"], 
+        $updating_values = [
+            "usercard_type_name" => $data["name"]
+        ],
+        $duplicate_errorhandling = [
+            "message" => Response::USERCARD_TYPE_ALREADY_EXISTS, 
+            "response_code" => "USERCARD_TYPE_ALREADY_EXISTS"
+        ], 
+        $not_found_errorhandling = [
+            "message" => Response::USERCARD_TYPE_NOT_FOUND, 
+            "response_code" => "USERCARD_TYPE_NOT_FOUND"
+        ], 
+        $changeable_columns = [
+            "usercard_type_name"
+        ]
+    );
+
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
+$router->patch('device/change', function () {
+    require "classes/update_class.php";
+    authorize("change_device");
+
+    $data = getData("POST", ["id"]);
+
+    Update::update(
+        "devices", 
+        $data["id"], 
+        $updating_values = [
+            "device_uid" => $data["uid"] ?? null, 
+            "device_type" => $data["type"] ?? null
+        ],
+        $duplicate_errorhandling = [
+            "message" => Response::DEVICE_ALREADY_EXISTS, 
+            "response_code" => "DEVICE_ALREADY_EXISTS"
+        ], 
+        $not_found_errorhandling = [
+            "message" => Response::DEVICE_NOT_FOUND, 
+            "response_code" => "DEVICE_NOT_FOUND"
+        ], 
+        $changeable_columns = [
+            "device_uid", 
+            "device_type"
+        ]
+    );
+
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
+$router->patch('/usercard/change', function () {
+    require "classes/update_class.php";
+    authorize("change_usercard");
+
+    $data = getData("POST", ["id"]);
+
+    Update::update(
+        "usercard",
+        $data["id"],
+        $updating_values = [
+            "usercard_uid" => $data["uid"] ?? null,
+            "usercard_type" => $data["type"] ?? null
+        ],
+        $duplicate_errorhandling = [
+            "message" => Response::USERCARD_ALREADY_EXISTS, 
+            "response_code" => "USERCARD_ALREADY_EXISTS"
+        ],
+        $not_found_errorhandling = [
+            "message" => Response::USERCARD_NOT_FOUND, 
+            "response_code" => "USERCARD_NOT_FOUND"
+        ],
+        $changeable_columns = [
+            "usercard_uid",
+            "usercard_type"
+        ]
+    );
 
     Response::success(Response::SUCCESS, "SUCCESS");
 });
