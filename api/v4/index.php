@@ -500,6 +500,17 @@ $router->patch('/usercard/type/change', function () {
     Response::success(Response::SUCCESS, "SUCCESS");
 });
 
+$router->patch('device/change', function () {
+    require "classes/update_class.php";
+    authorize("change_device");
+
+    $data = getData("POST", ["id"]);
+
+    Update::device($data["id"], ["device_uid" => $data["uid"] ?? null, "device_type" => $data["type"] ?? null]);
+
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
 // Client side routes
 $router->post('/booking', function () {
     require 'classes/booking_class.php';

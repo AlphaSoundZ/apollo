@@ -80,4 +80,6 @@ abstract class Response extends BasicEnum {
 	const USERCARD_TYPE_ALREADY_EXISTS = "Usercard Typ existiert bereits"; // Usercarcd type already exists in database
 	const DUPLICATE_ENTRY = "Es wurden mehrmals der gleiche Eintrag gefunden"; // Integrity constraint violation: 1062 Duplicate entry (sql)
 	const TOKEN_ALREADY_EXISTS = "Username des Tokens existiert bereits"; // Token already exists in database
+	const EMPTY_FIELD = "Ein Feld ist leer"; // Empty field
+	const INVALID_KEY = "Ungültiger Key"; // Invalid key
 }
