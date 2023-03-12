@@ -32,7 +32,7 @@ abstract class BasicEnum {
 
 	public static function success($message, $response_code = "SUCCESS", $custom = []) {
 		http_response_code(200);
-		echo json_encode(array_merge(["response" => $response_code, "message" => $message], $custom));
+		echo json_encode(array_merge(["response" => $response_code, "message" => $message], $custom), JSON_NUMERIC_CHECK);
 		die;
 	}
 
