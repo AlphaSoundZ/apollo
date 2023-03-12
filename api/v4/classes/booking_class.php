@@ -58,9 +58,11 @@ class Booking
             throw new CustomException(Response::NOT_ALLOWED_FOR_THIS_CLASS, "NOT_ALLOWED_FOR_THIS_CLASS", 400);
           
           // Keine Probleme, Gerät kann ausgeliehen werden
+          $return_result = self::lend($user['user_id'], $device_2['device_id']);
           $this->userInfo($user['user_id']);
           $this->deviceInfo($device_2['device_id']);
-          return self::lend($user['user_id'], $device_2['device_id']);
+
+          return $return_result;
         }
       }
       else
@@ -161,6 +163,15 @@ class Booking
     // Fetch user Status and if true fetch the device data
     $sql = "SELECT device_id, device_type FROM devices WHERE device_lend_user_id = '$user_id'";
     $status = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC) or false;
+
+    // Fetch current amount of devices booking by user
+    $sql = "SELECT COUNT(*) FROM event WHERE event_user_id = '$user_id' AND event_end IS NULL";
+    $amount_of_devices = $pdo->query($sql)->fetch();
+
+    $event_multi_booking_id = $pdo->query("SELECT max(event_multi_booking_id) FROM event WHERE event_user_id = '$user_id'")->fetch();
+    // Fetch amount of devices in current booking session
+    $sql = "SELECT COUNT(*) FROM event WHERE event_multi_booking_id = '$event_multi_booking_id[0]'";
+    $amount_of_devices_in_session = $pdo->query($sql)->fetch();
     
     // General user info
     $this->data['user']['firstname'] = $user['user_firstname'];
@@ -169,6 +180,8 @@ class Booking
     $this->data['user']['class'] = $user['class_name'];
     $this->data['user']['multi_booking'] = $user['multi_booking'];
     $this->data['user']['status'] = $status;
+    $this->data['user']['amount_of_devices'] = $amount_of_devices[0];
+    $this->data['user']['amount_of_devices_in_session'] = $amount_of_devices_in_session[0];
 
     // History of devices
     $history_stm = "SELECT devices.device_type, devices.device_id, property_device_type.device_type_id, property_device_type.device_type_name, event.* FROM event LEFT JOIN devices ON event.event_device_id = devices.device_id LEFT JOIN property_device_type ON property_device_type.device_type_id = devices.device_type WHERE event_user_id = '".$this->data['user']['user_id']."' ORDER BY event_begin DESC LIMIT 20";
