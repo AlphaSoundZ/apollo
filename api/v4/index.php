@@ -619,6 +619,36 @@ $router->patch('device/change', function () {
     Response::success(Response::SUCCESS, "SUCCESS");
 });
 
+$router->patch('/usercard/change', function () {
+    require "classes/update_class.php";
+    authorize("change_usercard");
+
+    $data = getData("POST", ["id"]);
+
+    Update::update(
+        "usercard",
+        $data["id"],
+        $updating_values = [
+            "usercard_uid" => $data["uid"] ?? null,
+            "usercard_type" => $data["type"] ?? null
+        ],
+        $duplicate_errorhandling = [
+            "message" => Response::USERCARD_ALREADY_EXISTS, 
+            "response_code" => "USERCARD_ALREADY_EXISTS"
+        ],
+        $not_found_errorhandling = [
+            "message" => Response::USERCARD_NOT_FOUND, 
+            "response_code" => "USERCARD_NOT_FOUND"
+        ],
+        $changeable_columns = [
+            "usercard_uid",
+            "usercard_type"
+        ]
+    );
+
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
 // Client side routes
 $router->post('/booking', function () {
     require 'classes/booking_class.php';
