@@ -467,6 +467,42 @@ $router->post('/token/create', function () {
 });
 
 // Patch
+$router->patch('/user/change', function () {
+    require "classes/update_class.php";
+    authorize("create_user");
+
+    $data = getData("POST", ["id"]);
+
+    Update::update(
+        "user",
+        $data["id"],
+        $updating_values = [
+            "user_firstname" => $data["firstname"] ?? null,
+            "user_lastname" => $data["lastname"] ?? null,
+            "user_class" => $data["class_id"] ?? null,
+            "user_token_id" => $data["token_id"] ?? null,
+            "user_usercard_id" => $data["usercard_id"] ?? null
+        ],
+        $duplicate_errorhandling = [
+            "message" => Response::USER_ALREADY_EXISTS, 
+            "response_code" => "USER_ALREADY_EXISTS"
+        ],
+        $not_found_errorhandling = [
+            "message" => Response::USER_NOT_FOUND, 
+            "response_code" => "USER_NOT_FOUND"
+        ],
+        $changeable_columns = [
+            "user_firstname",
+            "user_lastname",
+            "user_class",
+            "user_token_id",
+            "user_usercard_id"
+        ]
+    );
+
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
 $router->patch('/user/class/change', function () {
     require "classes/update_class.php";
     authorize("create_user_class");

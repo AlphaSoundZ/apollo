@@ -17,15 +17,12 @@ class Update
         $changes = false;
 
         foreach ($updating_values as $key => $value) {
-            if ($value === "")
-                throw new CustomException(Response::EMPTY_FIELD, "EMPTY_FIELD", 400);
-            
             // check if key is valid
             if (!in_array($key, $changeable_columns))
                 throw new CustomException(Response::INVALID_KEY, "INVALID_KEY", 400);
             
             // check if value changed (if not, skip)
-            if (($row[$key] ?? null) == $value)
+            if ($row[$key] == $value || $value === "" || $value === null)
                 unset($updating_values[$key]);
             else
                 $changes = true;

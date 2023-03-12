@@ -80,7 +80,6 @@ abstract class Response extends BasicEnum {
 	const USERCARD_TYPE_ALREADY_EXISTS = "Usercard Typ existiert bereits"; // Usercarcd type already exists in database
 	const DUPLICATE_ENTRY = "Es wurden mehrmals der gleiche Eintrag gefunden"; // Integrity constraint violation: 1062 Duplicate entry (sql)
 	const TOKEN_ALREADY_EXISTS = "Username des Tokens existiert bereits"; // Token already exists in database
-	const EMPTY_FIELD = "Ein Feld ist leer"; // Empty field
 	const INVALID_KEY = "Ungültiger Key"; // Invalid key
 	const ID_NOT_FOUND = "ID nicht gefunden"; // ID not found in database (this is just a placeholder (e.g. DEVICE_NOT_FOUND), this will never be returned)
 	const DUPLICATE = "Doppelter Eintrag"; // Duplicate entry (this is just a placeholder (e.g. DEVICE_ALREADY_EXISTS), this will never be returned)
