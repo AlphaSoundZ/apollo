@@ -482,10 +482,27 @@ $router->patch('/device/type/change', function () {
     require "classes/update_class.php";
     authorize("create_device_type");
 
-    $data = getData("POST", ["id", "value"]);
+    $data = getData("POST", ["id", "name"]);
 
-    Update::property_device_type($data["id"], $data["value"]);
-
+    Update::update(
+        "property_device_type", 
+        $data["id"], 
+        $updating_values = [
+            "device_type_name" => $data["name"]
+        ],
+        $duplicate_errorhandling = [
+            "message" => Response::DEVICE_TYPE_ALREADY_EXISTS, 
+            "response_code" => "DEVICE_TYPE_ALREADY_EXISTS"
+        ], 
+        $not_found_errorhandling = [
+            "message" => Response::DEVICE_TYPE_NOT_FOUND, 
+            "response_code" => "DEVICE_TYPE_NOT_FOUND"
+        ], 
+        $changeable_columns = [
+            "device_type_name"
+        ]
+    );
+    
     Response::success(Response::SUCCESS, "SUCCESS");
 });
 
