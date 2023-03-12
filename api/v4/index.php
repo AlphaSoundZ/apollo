@@ -506,7 +506,26 @@ $router->patch('device/change', function () {
 
     $data = getData("POST", ["id"]);
 
-    Update::device($data["id"], ["device_uid" => $data["uid"] ?? null, "device_type" => $data["type"] ?? null]);
+    Update::update(
+        "devices", 
+        $data["id"], 
+        $updating_values = [
+            "device_uid" => $data["uid"] ?? null, 
+            "device_type" => $data["type"] ?? null
+        ],
+        $duplicate_errorhandling = [
+            "message" => Response::DEVICE_ALREADY_EXISTS, 
+            "response_code" => "DEVICE_ALREADY_EXISTS"
+        ], 
+        $not_found_errorhandling = [
+            "message" => Response::DEVICE_NOT_FOUND, 
+            "response_code" => "DEVICE_NOT_FOUND"
+        ], 
+        $changeable_columns = [
+            "device_uid", 
+            "device_type"
+        ]
+    );
 
     Response::success(Response::SUCCESS, "SUCCESS");
 });
