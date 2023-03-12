@@ -426,9 +426,9 @@ $router->post('/user/class/create', function () {
     require "classes/create_class.php";
     authorize("create_user_class");
     
-    $data = getData("POST", ["text"]);
+    $data = getData("POST", ["text", "multi_user"]);
 
-    $id = Create::property_class($data["text"]);
+    $id = Create::property_class($data["text"], $data["multi_user"]);
 
     Response::success(Response::SUCCESS, "SUCCESS", ["class_id" => $id]);
 });
