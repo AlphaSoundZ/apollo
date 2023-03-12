@@ -493,9 +493,26 @@ $router->patch('/usercard/type/change', function () {
     require "classes/update_class.php";
     authorize("create_usercard_type");
 
-    $data = getData("POST", ["id", "value"]);
+    $data = getData("POST", ["id", "name"]);
 
-    Update::property_usercard_type($data["id"], $data["value"]);
+    Update::update(
+        "property_usercard_type", 
+        $data["id"], 
+        $updating_values = [
+            "usercard_type_name" => $data["name"]
+        ],
+        $duplicate_errorhandling = [
+            "message" => Response::USERCARD_TYPE_ALREADY_EXISTS, 
+            "response_code" => "USERCARD_TYPE_ALREADY_EXISTS"
+        ], 
+        $not_found_errorhandling = [
+            "message" => Response::USERCARD_TYPE_NOT_FOUND, 
+            "response_code" => "USERCARD_TYPE_NOT_FOUND"
+        ], 
+        $changeable_columns = [
+            "usercard_type_name"
+        ]
+    );
 
     Response::success(Response::SUCCESS, "SUCCESS");
 });
