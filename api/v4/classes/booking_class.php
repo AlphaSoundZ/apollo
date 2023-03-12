@@ -168,10 +168,14 @@ class Booking
     $sql = "SELECT COUNT(*) FROM event WHERE event_user_id = '$user_id' AND event_end IS NULL";
     $amount_of_devices = $pdo->query($sql)->fetch();
 
-    $event_multi_booking_id = $pdo->query("SELECT max(event_multi_booking_id) FROM event WHERE event_user_id = '$user_id'")->fetch();
     // Fetch amount of devices in current booking session
+    $event_multi_booking_id = $pdo->query("SELECT max(event_multi_booking_id) FROM event WHERE event_user_id = '$user_id'")->fetch();
     $sql = "SELECT COUNT(*) FROM event WHERE event_multi_booking_id = '$event_multi_booking_id[0]'";
     $amount_of_devices_in_session = $pdo->query($sql)->fetch();
+
+    // Fetch amount of devices ever booked by user
+    $sql = "SELECT COUNT(*) FROM event WHERE event_user_id = '$user_id'";
+    $amount_of_devices_ever = $pdo->query($sql)->fetch();
     
     // General user info
     $this->data['user']['firstname'] = $user['user_firstname'];
@@ -182,6 +186,7 @@ class Booking
     $this->data['user']['status'] = $status;
     $this->data['user']['amount_of_devices'] = $amount_of_devices[0];
     $this->data['user']['amount_of_devices_in_session'] = $amount_of_devices_in_session[0];
+    $this->data['user']['amount_of_devices_ever'] = $amount_of_devices_ever[0];
 
     // History of devices
     $history_stm = "SELECT devices.device_type, devices.device_id, property_device_type.device_type_id, property_device_type.device_type_name, event.* FROM event LEFT JOIN devices ON event.event_device_id = devices.device_id LEFT JOIN property_device_type ON property_device_type.device_type_id = devices.device_type WHERE event_user_id = '".$this->data['user']['user_id']."' ORDER BY event_begin DESC LIMIT 20";
