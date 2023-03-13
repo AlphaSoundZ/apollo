@@ -2,6 +2,8 @@
 
 This page contains the documentation for the REST API.
 
+[Progress Endpoints](https://github.com/AlphaSoundZ/apollo/issues/4)
+
 ## Endpoints
 
 ### User
