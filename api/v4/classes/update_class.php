@@ -6,7 +6,7 @@ class Update
         global $pdo;
 
         // get identity column
-        $identity_column = self::getIndentityColumn($table);
+        $identity_column = self::getIdentityColumn($table);
 
         // check id:
         $sql = "SELECT * FROM " . $table . " WHERE " . $identity_column . " = :id";
@@ -57,7 +57,7 @@ class Update
         }
     }
 
-    private static function getIndentityColumn($table)
+    private static function getIdentityColumn($table)
     {
         global $pdo;
         $sql = "SELECT * FROM $table";

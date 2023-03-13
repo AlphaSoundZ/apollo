@@ -903,6 +903,17 @@ $router->delete('/usercard/type/delete', function () {
     Response::success(Response::SUCCESS, "SUCCESS");
 });
 
+$router->delete('/token/delete', function () {
+    require "classes/delete_class.php";
+    $token = authorize("delete_token");
+
+    $data = getData("POST", ["id"]);
+
+    Delete::deleteToken($data["id"], $token);
+    
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
 // Client side routes
 $router->post('/booking', function () {
     require 'classes/booking_class.php';

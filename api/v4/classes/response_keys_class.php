@@ -91,4 +91,5 @@ abstract class Response extends BasicEnum {
 	const DEVICE_TYPE_HAS_DEVICES = "Device Typ hat noch aktive Devices"; // Device type has still active devices
 	const USERCARD_HAS_USER = "Usercard hat noch User"; // Usercard has still active user
 	const USERCARD_TYPE_HAS_USERCARDS = "Usercard Typ hat noch Usercards"; // Usercard type has still active usercards
+	const DELETE_OWN_TOKEN_NOT_ALLOWED = "Löschen des eigenen Tokens nicht erlaubt"; // Deleting own token not allowed
 }
