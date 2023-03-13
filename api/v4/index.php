@@ -274,8 +274,12 @@ $router->get('/token(/\d+)?', function ($id = null) {
     {
         $response["data"] = Select::search([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], ["token_id"], $id, ["strict" => true, "groupby" => "token.token_id"]);
         $response["message"] = ($response["data"]) ? "Token gefunden" : "Token nicht gefunden";
-        $response["data"][0]["permission_id"] = explode(", ", $response["data"][0]["permission_id"]);
-        $response["data"][0]["permission_text"] = explode(", ", $response["data"][0]["permission_text"]);
+
+        if ($response["data"])
+        {
+            $response["data"][0]["permission_id"] = explode(", ", $response["data"][0]["permission_id"]);
+            $response["data"][0]["permission_text"] = explode(", ", $response["data"][0]["permission_text"]);
+        }
     }
     else // show all users or search for user using ?query=
     {
@@ -307,7 +311,6 @@ $router->get('/token(/\d+)?', function ($id = null) {
         }
     }
     
-    // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
     Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
@@ -927,19 +930,6 @@ $router->post('/booking', function () {
     $response["data"] = $booking->fetchUserData();
 
     Response::success(Response::getValue($response_code), $response_code, $response);
-});
-
-$router->post('/token/get', function () {
-    require 'classes/token_class.php';
-
-    $data = getData("POST", ["username", "password"]);
-
-    $username = $data["username"];
-    $password = $data["password"];
-
-    $token["jwt"] = Token::getToken($username, $password, $_ENV["JWT_KEY"]);
-
-    Response::success(Response::SUCCESS, "SUCCESS", $token);
 });
 
 $router->post('/token/validate', function () {
