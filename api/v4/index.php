@@ -819,6 +819,48 @@ $router->delete('/device/type/delete', function () {
     Response::success(Response::SUCCESS, "SUCCESS");
 });
 
+$router->delete('/usercard/delete', function () {
+    require "classes/delete_class.php";
+    authorize("delete_usercard");
+
+    $data = getData("POST", ["id"]);
+
+    // when id is an array of id's
+    if (is_array($data["id"])) {
+        foreach ($data["id"] as $id) {
+            Delete::delete(
+                "usercard", 
+                $id,
+                $not_found_errorhandling = [
+                    "message" => Response::USERCARD_NOT_FOUND, 
+                    "response_code" => "USERCARD_NOT_FOUND"
+                ],
+                $foreign_key_errorhandling = [
+                    "message" => Response::USERCARD_HAS_USER,
+                    "response_code" => "USERCARD_HAS_USER"
+                ]
+            );
+        }
+    }
+    else {
+        Delete::delete(
+            "usercard", 
+            $data["id"], 
+            $not_found_errorhandling = [
+                "message" => Response::USERCARD_NOT_FOUND,
+                "response_code" => "USERCARD_NOT_FOUND"
+            ],
+            $foreign_key_errorhandling = [
+                "message" => Response::USERCARD_HAS_USER,
+                "response_code" => "USERCARD_HAS_USER"
+            ]
+        );
+    
+    }
+    
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
 // Client side routes
 $router->post('/booking', function () {
     require 'classes/booking_class.php';
