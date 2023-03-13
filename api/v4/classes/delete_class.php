@@ -12,11 +12,38 @@ class delete
         $stmt->execute();
         $row = $stmt->fetch();
         if ($row == false)
-            throw new CustomException("Zeile existiert nicht", "BAD_REQUEST", 400);
+            throw new CustomException(Response::ID_NOT_FOUND, "ID_NOT_FOUND", 400);
         
         $sql = "DELETE FROM $table WHERE $indentityColumn = '$id'";
         $sth = $pdo->prepare($sql);
         $result = $sth->execute();
+        
+        return "SUCCESS";
+    }
+
+    static function delete($table, $id, $not_found_errorhandling = ["message" => Response::ID_NOT_FOUND, "response_code" => "ID_NOT_FOUND"], $foreign_key_errorhandling = ["message" => Response::FOREIGN_KEY_ERROR, "response_code" => "FOREIGN_KEY_ERROR"])
+    {
+        global $pdo;
+        $indentityColumn = self::getIndentityColumn($table);
+
+        $sql = "SELECT * FROM $table WHERE $indentityColumn = '$id'";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        $row = $stmt->fetch();
+        if ($row == false)
+            throw new CustomException($not_found_errorhandling["message"], $not_found_errorhandling["response_code"], 400);
+        
+        try {
+            $sql = "DELETE FROM $table WHERE $indentityColumn = :id";
+            $sth = $pdo->prepare($sql);
+            $result = $sth->execute(["id" => $id]);
+            
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1451)
+                throw new CustomException($foreign_key_errorhandling["message"], $foreign_key_errorhandling["response_code"], 400);
+            else
+                throw new CustomException($e->getMessage(), "BAD_REQUEST", 400);
+        }
         
         return "SUCCESS";
     }
@@ -57,7 +84,7 @@ class delete
         $sth->execute();
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         if (!$result)
-            throw new CustomException("Tabelle ist leer", "BAD_REQUEST", 400);
+            throw new CustomException(Response::EMPTY_TABLE, "EMPTY_TABLE", 400);
         return array_key_first($result);
     }
 }

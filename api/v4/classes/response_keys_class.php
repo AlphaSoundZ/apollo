@@ -83,4 +83,7 @@ abstract class Response extends BasicEnum {
 	const INVALID_KEY = "Ungültiger Key"; // Invalid key
 	const ID_NOT_FOUND = "ID nicht gefunden"; // ID not found in database (this is just a placeholder (e.g. DEVICE_NOT_FOUND), this will never be returned)
 	const DUPLICATE = "Doppelter Eintrag"; // Duplicate entry (this is just a placeholder (e.g. DEVICE_ALREADY_EXISTS), this will never be returned)
+	const FOREIGN_KEY_ERROR = "Fehler beim Löschen, da Fremdschlüssel vorhanden"; // Error while deleting, because foreign key exists (this is just a placeholder (e.g. USER_HAS_BOOKINGS), this will never be returned)
+	const EMPTY_TABLE = "Tabelle ist leer"; // Table is empty
+	const USER_HAS_BOOKINGS = "User hat noch aktive Ausleihen"; // User has still active bookings
 }

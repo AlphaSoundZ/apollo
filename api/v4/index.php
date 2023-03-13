@@ -8,7 +8,7 @@ $router->set404('/', function() {
     throw new CustomException(Response::ROUTE_NOT_DEFINED, "ROUTE_NOT_DEFINED", 404);
 });
 
-// Get
+// GET
 $router->get('/status', function () {
     require 'status.php';
 });
@@ -354,7 +354,7 @@ $router->get('/token/permission(/\d+)?', function ($id = null) {
     Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
-// Post
+// POST
 $router->post('/csv', function () {
     require 'classes/csv_class.php';
     authorize("add_csv");
@@ -466,7 +466,7 @@ $router->post('/token/create', function () {
     Response::success(Response::SUCCESS, "SUCCESS", ["token_id" => $id]);
 });
 
-// Patch
+// PATCH
 $router->patch('/user/change', function () {
     require "classes/update_class.php";
     authorize("create_user");
@@ -646,6 +646,50 @@ $router->patch('/usercard/change', function () {
         ]
     );
 
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
+// DELETE
+$router->delete('/user/delete', function () {
+    require "classes/delete_class.php";
+    authorize("delete_user");
+
+    // get data from request (id can be either an array of id's or a single id)
+    $data = getData("POST", ["id"]);
+
+    // when id is an array of id's
+    if (is_array($data["id"])) {
+        foreach ($data["id"] as $id) {
+            Delete::delete(
+                "user", 
+                $id, 
+                $not_found_errorhandling = [
+                    "message" => Response::USER_NOT_FOUND, 
+                    "response_code" => "USER_NOT_FOUND"
+                ],
+                $foreign_key_errorhandling = [
+                    "message" => Response::USER_HAS_BOOKINGS, 
+                    "response_code" => "USER_HAS_BOOKINGS"
+                ]
+            );
+        }
+    }
+    else {
+        Delete::delete(
+            "user", 
+            $data["id"], 
+            $not_found_errorhandling = [
+                "message" => Response::USER_NOT_FOUND, 
+                "response_code" => "USER_NOT_FOUND"
+            ],
+            $foreign_key_errorhandling = [
+                "message" => Response::USER_HAS_BOOKINGS, 
+                "response_code" => "USER_HAS_BOOKINGS"
+            ]
+        );
+    
+    }
+    
     Response::success(Response::SUCCESS, "SUCCESS");
 });
 
