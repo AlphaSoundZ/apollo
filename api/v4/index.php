@@ -777,6 +777,48 @@ $router->delete('/device/delete', function () {
     Response::success(Response::SUCCESS, "SUCCESS");
 });
 
+$router->delete('/device/type/delete', function () {
+    require "classes/delete_class.php";
+    authorize("delete_device_type");
+
+    $data = getData("POST", ["id"]);
+
+    // when id is an array of id's
+    if (is_array($data["id"])) {
+        foreach ($data["id"] as $id) {
+            Delete::delete(
+                "property_device_type", 
+                $id, 
+                $not_found_errorhandling = [
+                    "message" => Response::DEVICE_TYPE_NOT_FOUND, 
+                    "response_code" => "DEVICE_TYPE_NOT_FOUND"
+                ],
+                $foreign_key_errorhandling = [
+                    "message" => Response::DEVICE_TYPE_HAS_DEVICES,
+                    "response_code" => "DEVICE_TYPE_HAS_DEVICES"
+                ]
+            );
+        }
+    }
+    else {
+        Delete::delete(
+            "property_device_type", 
+            $data["id"], 
+            $not_found_errorhandling = [
+                "message" => Response::DEVICE_TYPE_NOT_FOUND,
+                "response_code" => "DEVICE_TYPE_NOT_FOUND"
+            ],
+            $foreign_key_errorhandling = [
+                "message" => Response::DEVICE_TYPE_HAS_DEVICES,
+                "response_code" => "DEVICE_TYPE_HAS_DEVICES"
+            ]
+        );
+    
+    }
+    
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
 // Client side routes
 $router->post('/booking', function () {
     require 'classes/booking_class.php';
