@@ -760,14 +760,14 @@ $router->delete('/device/delete', function () {
     }
     else {
         Delete::delete(
-            "user", 
+            "devices", 
             $data["id"], 
             $not_found_errorhandling = [
                 "message" => Response::DEVICE_NOT_FOUND, 
                 "response_code" => "DEVICE_NOT_FOUND"
             ],
             $foreign_key_errorhandling = [
-                "message" => Response::DEVICE_HAS_ACTIVE_BOOKING,, 
+                "message" => Response::DEVICE_HAS_ACTIVE_BOOKING, 
                 "response_code" => "DEVICE_HAS_ACTIVE_BOOKING"
             ]
         );
