@@ -90,4 +90,5 @@ abstract class Response extends BasicEnum {
 	const DEVICE_HAS_ACTIVE_BOOKING = "Device wird noch ausgeliehen"; // Device has still active booking
 	const DEVICE_TYPE_HAS_DEVICES = "Device Typ hat noch aktive Devices"; // Device type has still active devices
 	const USERCARD_HAS_USER = "Usercard hat noch User"; // Usercard has still active user
+	const USERCARD_TYPE_HAS_USERCARDS = "Usercard Typ hat noch Usercards"; // Usercard type has still active usercards
 }
