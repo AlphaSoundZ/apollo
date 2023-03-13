@@ -76,7 +76,7 @@ class delete
             $result = $sth->execute(["id" => $id]);            
         } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1451)
-                throw new CustomException(Response::FOREIGN_KEY_ERROR, "FOREIGN_KEY_ERROR", 400);
+                throw new CustomException(Response::TOKEN_HAS_USER, "TOKEN_HAS_USER", 400);
             else
                 throw new CustomException($e->getMessage(), "BAD_REQUEST", 400);
         }

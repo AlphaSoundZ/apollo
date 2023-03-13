@@ -92,4 +92,5 @@ abstract class Response extends BasicEnum {
 	const USERCARD_HAS_USER = "Usercard hat noch User"; // Usercard has still active user
 	const USERCARD_TYPE_HAS_USERCARDS = "Usercard Typ hat noch Usercards"; // Usercard type has still active usercards
 	const DELETE_OWN_TOKEN_NOT_ALLOWED = "Löschen des eigenen Tokens nicht erlaubt"; // Deleting own token not allowed
+	const TOKEN_HAS_USER = "Token hat noch User"; // Token has still active user
 }
