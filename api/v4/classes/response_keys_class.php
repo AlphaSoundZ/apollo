@@ -87,4 +87,5 @@ abstract class Response extends BasicEnum {
 	const EMPTY_TABLE = "Tabelle ist leer"; // Table is empty
 	const USER_HAS_BOOKINGS = "User hat noch aktive Ausleihen"; // User has still active bookings
 	const CLASS_HAS_USERS = "Klasse hat noch aktive User"; // Class has still active users
+	const DEVICE_HAS_ACTIVE_BOOKING = "Device wird noch ausgeliehen"; // Device has still active booking
 }
