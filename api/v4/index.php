@@ -693,6 +693,48 @@ $router->delete('/user/delete', function () {
     Response::success(Response::SUCCESS, "SUCCESS");
 });
 
+$router->delete('/user/class/delete', function () {
+    require "classes/delete_class.php";
+    authorize("delete_user_class");
+
+    $data = getData("POST", ["id"]);
+
+    // when id is an array of id's
+    if (is_array($data["id"])) {
+        foreach ($data["id"] as $id) {
+            Delete::delete(
+                "property_class", 
+                $id, 
+                $not_found_errorhandling = [
+                    "message" => Response::CLASS_NOT_FOUND, 
+                    "response_code" => "CLASS_NOT_FOUND"
+                ],
+                $foreign_key_errorhandling = [
+                    "message" => Response::CLASS_HAS_USERS,
+                    "response_code" => "CLASS_HAS_USERS"
+                ]
+            );
+        }
+    }
+    else {
+        Delete::delete(
+            "user", 
+            $data["id"], 
+            $not_found_errorhandling = [
+                "message" => Response::CLASS_NOT_FOUND, 
+                "response_code" => "CLASS_NOT_FOUND"
+            ],
+            $foreign_key_errorhandling = [
+                "message" => Response::CLASS_HAS_USERS, 
+                "response_code" => "CLASS_HAS_USERS"
+            ]
+        );
+    
+    }
+    
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
 // Client side routes
 $router->post('/booking', function () {
     require 'classes/booking_class.php';

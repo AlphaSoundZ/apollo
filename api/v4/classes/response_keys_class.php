@@ -86,4 +86,5 @@ abstract class Response extends BasicEnum {
 	const FOREIGN_KEY_ERROR = "Fehler beim Löschen, da Fremdschlüssel vorhanden"; // Error while deleting, because foreign key exists (this is just a placeholder (e.g. USER_HAS_BOOKINGS), this will never be returned)
 	const EMPTY_TABLE = "Tabelle ist leer"; // Table is empty
 	const USER_HAS_BOOKINGS = "User hat noch aktive Ausleihen"; // User has still active bookings
+	const CLASS_HAS_USERS = "Klasse hat noch aktive User"; // Class has still active users
 }
