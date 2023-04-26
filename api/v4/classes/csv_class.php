@@ -2,6 +2,8 @@
 require_once 'config.php';
 class Csv
 {
+    public $table, $columns, $data, $seperator, $linebreak, $global, $enclosure, $rows;
+    
     public function __construct(string $table, array $columns, string $string, string $seperator, string $linebreak, array $global = [], string $enclosure = "")
     {
         $rows = str_getcsv($string, $linebreak);
