@@ -186,9 +186,11 @@ class Booking
     $this->data['user']['class'] = $user['class_name'];
     $this->data['user']['multi_booking'] = $user['multi_booking'];
     $this->data['user']['status'] = $status;
-    $this->data['user']['amount_of_devices'] = $amount_of_devices[0];
-    $this->data['user']['amount_of_devices_in_session'] = $amount_of_devices_in_session[0];
-    $this->data['user']['amount_of_devices_ever'] = $amount_of_devices_ever[0];
+
+    // Amount of devices
+    $this->data['user']['devices_amount']['currently'] = $amount_of_devices[0];
+    $this->data['user']['devices_amount']['session'] = $amount_of_devices_in_session[0];
+    $this->data['user']['devices_amount']['ever'] = $amount_of_devices_ever[0];
 
     // History of devices
     $history_stm = "SELECT devices.device_type, devices.device_id, property_device_type.device_type_id, property_device_type.device_type_name, event.* FROM event LEFT JOIN devices ON event.event_device_id = devices.device_id LEFT JOIN property_device_type ON property_device_type.device_type_id = devices.device_type WHERE event_user_id = '".$this->data['user']['user_id']."' ORDER BY event_begin DESC LIMIT 20";
