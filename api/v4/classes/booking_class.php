@@ -73,9 +73,11 @@ class Booking
         {
           $sql = "SELECT * FROM user WHERE user_id = '{$device_1['device_lend_user_id']}'";
           $user = $pdo->query($sql)->fetch();
+
+          $return_result = self::return($device_1['device_id']);
           $this->userInfo($user['user_id']);
           $this->deviceInfo($device_1['device_id']);
-          return self::return($device_1['device_id']);
+          return $return_result;
         }
         else if (!$usercard) // Keine Rückgabe möglich
           throw new CustomException(Response::RETURN_NOT_POSSIBLE, "RETURN_NOT_POSSIBLE", 400);
