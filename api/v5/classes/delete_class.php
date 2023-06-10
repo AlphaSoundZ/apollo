@@ -65,19 +65,19 @@ class Delete
             throw new CustomException(Response::DELETE_OWN_TOKEN_NOT_ALLOWED, "DELETE_OWN_TOKEN_NOT_ALLOWED", 400);
         
         try {
-            // linked permissions
+            // delete linked permissions
             $sql = "DELETE FROM token_link_permissions WHERE link_token_id = :id";
             $sth = $pdo->prepare($sql);
             $result = $sth->execute(["id" => $id]);
 
-            // delete token
+            // delete token itself
             $sql = "DELETE FROM token WHERE $identityColumn = :id";
             $sth = $pdo->prepare($sql);
-            $result = $sth->execute(["id" => $id]);            
+            $result = $sth->execute(["id" => $id]);
         } catch (PDOException $e) {
-            if ($e->errorInfo[1] == 1451)
-                throw new CustomException(Response::TOKEN_HAS_USER, "TOKEN_HAS_USER", 400);
-            else
+            if ($e->errorInfo[1] == 1451) // foreign key error (token_link_permissions)
+                throw new CustomException(Response::FOREIGN_KEY_ERROR, "FOREIGN_KEY_ERROR", 400);
+            else // other error
                 throw new CustomException($e->getMessage(), "BAD_REQUEST", 400);
         }
     }

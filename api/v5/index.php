@@ -912,7 +912,16 @@ $router->delete('/token/delete', function () {
 
     $data = getData("POST", ["id"]);
 
-    Delete::deleteToken($data["id"], $token);
+    
+    // when id is an array of id's
+    if (is_array($data["id"])) {
+        foreach ($data["id"] as $id) {
+            Delete::deleteToken($id, $token);
+        }
+    }
+    else {
+        Delete::deleteToken($data["id"], $token);
+    }
     
     Response::success(Response::SUCCESS, "SUCCESS");
 });
