@@ -18,7 +18,7 @@ class CustomException extends Exception
 {
 	public $response_code = 9;
 
-    public function __construct($message, $response_code, $code) {
+    public function __construct($message, $response_code, int $code) {
         parent::__construct($message, $code);
         if (!Response::isValidName($response_code))
         	throw new Exception("Invalid response code");
