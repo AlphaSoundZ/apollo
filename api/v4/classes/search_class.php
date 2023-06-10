@@ -1,7 +1,7 @@
 <?php
 class Select {
     static function select($table, $columns, $options = []) {
-        global $pdo, $response;
+        global $pdo;
         $first_table = $table[0]["table"];
         array_shift($table);
         $column = implode(", ", $columns);
@@ -25,13 +25,11 @@ class Select {
         $sth = $pdo->prepare($sql);
         $sth->execute();
         $result = $sth->fetchAll(PDO::FETCH_ASSOC);
-        $response["message"] = "Selection success";
-        $response["response"] = 2;
         return $result;
     }
 
     static function search($table, $columns, $search_in_colomns, $needles, $options = []) {
-        global $pdo, $response;
+        global $pdo;
         $page = 0;
         $size = null;
         if (array_key_exists("page", $options))
@@ -51,7 +49,6 @@ class Select {
     }
 
     private static function searchalgo($needles, $haystack, $columns, $strict = false) {
-        global $response;
         $result = array();
         $needles = explode(" ", strtolower($needles));
         for ($row = 0; $row < count($haystack); $row++) // loop every row
@@ -80,8 +77,6 @@ class Select {
             $column_accordance = array_column($result, 'accordance');
             array_multisort($column_accordance, SORT_DESC, $result);
         }
-        $response["message"] = "search success";
-        $response["response"] = 0;
         return $result;
     }
 }
