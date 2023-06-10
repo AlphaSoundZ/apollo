@@ -393,7 +393,7 @@ $router->post('/user/create', function () {
     $data = getData("POST", ["firstname", "lastname", "class_id"]);
     $usercard_id = (isset($data["usercard_id"])) ? $data["usercard_id"] : null;
     $token_id = (isset($data["token_id"])) ? $data["token_id"] : null;
-    $ignore_duplicates = (isset($data["ignore_duplicates"]) && $data["ignore_duplicates"] == false) ? false : true;
+    $ignore_duplicates = (isset($data["ignore_duplicates"]) && $data["ignore_duplicates"] == true) ? true : false;
 
     $id = Create::user($data["firstname"], $data["lastname"], $data["class_id"], $usercard_id, $token_id, $ignore_duplicates);
 

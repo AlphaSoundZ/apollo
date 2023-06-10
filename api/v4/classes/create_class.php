@@ -23,7 +23,7 @@ class Create
             $sth = $pdo->prepare($sql);
             $sth->execute(["firstname" => $firstname, "lastname" => $lastname, "class" => $class_id, "token" => $token_id, "usercard" => $usercard_id]);
         } catch (PDOException $th) {
-            if ($th->errorInfo[1] == "1452") // check if class exists
+            if ($th->errorInfo[1] == "1452") // check for constraint error
             {
                 $string = $th->getMessage();
 
