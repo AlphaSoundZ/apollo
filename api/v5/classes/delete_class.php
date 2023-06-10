@@ -1,6 +1,6 @@
 <?php
 require_once 'config.php';
-class delete
+class Delete
 {
     static function deleteRow($table, $id)
     {
