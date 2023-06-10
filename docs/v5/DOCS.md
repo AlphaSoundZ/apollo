@@ -8,23 +8,23 @@ This page contains the documentation for the REST API.
 
 ### User
 
-* [POST /api/v4/user/create](#create-user)
+* [POST /api/v5/user/create](#create-user)
 
-* [PATCH /api/v4/user/change](#modify-user) - not available yet
+* [PATCH /api/v5/user/change](#modify-user)
 
-* [DELETE /api/v4/user/delete](#delete-user) - not available yet
+* [DELETE /api/v5/user/delete](#delete-user)
 
-* [GET /api/v4/user](#get-user)
+* [GET /api/v5/user](#get-user)
 
-* [GET /api/v4/user/{id}](#get-user-by-id)
+* [GET /api/v5/user/{id}](#get-user-by-id)
 
-* [GET /api/v4/user/{class_name}](#get-user-by-class)
+* [GET /api/v5/user/{class_name}](#get-user-by-class)
 
-* [GET /api/v4/user?query={query}](#get-user-by-query)
+* [GET /api/v5/user?query={query}](#get-user-by-query)
 
-* [GET /api/v4/user/{id}/history](#get-user-history)
+* [GET /api/v5/user/{id}/history](#get-user-history)
 
-* [GET /api/v4/user?booking=true](#get-user-by-booking)
+* [GET /api/v5/user?booking=true](#get-user-by-booking)
 
 ---
 
@@ -42,7 +42,7 @@ Creates a new user.
 
 ##### URL
 
-`/api/v4/user/create`
+`/api/v5/user/create`
 
 ##### Parameter Body
 
@@ -102,7 +102,7 @@ Returns users. If no parameter is set, all users will be returned.
 
 ##### URL
 
-`/api/v4/user`
+`/api/v5/user`
 
 ##### Parameter Query
 
@@ -128,7 +128,7 @@ Returns users. If no parameter is set, all users will be returned.
 ##### Example
 
 ```
-/api/v4/user?query=max%20mustermann
+/api/v5/user?query=max%20mustermann
 ```
 
 ---
