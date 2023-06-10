@@ -61,7 +61,7 @@ function authorize($file = null)
 	global $pdo, $jwt_key, $authorization_bool;
 
 	if ($authorization_bool == 0)
-		return true;
+		return "no_auth";
 	
 	if (isset($_SERVER["HTTP_AUTHORIZATION"])) $given_token = $_SERVER["HTTP_AUTHORIZATION"];
 	else throw new CustomException(Response::NOT_AUTHORIZED, "NOT_AUTHORIZED", 401);
@@ -90,7 +90,7 @@ function authorize($file = null)
 
 
 	if (!$file)
-		return true;
+		return $decoded;
 	
 	// check if token has the right permissions:
 	$sql = "SELECT * FROM property_token_permissions WHERE permission_text = '{$file}'";
@@ -98,7 +98,7 @@ function authorize($file = null)
 	$sth->execute();
 	$file_id = $sth->fetch();
 	if (array_key_exists("permissions", $decoded) && $file_id && in_array($file_id["permission_id"], (array) $decoded["permissions"]))
-		return true;
+		return $decoded;
 	else
 		throw new CustomException(Response::NOT_ALLOWED, "NOT_ALLOWED", 403);
 }

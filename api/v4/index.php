@@ -8,7 +8,7 @@ $router->set404('/', function() {
     throw new CustomException(Response::ROUTE_NOT_DEFINED, "ROUTE_NOT_DEFINED", 404);
 });
 
-// Get
+// GET
 $router->get('/status', function () {
     require 'status.php';
 });
@@ -274,8 +274,12 @@ $router->get('/token(/\d+)?', function ($id = null) {
     {
         $response["data"] = Select::search([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], ["token_id"], $id, ["strict" => true, "groupby" => "token.token_id"]);
         $response["message"] = ($response["data"]) ? "Token gefunden" : "Token nicht gefunden";
-        $response["data"][0]["permission_id"] = explode(", ", $response["data"][0]["permission_id"]);
-        $response["data"][0]["permission_text"] = explode(", ", $response["data"][0]["permission_text"]);
+
+        if ($response["data"])
+        {
+            $response["data"][0]["permission_id"] = explode(", ", $response["data"][0]["permission_id"]);
+            $response["data"][0]["permission_text"] = explode(", ", $response["data"][0]["permission_text"]);
+        }
     }
     else // show all users or search for user using ?query=
     {
@@ -307,7 +311,6 @@ $router->get('/token(/\d+)?', function ($id = null) {
         }
     }
     
-    // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
     Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
@@ -354,7 +357,7 @@ $router->get('/token/permission(/\d+)?', function ($id = null) {
     Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
 });
 
-// Post
+// POST
 $router->post('/csv', function () {
     require 'classes/csv_class.php';
     authorize("add_csv");
@@ -466,7 +469,7 @@ $router->post('/token/create', function () {
     Response::success(Response::SUCCESS, "SUCCESS", ["token_id" => $id]);
 });
 
-// Patch
+// PATCH
 $router->patch('/user/change', function () {
     require "classes/update_class.php";
     authorize("create_user");
@@ -649,6 +652,271 @@ $router->patch('/usercard/change', function () {
     Response::success(Response::SUCCESS, "SUCCESS");
 });
 
+// DELETE
+$router->delete('/user/delete', function () {
+    require "classes/delete_class.php";
+    authorize("delete_user");
+
+    // get data from request (id can be either an array of id's or a single id)
+    $data = getData("POST", ["id"]);
+
+    // when id is an array of id's
+    if (is_array($data["id"])) {
+        foreach ($data["id"] as $id) {
+            Delete::delete(
+                "user", 
+                $id, 
+                $not_found_errorhandling = [
+                    "message" => Response::USER_NOT_FOUND, 
+                    "response_code" => "USER_NOT_FOUND"
+                ],
+                $foreign_key_errorhandling = [
+                    "message" => Response::USER_HAS_BOOKINGS, 
+                    "response_code" => "USER_HAS_BOOKINGS"
+                ]
+            );
+        }
+    }
+    else {
+        Delete::delete(
+            "user", 
+            $data["id"], 
+            $not_found_errorhandling = [
+                "message" => Response::USER_NOT_FOUND, 
+                "response_code" => "USER_NOT_FOUND"
+            ],
+            $foreign_key_errorhandling = [
+                "message" => Response::USER_HAS_BOOKINGS, 
+                "response_code" => "USER_HAS_BOOKINGS"
+            ]
+        );
+    
+    }
+    
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
+$router->delete('/user/class/delete', function () {
+    require "classes/delete_class.php";
+    authorize("delete_user_class");
+
+    $data = getData("POST", ["id"]);
+
+    // when id is an array of id's
+    if (is_array($data["id"])) {
+        foreach ($data["id"] as $id) {
+            Delete::delete(
+                "property_class", 
+                $id, 
+                $not_found_errorhandling = [
+                    "message" => Response::CLASS_NOT_FOUND, 
+                    "response_code" => "CLASS_NOT_FOUND"
+                ],
+                $foreign_key_errorhandling = [
+                    "message" => Response::CLASS_HAS_USERS,
+                    "response_code" => "CLASS_HAS_USERS"
+                ]
+            );
+        }
+    }
+    else {
+        Delete::delete(
+            "user", 
+            $data["id"], 
+            $not_found_errorhandling = [
+                "message" => Response::CLASS_NOT_FOUND, 
+                "response_code" => "CLASS_NOT_FOUND"
+            ],
+            $foreign_key_errorhandling = [
+                "message" => Response::CLASS_HAS_USERS, 
+                "response_code" => "CLASS_HAS_USERS"
+            ]
+        );
+    
+    }
+    
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
+$router->delete('/device/delete', function () {
+    require "classes/delete_class.php";
+    authorize("delete_device");
+
+    $data = getData("POST", ["id"]);
+
+    // when id is an array of id's
+    if (is_array($data["id"])) {
+        foreach ($data["id"] as $id) {
+            Delete::delete(
+                "devices", 
+                $id, 
+                $not_found_errorhandling = [
+                    "message" => Response::DEVICE_NOT_FOUND, 
+                    "response_code" => "DEVICE_NOT_FOUND"
+                ],
+                $foreign_key_errorhandling = [
+                    "message" => Response::DEVICE_HAS_ACTIVE_BOOKING,
+                    "response_code" => "DEVICE_HAS_ACTIVE_BOOKING"
+                ]
+            );
+        }
+    }
+    else {
+        Delete::delete(
+            "devices", 
+            $data["id"], 
+            $not_found_errorhandling = [
+                "message" => Response::DEVICE_NOT_FOUND, 
+                "response_code" => "DEVICE_NOT_FOUND"
+            ],
+            $foreign_key_errorhandling = [
+                "message" => Response::DEVICE_HAS_ACTIVE_BOOKING, 
+                "response_code" => "DEVICE_HAS_ACTIVE_BOOKING"
+            ]
+        );
+    
+    }
+    
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
+$router->delete('/device/type/delete', function () {
+    require "classes/delete_class.php";
+    authorize("delete_device_type");
+
+    $data = getData("POST", ["id"]);
+
+    // when id is an array of id's
+    if (is_array($data["id"])) {
+        foreach ($data["id"] as $id) {
+            Delete::delete(
+                "property_device_type", 
+                $id, 
+                $not_found_errorhandling = [
+                    "message" => Response::DEVICE_TYPE_NOT_FOUND, 
+                    "response_code" => "DEVICE_TYPE_NOT_FOUND"
+                ],
+                $foreign_key_errorhandling = [
+                    "message" => Response::DEVICE_TYPE_HAS_DEVICES,
+                    "response_code" => "DEVICE_TYPE_HAS_DEVICES"
+                ]
+            );
+        }
+    }
+    else {
+        Delete::delete(
+            "property_device_type", 
+            $data["id"], 
+            $not_found_errorhandling = [
+                "message" => Response::DEVICE_TYPE_NOT_FOUND,
+                "response_code" => "DEVICE_TYPE_NOT_FOUND"
+            ],
+            $foreign_key_errorhandling = [
+                "message" => Response::DEVICE_TYPE_HAS_DEVICES,
+                "response_code" => "DEVICE_TYPE_HAS_DEVICES"
+            ]
+        );
+    
+    }
+    
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
+$router->delete('/usercard/delete', function () {
+    require "classes/delete_class.php";
+    authorize("delete_usercard");
+
+    $data = getData("POST", ["id"]);
+
+    // when id is an array of id's
+    if (is_array($data["id"])) {
+        foreach ($data["id"] as $id) {
+            Delete::delete(
+                "usercard", 
+                $id,
+                $not_found_errorhandling = [
+                    "message" => Response::USERCARD_NOT_FOUND, 
+                    "response_code" => "USERCARD_NOT_FOUND"
+                ],
+                $foreign_key_errorhandling = [
+                    "message" => Response::USERCARD_HAS_USER,
+                    "response_code" => "USERCARD_HAS_USER"
+                ]
+            );
+        }
+    }
+    else {
+        Delete::delete(
+            "usercard", 
+            $data["id"], 
+            $not_found_errorhandling = [
+                "message" => Response::USERCARD_NOT_FOUND,
+                "response_code" => "USERCARD_NOT_FOUND"
+            ],
+            $foreign_key_errorhandling = [
+                "message" => Response::USERCARD_HAS_USER,
+                "response_code" => "USERCARD_HAS_USER"
+            ]
+        );
+    
+    }
+    
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
+$router->delete('/usercard/type/delete', function () {
+    require "classes/delete_class.php";
+    authorize("delete_usercard_type");
+
+    $data = getData("POST", ["id"]);
+
+    // when id is an array of id's
+    if (is_array($data["id"])) {
+        foreach ($data["id"] as $id) {
+            Delete::delete(
+                "property_usercard_type", 
+                $id, 
+                $not_found_errorhandling = [
+                    "message" => Response::USERCARD_TYPE_NOT_FOUND, 
+                    "response_code" => "USERCARD_TYPE_NOT_FOUND"
+                ],
+                $foreign_key_errorhandling = [
+                    "message" => Response::USERCARD_TYPE_HAS_USERCARDS,
+                    "response_code" => "USERCARD_TYPE_HAS_USERCARDS"
+                ]
+            );
+        }
+    }
+    else {
+        Delete::delete(
+            "property_usercard_type", 
+            $data["id"], 
+            $not_found_errorhandling = [
+                "message" => Response::USERCARD_TYPE_NOT_FOUND,
+                "response_code" => "USERCARD_TYPE_NOT_FOUND"
+            ],
+            $foreign_key_errorhandling = [
+                "message" => Response::USERCARD_TYPE_HAS_USERCARDS,
+                "response_code" => "USERCARD_TYPE_HAS_USERCARDS"
+            ]
+        );
+    
+    }
+    
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
+$router->delete('/token/delete', function () {
+    require "classes/delete_class.php";
+    $token = authorize("delete_token");
+
+    $data = getData("POST", ["id"]);
+
+    Delete::deleteToken($data["id"], $token);
+    
+    Response::success(Response::SUCCESS, "SUCCESS");
+});
+
 // Client side routes
 $router->post('/booking', function () {
     require 'classes/booking_class.php';
@@ -662,19 +930,6 @@ $router->post('/booking', function () {
     $response["data"] = $booking->fetchUserData();
 
     Response::success(Response::getValue($response_code), $response_code, $response);
-});
-
-$router->post('/token/get', function () {
-    require 'classes/token_class.php';
-
-    $data = getData("POST", ["username", "password"]);
-
-    $username = $data["username"];
-    $password = $data["password"];
-
-    $token["jwt"] = Token::getToken($username, $password, $_ENV["JWT_KEY"]);
-
-    Response::success(Response::SUCCESS, "SUCCESS", $token);
 });
 
 $router->post('/token/validate', function () {

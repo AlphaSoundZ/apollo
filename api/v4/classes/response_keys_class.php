@@ -83,4 +83,14 @@ abstract class Response extends BasicEnum {
 	const INVALID_KEY = "Ungültiger Key"; // Invalid key
 	const ID_NOT_FOUND = "ID nicht gefunden"; // ID not found in database (this is just a placeholder (e.g. DEVICE_NOT_FOUND), this will never be returned)
 	const DUPLICATE = "Doppelter Eintrag"; // Duplicate entry (this is just a placeholder (e.g. DEVICE_ALREADY_EXISTS), this will never be returned)
+	const FOREIGN_KEY_ERROR = "Fehler beim Löschen, da Fremdschlüssel vorhanden"; // Error while deleting, because foreign key exists (this is just a placeholder (e.g. USER_HAS_BOOKINGS), this will never be returned)
+	const EMPTY_TABLE = "Tabelle ist leer"; // Table is empty
+	const USER_HAS_BOOKINGS = "User hat noch aktive Ausleihen"; // User has still active bookings
+	const CLASS_HAS_USERS = "Klasse hat noch aktive User"; // Class has still active users
+	const DEVICE_HAS_ACTIVE_BOOKING = "Device wird noch ausgeliehen"; // Device has still active booking
+	const DEVICE_TYPE_HAS_DEVICES = "Device Typ hat noch aktive Devices"; // Device type has still active devices
+	const USERCARD_HAS_USER = "Usercard hat noch User"; // Usercard has still active user
+	const USERCARD_TYPE_HAS_USERCARDS = "Usercard Typ hat noch Usercards"; // Usercard type has still active usercards
+	const DELETE_OWN_TOKEN_NOT_ALLOWED = "Löschen des eigenen Tokens nicht erlaubt"; // Deleting own token not allowed
+	const TOKEN_HAS_USER = "Token hat noch User"; // Token has still active user
 }
