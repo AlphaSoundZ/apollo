@@ -1,6 +1,6 @@
 -- --------------------------------------------------------
 -- Host:                         127.0.0.1
--- Server Version:               10.4.20-MariaDB - mariadb.org binary distribution
+-- Server Version:               10.4.27-MariaDB - mariadb.org binary distribution
 -- Server Betriebssystem:        Win64
 -- HeidiSQL Version:             12.1.0.6537
 -- --------------------------------------------------------
@@ -14,11 +14,6 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-
--- Exportiere Datenbank Struktur für ausleihe_v4
-CREATE DATABASE IF NOT EXISTS `ausleihe_v4` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
-USE `ausleihe_v4`;
-
 -- Exportiere Struktur von Tabelle ausleihe_v4.devices
 CREATE TABLE IF NOT EXISTS `devices` (
   `device_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -26,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `devices` (
   `device_uid` text NOT NULL,
   `device_lend_user_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`device_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
@@ -39,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `event` (
   `event_end` timestamp NULL DEFAULT current_timestamp(),
   `event_multi_booking_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
@@ -51,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `prebook` (
   `prebook_begin` int(11) NOT NULL,
   `prebook_end` int(11) NOT NULL,
   PRIMARY KEY (`prebook_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
@@ -59,8 +54,9 @@ CREATE TABLE IF NOT EXISTS `prebook` (
 CREATE TABLE IF NOT EXISTS `property_class` (
   `class_id` int(11) NOT NULL AUTO_INCREMENT,
   `class_name` text NOT NULL,
+  `multi_booking` tinyint(1) NOT NULL,
   PRIMARY KEY (`class_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
@@ -69,7 +65,7 @@ CREATE TABLE IF NOT EXISTS `property_device_type` (
   `device_type_id` int(11) NOT NULL AUTO_INCREMENT,
   `device_type_name` text NOT NULL,
   PRIMARY KEY (`device_type_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
@@ -78,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `property_token_permissions` (
   `permission_id` int(11) NOT NULL AUTO_INCREMENT,
   `permission_text` text NOT NULL,
   PRIMARY KEY (`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
@@ -87,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `property_usercard_type` (
   `usercard_type_id` int(11) NOT NULL AUTO_INCREMENT,
   `usercard_type_name` text NOT NULL,
   PRIMARY KEY (`usercard_type_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
@@ -98,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `token` (
   `token_password` text NOT NULL,
   `token_last_change` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`token_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
@@ -108,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `token_link_permissions` (
   `link_token_id` int(11) NOT NULL,
   `link_token_permission_id` int(11) NOT NULL,
   PRIMARY KEY (`link_permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
@@ -121,7 +117,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `user_token_id` int(11) DEFAULT NULL,
   `user_usercard_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=74 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
@@ -131,7 +127,7 @@ CREATE TABLE IF NOT EXISTS `usercard` (
   `usercard_type` int(11) NOT NULL,
   `usercard_uid` text NOT NULL,
   PRIMARY KEY (`usercard_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=131 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
