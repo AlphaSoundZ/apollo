@@ -121,7 +121,7 @@ $router->get('/user(/[^/]+)?', function($id = null) {
     }
     else if (isset($booking) && $booking == "true") // show all booking users
     {
-        $response["data"] = Select::select([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]], ["table" => "event", "join" => ["user.user_id", "event.event_user_id"]]], ["user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_id", "property_class.class_name", "user.user_usercard_id", "sum(case when event.event_end is null and event.event_user_id = user.user_id then 1 else 0 end) AS amount"], $response_structure_booking, ["page" => $page, "size" => $size, "groupby" => "user.user_id", "having" => "sum(case when event.event_end is null and event.event_user_id = user.user_id then 1 else 0 end) > 0"]);
+        $response["data"] = Select::select([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]], ["table" => "event", "join" => ["user.user_id", "event.event_user_id"]]], ["user.*", "property_class.*", "sum(case when event.event_end is null and event.event_user_id = user.user_id then 1 else 0 end) AS amount"], $response_structure_booking, ["page" => $page, "size" => $size, "groupby" => "user.user_id", "having" => "sum(case when event.event_end is null and event.event_user_id = user.user_id then 1 else 0 end) > 0"]);
         $response["message"] = ($response["data"]) ? "Benutzer gefunden" : "Es wird zurzeit nichts ausgeliehen";
     }
     else // show all users or search for user using ?query=
@@ -131,7 +131,7 @@ $router->get('/user(/[^/]+)?', function($id = null) {
 
         if ($query)
         {
-            $response["data"] = Select::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name", "class_id"], ["user_firstname", "user_lastname"], $query, ["page" => $page, "size" => $size, "strict" => $strict]);
+            $response["data"] = Select::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user.*", "property_class.*"], $response_structure, $path["query"], $query, ["page" => $page, "size" => $size, "strict" => $strict]);
             $response["message"] = ($response["data"]) ? "Suche erfolgreich" : "Keine Ergebnisse";
         }
         else
