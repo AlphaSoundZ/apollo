@@ -63,7 +63,7 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
             $response["data"] = Select::select([["table" => "property_class"]], ["*"], $response_structure, ["page" => $page, "size" => $size]);
         }
     }
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]["data"], "page" => $response["data"]["page"]]);
 });
 
 $router->get('/user(/[^/]+)?', function($id = null) {
@@ -142,7 +142,7 @@ $router->get('/user(/[^/]+)?', function($id = null) {
     }
     
     // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]["data"], "page" => $response["data"]["page"], "size" => $response["data"]["size"]]);
 });
 
 $router->get('/user(/\d+)/history', function($id) {
@@ -171,7 +171,7 @@ $router->get('/user(/\d+)/history', function($id) {
     }
     $response["message"] = "Buchungen zu diesem Benutzer gefunden";
 
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]["data"], "page" => $response["data"]["page"]]);
 });
 
 $router->get('/device/type(/\d+)?', function ($id = null) {
@@ -209,7 +209,7 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
             $response["data"] = Select::select([["table" => "property_device_type"]], ["*"], $response_structure, ["page" => $page, "size" => $size]);
         }
     }
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]["data"], "page" => $response["data"]["page"]]);
 });
 
 $router->get('/device(/[^/]+)?', function ($id = null) {
@@ -265,7 +265,7 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
         $response["message"] = "Alle Geräte";
         $response["data"] = Select::select([["table" => "devices"], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name"], $response_structure, ["page" => $page, "size" => $size]);
     }
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]["data"], "page" => $response["data"]["page"]]);
 });
 
 $router->get('/device(/[^/]+)/history', function ($id) {
@@ -311,7 +311,7 @@ $router->get('/device(/[^/]+)/history', function ($id) {
     }
     $response["message"] = "Buchungen zu diesem Device gefunden";
 
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]["data"], "page" => $response["data"]["page"]]);
 });
 
 $router->get('/usercard/type(/\d+)?', function ($id = null) {
@@ -349,7 +349,7 @@ $router->get('/usercard/type(/\d+)?', function ($id = null) {
             $response["data"] = Select::select([["table" => "property_usercard_type"]], ["*"], $response_structure, ["page" => $page, "size" => $size]);
         }
     }
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]["data"], "page" => $response["data"]["page"]]);
 });
 
 $router->get('/usercard(/[^/]+)?', function ($id = null) {
@@ -385,7 +385,7 @@ $router->get('/usercard(/[^/]+)?', function ($id = null) {
         $response["message"] = "Alle User Indentifikationen";
         $response["data"] = Select::select([["table" => "usercard"], ["table" => "property_usercard_type", "join" => ["property_usercard_type.usercard_type_id", "usercard.usercard_type"]], ["table" => "user", "join" => ["user.user_id", "usercard.usercard_id"]]], ["usercard.*", "property_usercard_type.*", "user.*"], $response_structure, ["page" => $page, "size" => $size]);
     }
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]["data"], "page" => $response["data"]["page"]]);
 });
 
 $router->get('/token(/\d+)?', function ($id = null) {
@@ -448,7 +448,7 @@ $router->get('/token(/\d+)?', function ($id = null) {
         }
     }
     
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]["data"], "page" => $response["data"]["page"]]);
 });
 
 $router->get('/token/permission(/\d+)?', function ($id = null) {
@@ -487,7 +487,7 @@ $router->get('/token/permission(/\d+)?', function ($id = null) {
         }
     }
 
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]]);
+    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]["data"], "page" => $response["data"]["page"]]);
 });
 
 // POST

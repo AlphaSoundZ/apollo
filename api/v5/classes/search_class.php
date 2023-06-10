@@ -20,7 +20,22 @@ class Select {
         if (isset($options["groupby"])) $sql .= ' GROUP BY '.$options["groupby"];
         if (isset($options["having"])) $sql .= ' having '.$options["having"];
         if (isset($options["orderby"]) && isset($options["direction"])) $sql .= ' ORDER BY '.$options["orderby"].' '.$options["direction"];
-        if (isset($options["size"]) && isset($options["page"]) && $options["size"] != 0) $sql .= ' LIMIT '.$options["size"].' OFFSET '.$options["page"]*$options["size"];
+
+        $page = null;
+        
+        if (isset($options["size"]) && isset($options["page"]) && $options["size"] != 0)
+        {
+            // total number of rows
+            $sth = $pdo->prepare($sql);
+            $sth->execute();
+            $page["total"] = ceil($sth->rowCount()/$options["size"]);
+            $page["current"] = $options["page"];
+            $page["size"] = $options["size"];
+
+
+            $sql .= ' LIMIT '.$options["size"].' OFFSET '.$options["page"]*$options["size"];
+        }
+            
 
         $sth = $pdo->prepare($sql);
         $sth->execute();
@@ -41,9 +56,11 @@ class Select {
             $result[] = $filledStructure[0];
         }
 
+        //array_push($result, $page);
+
         $response["message"] = "Selection success";
         $response["response"] = 2;
-        return $result;
+        return ["data" => $result, "page" => $page];
     }
 
     static function search($table, $columns, $response_structure, $search_in_colomns, $needles, $options = []) {
@@ -59,11 +76,22 @@ class Select {
         unset($options["size"]);
         unset($options["strict"]);
         
-        $haystack = self::select($table, $columns, $response_structure, $options);
+        $select = self::select($table, $columns, $response_structure, $options);
+        $haystack = $select["data"];
         $result = self::searchalgo($needles, $haystack, $search_in_colomns, $strict);
+
+        if ($size !== null && $size !== 0)
+            $select["page"]["total"] = ceil(count($result) / $size);
+        else
+            $select["page"]["total"] = 1;
+
+        
+        $select["page"]["current"] = $page;
+        $select["page"]["size"] = $size;
+        
         if ($size !== 0)
             $result = array_slice($result, $size*$page, $size);
-        return $result;
+        return ["data" => $result, "page" => $select["page"]];
     }
 
     private static function searchalgo($needles, $haystack, $columns, $strict = false) {
@@ -82,7 +110,7 @@ class Select {
 
                 $average = ($average !== 0) ? ($best + $last_best)/2 : $best;
             }
-            if ($strict == false && $average >= 50)
+            if ($strict == false && $average >= 20)
                 array_push($result, ["accordance" => $average, "data" => $haystack[$row]]);
             else if ($average == 100)
                 array_push($result, $haystack[$row]);
