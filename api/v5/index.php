@@ -562,9 +562,9 @@ $router->post('/user/class/create', function () {
     require "classes/create_class.php";
     authorize("create_user_class");
     
-    $data = getData("POST", ["text", "multi_booking"]);
+    $data = getData("POST", ["name", "multi_booking"]);
 
-    $id = Create::property_class($data["text"], $data["multi_booking"]);
+    $id = Create::property_class($data["name"], $data["multi_booking"]);
 
     Response::success(Response::SUCCESS, "SUCCESS", ["class_id" => $id]);
 });
@@ -573,9 +573,9 @@ $router->post('/device/type/create', function () {
     require "classes/create_class.php";
     authorize("create_device_type");
     
-    $data = getData("POST", ["text"]);
+    $data = getData("POST", ["name"]);
 
-    $id = Create::property_device_type($data["text"]);
+    $id = Create::property_device_type($data["name"]);
 
     Response::success(Response::SUCCESS, "SUCCESS", ["device_type_id" => $id]);
 });
@@ -584,9 +584,9 @@ $router->post('/usercard/type/create', function () {
     require "classes/create_class.php";
     authorize("create_usercard_type");
     
-    $data = getData("POST", ["text"]);
+    $data = getData("POST", ["name"]);
 
-    $id = Create::property_usercard_type($data["text"]);
+    $id = Create::property_usercard_type($data["name"]);
 
     Response::success(Response::SUCCESS, "SUCCESS", ["usercard_type_id" => $id]);
 });
