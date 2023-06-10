@@ -48,9 +48,9 @@ class Token
         $stmt = "SELECT * FROM token WHERE token_id = '{$decoded['sub']}'";
         $stmt = $pdo->prepare($stmt);
         $stmt->execute();
-        $login_data = $stmt->fetch();
-        $token_last_change = strtotime($login_data['token_last_change']);
-        if (!$login_data || $decoded["iat"] <= $token_last_change)
+        $login_data = $stmt->fetch();       
+
+        if (!$login_data || $decoded["iat"] <= strtotime($login_data['token_last_change']))
             throw new CustomException(Response::NOT_AUTHORIZED . ": Username oder Passwort falsch", "NOT_AUTHORIZED", 401);
         
         return array_values((array) $decoded["permissions"]);
