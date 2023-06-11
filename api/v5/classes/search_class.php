@@ -23,7 +23,7 @@ class Select {
 
         $page = null;
 
-        // total number of rows
+        // get total number of rows
         $sth = $pdo->prepare($sql);
         $sth->execute();
         
