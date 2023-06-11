@@ -19,22 +19,23 @@ class Select {
         if (isset($options["where"])) $sql .= ' WHERE '.$options["where"];
         if (isset($options["groupby"])) $sql .= ' GROUP BY '.$options["groupby"];
         if (isset($options["having"])) $sql .= ' having '.$options["having"];
-        if (isset($options["orderby"]) && isset($options["direction"])) $sql .= ' ORDER BY '.$options["orderby"].' '.$options["direction"];
+        if (isset($options["order_by"]) && isset($options["order_strategy"])) $sql .= ' ORDER BY '.$options["order_by"].' '.$options["order_strategy"];
 
         $page = null;
+
+        // total number of rows
+        $sth = $pdo->prepare($sql);
+        $sth->execute();
         
-        if (isset($options["size"]) && isset($options["page"]) && $options["size"] != 0)
-        {
-            // total number of rows
-            $sth = $pdo->prepare($sql);
-            $sth->execute();
-            $page["total"] = ceil($sth->rowCount()/$options["size"]);
-            $page["current"] = $options["page"];
-            $page["size"] = $options["size"];
+        if (isset($options["size"]) && isset($options["page"]) && $options["size"] != 0) $sql .= ' LIMIT '.$options["size"].' OFFSET '.$options["page"]*$options["size"];
 
-
-            $sql .= ' LIMIT '.$options["size"].' OFFSET '.$options["page"]*$options["size"];
-        }
+        $options["size"] = isset($options["size"]) && $options["size"] != 0 ? $options["size"] : $sth->rowCount();
+        
+        $page["total"] = ceil($sth->rowCount()/$options["size"]);
+        $page["current"] = isset($options["page"]) ? $options["page"] : 0;
+        $page["size"] = $options["size"] ? $options["size"] : $sth->rowCount();
+        $page["total_rows"] = $sth->rowCount();
+        
             
 
         $sth = $pdo->prepare($sql);
@@ -80,14 +81,10 @@ class Select {
         $haystack = $select["data"];
         $result = self::searchalgo($needles, $haystack, $search_in_colomns, $strict);
 
-        if ($size !== null && $size !== 0)
-            $select["page"]["total"] = ceil(count($result) / $size);
-        else
-            $select["page"]["total"] = 1;
-
-        
+        $select["page"]["total"] = $size ? ceil(count($result)/$size) : 1;
         $select["page"]["current"] = $page;
-        $select["page"]["size"] = $size;
+        $select["page"]["size"] = $size ? $size : count($result);
+        $select["total_rows"] = count($result);
         
         if ($size !== 0)
             $result = array_slice($result, $size*$page, $size);
