@@ -155,4 +155,13 @@ class Select {
         
         return $best;
     }
+
+    public static function getValueOfStructure($response_structure, $path) {
+        for ($i = 0; $i < count($path); $i++)
+        {
+            $response_structure = $response_structure[$path[$i]];
+        }
+
+        return is_array($response_structure) ? null : $response_structure;
+    }
 }

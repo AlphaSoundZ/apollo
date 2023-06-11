@@ -23,7 +23,7 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
     
     $order_by = (isset($_GET["order_by"])) ? $_GET["order_by"] : null;
-    $order_by_index = (isset($_GET["order_by_index"])) ? $_GET["order_by_index"] : 0;
+    
     $order_strategy = (isset($_GET["order_strategy"])) ? $_GET["order_strategy"] : null;
 
     $response_structure = array(
@@ -36,7 +36,11 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
         ],
     );
 
-    $order_by = array_column($response_structure, $order_by)[$order_by_index];
+    if ($order_by !== null)
+    {
+        $order_by = explode(".", $order_by);
+        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+    }
 
     $path = array(
         "id" => [
@@ -87,25 +91,27 @@ $router->get('/user(/[^/]+)?', function($id = null) {
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
 
     $order_by = (isset($_GET["order_by"])) ? $_GET["order_by"] : null;
-    $order_by_index = (isset($_GET["order_by_index"])) ? $_GET["order_by_index"] : 0;
+    
     $order_strategy = (isset($_GET["order_strategy"])) ? $_GET["order_strategy"] : null;
 
     $response_structure = array(
-        "user" => [
-            "id" => "user_id",
-            "firstname" => "user_firstname",
-            "lastname" => "user_lastname",
-            "class" => [
-                "id" => "class_id",
-                "name" => "class_name",
-            ],
-            "token_id" => "user_token_id",
-            "usercard_id" => "user_usercard_id",
-            "multi_booking" => "multi_booking"
+        "id" => "user_id",
+        "firstname" => "user_firstname",
+        "lastname" => "user_lastname",
+        "class" => [
+            "id" => "class_id",
+            "name" => "class_name",
         ],
+        "token_id" => "user_token_id",
+        "usercard_id" => "user_usercard_id",
+        "multi_booking" => "multi_booking"
     );
 
-    $order_by = array_column($response_structure, $order_by)[$order_by_index];
+    if ($order_by !== null)
+    {
+        $order_by = explode(".", $order_by);
+        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+    }
 
     $response_structure_booking = $response_structure;
     $response_structure_booking["user"]["amount"] = "amount";
@@ -113,21 +119,20 @@ $router->get('/user(/[^/]+)?', function($id = null) {
     
     $path = array(
         "id" => [
-            "user" => [
-                "id",
-            ],
+            "id",
         ],
         "query" => [
-            "user" => [
-                "id",
-                "firstname",
-                "lastname",
-                "class" => [
-                    "name",
-                ],
+            "id",
+            "firstname",
+            "lastname",
+            "class" => [
+                "name",
             ],
         ],
     );
+
+    $query = (isset($_GET["query"])) ? $_GET["query"] : null;
+    $strict = (isset($_GET["strict"]) && $_GET["strict"] == "true") ? true : false;
     
     if ($id !== null) // search for user with $id
     {
@@ -141,9 +146,6 @@ $router->get('/user(/[^/]+)?', function($id = null) {
     }
     else // show all users or search for user using ?query=
     {
-        $query = (isset($_GET["query"])) ? $_GET["query"] : null;
-        $strict = (isset($_GET["strict"]) && $_GET["strict"] == "true") ? true : false;
-
         if ($query)
         {
             $response["data"] = Select::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user.*", "property_class.*"], $response_structure, $path["query"], $query, ["page" => $page, "size" => $size, "strict" => $strict, "order_by" => $order_by, "order_strategy" => $order_strategy]);
@@ -155,9 +157,23 @@ $router->get('/user(/[^/]+)?', function($id = null) {
             $response["data"] = Select::select([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name", "class_id", "multi_booking", "user_token_id", "user_usercard_id"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
         }
     }
-    
+
+    $results = array(
+        "page" => $response["data"]["page"],
+        "data" => $response["data"]["data"],
+    );
+    if ($id !== null)
+    {
+        $results["search"]["id"] = $id;
+    }
+    if ($query !== null)
+    {
+        $results["search"]["strict"] = $strict;
+        $results["search"]["query"] = $query;
+    }
+
     // echo json_encode($response, JSON_PRETTY_PRINT); // return the response
-    Response::success($response["message"], "SUCCESS", ["data" => $response["data"]["data"], "page" => $response["data"]["page"]]);
+    Response::success($response["message"], "SUCCESS", $results);
 });
 
 $router->get('/user(/\d+)/history', function($id) {
@@ -170,7 +186,7 @@ $router->get('/user(/\d+)/history', function($id) {
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
 
     $order_by = (isset($_GET["order_by"])) ? $_GET["order_by"] : null;
-    $order_by_index = (isset($_GET["order_by_index"])) ? $_GET["order_by_index"] : 0;
+    
     $order_strategy = (isset($_GET["order_strategy"])) ? $_GET["order_strategy"] : null;
 
     $response_structure = array(
@@ -181,7 +197,11 @@ $router->get('/user(/\d+)/history', function($id) {
         "multi_booking_id" => "event_multi_booking_id",
     );
 
-    $order_by = array_column($response_structure, $order_by)[$order_by_index];
+    if ($order_by !== null)
+    {
+        $order_by = explode(".", $order_by);
+        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+    }
 
     $response["data"] = Select::select([["table" => "event"]], ["event.event_begin", "event.event_end", "event.event_multi_booking_id"], $response_structure, ["page" => $page, "size" => $size, "strict" => true, "groupby" => "event.event_multi_booking_id", "order_by" => $order_by, "order_strategy" => $order_strategy, "where" => "event.event_user_id = " . $id]);
     if (!$response["data"])
@@ -205,7 +225,7 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
 
     $order_by = (isset($_GET["order_by"])) ? $_GET["order_by"] : null;
-    $order_by_index = (isset($_GET["order_by_index"])) ? $_GET["order_by_index"] : 0;
+    
     $order_strategy = (isset($_GET["order_strategy"])) ? $_GET["order_strategy"] : null;
 
     $response_structure = array(
@@ -213,7 +233,11 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
         "name" => "device_type_name",
     );
     
-    $order_by = array_column($response_structure, $order_by)[$order_by_index];
+    if ($order_by !== null)
+    {
+        $order_by = explode(".", $order_by);
+        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+    }
 
     if ($id) // search for class with $id
     {
@@ -247,7 +271,7 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
 
     $order_by = (isset($_GET["order_by"])) ? $_GET["order_by"] : null;
-    $order_by_index = (isset($_GET["order_by_index"])) ? $_GET["order_by_index"] : 0;
+    
     $order_strategy = (isset($_GET["order_strategy"])) ? $_GET["order_strategy"] : null;
 
     $response["message"] = "";
@@ -263,7 +287,11 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
         ],
     );
 
-    $order_by = array_column($response_structure, $order_by)[$order_by_index];
+    if ($order_by !== null)
+    {
+        $order_by = explode(".", $order_by);
+        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+    }
 
     $response_structure_booking = array(
         "id" => "device_id",
@@ -309,7 +337,7 @@ $router->get('/device(/[^/]+)/history', function ($id) {
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
 
     $order_by = (isset($_GET["order_by"])) ? $_GET["order_by"] : null;
-    $order_by_index = (isset($_GET["order_by_index"])) ? $_GET["order_by_index"] : 0;
+    
     $order_strategy = (isset($_GET["order_strategy"])) ? $_GET["order_strategy"] : null;
 
     $response["message"] = "";
@@ -327,7 +355,11 @@ $router->get('/device(/[^/]+)/history', function ($id) {
         "multi_booking_id" => "event_multi_booking_id",
     );
 
-    $order_by = array_column($response_structure, $order_by)[$order_by_index];
+    if ($order_by !== null)
+    {
+        $order_by = explode(".", $order_by);
+        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+    }
 
     // check if device exists
     $device = Select::select([["table" => "devices"]], ["device_id", "device_uid"], ["device_id" => "device_id"], ["strict" => true, "where" => "device_id = " . $id, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
@@ -363,7 +395,7 @@ $router->get('/usercard/type(/\d+)?', function ($id = null) {
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
 
     $order_by = (isset($_GET["order_by"])) ? $_GET["order_by"] : null;
-    $order_by_index = (isset($_GET["order_by_index"])) ? $_GET["order_by_index"] : 0;
+    
     $order_strategy = (isset($_GET["order_strategy"])) ? $_GET["order_strategy"] : null;
 
     $response_structure = array(
@@ -371,7 +403,11 @@ $router->get('/usercard/type(/\d+)?', function ($id = null) {
         "name" => "usercard_type_name",
     );
 
-    $order_by = array_column($response_structure, $order_by)[$order_by_index];
+    if ($order_by !== null)
+    {
+        $order_by = explode(".", $order_by);
+        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+    }
 
     if ($id) // search for usercard type with $id
     {
@@ -407,7 +443,7 @@ $router->get('/usercard(/[^/]+)?', function ($id = null) {
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
 
     $order_by = (isset($_GET["order_by"])) ? $_GET["order_by"] : null;
-    $order_by_index = (isset($_GET["order_by_index"])) ? $_GET["order_by_index"] : 0;
+    
     $order_strategy = (isset($_GET["order_strategy"])) ? $_GET["order_strategy"] : null;
 
     $response_structure = array(
@@ -424,7 +460,11 @@ $router->get('/usercard(/[^/]+)?', function ($id = null) {
         ],
     );
 
-    $order_by = array_column($response_structure, $order_by)[$order_by_index];
+    if ($order_by !== null)
+    {
+        $order_by = explode(".", $order_by);
+        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+    }
 
     if ($id) // search for usercard with $id
     {
@@ -451,7 +491,7 @@ $router->get('/token(/\d+)?', function ($id = null) {
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
 
     $order_by = (isset($_GET["order_by"])) ? $_GET["order_by"] : null;
-    $order_by_index = (isset($_GET["order_by_index"])) ? $_GET["order_by_index"] : 0;
+    
     $order_strategy = (isset($_GET["order_strategy"])) ? $_GET["order_strategy"] : null;
 
     $response_structure = array(
@@ -462,7 +502,11 @@ $router->get('/token(/\d+)?', function ($id = null) {
         "last_change" => "token_last_change",
     );
     
-    $order_by = array_column($response_structure, $order_by)[$order_by_index];
+    if ($order_by !== null)
+    {
+        $order_by = explode(".", $order_by);
+        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+    }
 
     if ($id !== null) // search for user with $id
     {
@@ -518,7 +562,7 @@ $router->get('/token/permission(/\d+)?', function ($id = null) {
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
 
     $order_by = (isset($_GET["order_by"])) ? $_GET["order_by"] : null;
-    $order_by_index = (isset($_GET["order_by_index"])) ? $_GET["order_by_index"] : 0;
+    
     $order_strategy = (isset($_GET["order_strategy"])) ? $_GET["order_strategy"] : null;
 
     $response_structure = array(
@@ -526,7 +570,11 @@ $router->get('/token/permission(/\d+)?', function ($id = null) {
         "name" => "permission_text"
     );
 
-    $order_by = array_column($response_structure, $order_by)[$order_by_index];
+    if ($order_by !== null)
+    {
+        $order_by = explode(".", $order_by);
+        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+    }
 
     if ($id !== null)
     {
