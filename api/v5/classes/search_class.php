@@ -84,7 +84,7 @@ class Select {
         $select["page"]["total"] = $size ? ceil(count($result)/$size) : 1;
         $select["page"]["current"] = $page;
         $select["page"]["size"] = $size ? $size : count($result);
-        $select["total_rows"] = count($result);
+        $select["page"]["total_rows"] = count($result);
         
         if ($size !== 0)
             $result = array_slice($result, $size*$page, $size);
