@@ -31,7 +31,7 @@ class Select {
 
         $options["size"] = isset($options["size"]) && $options["size"] != 0 ? $options["size"] : $sth->rowCount();
         
-        $page["total"] = ceil($sth->rowCount()/$options["size"]);
+        $page["total"] = $options["size"] != 0 ? ceil($sth->rowCount()/$options["size"]) : 0;
         $page["current"] = isset($options["page"]) ? $options["page"] : 0;
         $page["size"] = $options["size"] ? $options["size"] : $sth->rowCount();
         $page["total_rows"] = $sth->rowCount();
