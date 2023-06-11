@@ -107,7 +107,7 @@ class Select {
 
                 $average = ($average !== 0) ? ($best + $last_best)/2 : $best;
             }
-            if ($strict == false && $average >= 20)
+            if ($strict == false && $average >= 50)
                 array_push($result, ["accordance" => $average, "data" => $haystack[$row]]);
             else if ($average == 100)
                 array_push($result, $haystack[$row]);
