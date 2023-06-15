@@ -868,11 +868,11 @@ $router->patch('/user/change', function () {
         "user",
         $data["id"],
         $updating_values = [
-            "user_firstname" => $data["firstname"] ?? null,
-            "user_lastname" => $data["lastname"] ?? null,
-            "user_class" => $data["class_id"] ?? null,
-            "user_token_id" => $data["token_id"] ?? null,
-            "user_usercard_id" => $data["usercard_id"] ?? null
+            "user_firstname" => $data["values"]["firstname"] ?? null,
+            "user_lastname" => $data["values"]["lastname"] ?? null,
+            "user_class" => $data["values"]["class_id"] ?? null,
+            "user_token_id" => $data["values"]["token_id"] ?? null,
+            "user_usercard_id" => $data["values"]["usercard_id"] ?? null
         ],
         $duplicate_errorhandling = [
             "message" => Response::USER_ALREADY_EXISTS, 
@@ -904,8 +904,8 @@ $router->patch('/user/class/change', function () {
         "property_class", 
         $data["id"], 
         $updating_values = [
-            "class_name" => $data["name"] ?? null,
-            "multi_booking" => $data["multi_booking"] ?? null
+            "class_name" => $data["values"]["name"] ?? null,
+            "multi_booking" => $data["values"]["multi_booking"] ?? null
         ],
         $duplicate_errorhandling = [
             "message" => Response::CLASS_ALREADY_EXISTS, 
@@ -934,7 +934,7 @@ $router->patch('/device/type/change', function () {
         "property_device_type", 
         $data["id"], 
         $updating_values = [
-            "device_type_name" => $data["name"]
+            "device_type_name" => $data["values"]["name"]
         ],
         $duplicate_errorhandling = [
             "message" => Response::DEVICE_TYPE_ALREADY_EXISTS, 
@@ -962,7 +962,7 @@ $router->patch('/usercard/type/change', function () {
         "property_usercard_type", 
         $data["id"], 
         $updating_values = [
-            "usercard_type_name" => $data["name"]
+            "usercard_type_name" => $data["values"]["name"]
         ],
         $duplicate_errorhandling = [
             "message" => Response::USERCARD_TYPE_ALREADY_EXISTS, 
@@ -990,8 +990,8 @@ $router->patch('device/change', function () {
         "devices", 
         $data["id"], 
         $updating_values = [
-            "device_uid" => $data["uid"] ?? null, 
-            "device_type" => $data["type"] ?? null
+            "device_uid" => $data["values"]["uid"] ?? null, 
+            "device_type" => $data["values"]["type"] ?? null
         ],
         $duplicate_errorhandling = [
             "message" => Response::DEVICE_ALREADY_EXISTS, 
@@ -1020,8 +1020,8 @@ $router->patch('/usercard/change', function () {
         "usercard",
         $data["id"],
         $updating_values = [
-            "usercard_uid" => $data["uid"] ?? null,
-            "usercard_type" => $data["type"] ?? null
+            "usercard_uid" => $data["values"]["uid"] ?? null,
+            "usercard_type" => $data["values"]["type"] ?? null
         ],
         $duplicate_errorhandling = [
             "message" => Response::USERCARD_ALREADY_EXISTS, 
@@ -1332,7 +1332,7 @@ $router->post('/booking', function () {
 $router->post('/token/validate', function () {
     require 'classes/token_class.php';
     if (!isset($_SERVER["HTTP_AUTHORIZATION"]))
-        throw new CustomException(Response::REQUIRED_DATA_MISSING . " (HTTP_AUTHORIZATION)", "REQUIRED_DATA_MISSING", 400);
+        throw new CustomException(Response::REQUIRED_DATA_MISSING . " (HTTP_AUTHORIZATION)", "REQUIRED_DATA_MISSING", 400, ["HTTP_AUTHORIZATION"]);
     $given_token = $_SERVER["HTTP_AUTHORIZATION"];
     $jwt = explode(" ", $given_token)[1];
     

@@ -12,7 +12,7 @@ class Delete
         $stmt->execute();
         $row = $stmt->fetch();
         if ($row == false)
-            throw new CustomException(Response::ID_NOT_FOUND, "ID_NOT_FOUND", 400);
+            throw new CustomException(Response::ID_NOT_FOUND, "ID_NOT_FOUND", 400, ["id"]);
         
         $sql = "DELETE FROM $table WHERE $identityColumn = '$id'";
         $sth = $pdo->prepare($sql);
@@ -31,7 +31,7 @@ class Delete
         $stmt->execute();
         $row = $stmt->fetch();
         if ($row == false)
-            throw new CustomException($not_found_errorhandling["message"], $not_found_errorhandling["response_code"], 400);
+            throw new CustomException($not_found_errorhandling["message"], $not_found_errorhandling["response_code"], 400, ["id"]);
         
         try {
             $sql = "DELETE FROM $table WHERE $identityColumn = :id";
@@ -40,7 +40,7 @@ class Delete
             
         } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1451)
-                throw new CustomException($foreign_key_errorhandling["message"], $foreign_key_errorhandling["response_code"], 400);
+                throw new CustomException($foreign_key_errorhandling["message"], $foreign_key_errorhandling["response_code"], 400, ["id"]);
             else
                 throw new CustomException($e->getMessage(), "BAD_REQUEST", 400);
         }
@@ -60,9 +60,9 @@ class Delete
         $row = $stmt->fetch();
 
         if (!$row)
-            throw new CustomException(Response::TOKEN_NOT_FOUND, "TOKEN_NOT_FOUND", 400);
+            throw new CustomException(Response::TOKEN_NOT_FOUND, "TOKEN_NOT_FOUND", 400, ["id"]);
         else if ($id == $token['sub'])
-            throw new CustomException(Response::DELETE_OWN_TOKEN_NOT_ALLOWED, "DELETE_OWN_TOKEN_NOT_ALLOWED", 400);
+            throw new CustomException(Response::DELETE_OWN_TOKEN_NOT_ALLOWED, "DELETE_OWN_TOKEN_NOT_ALLOWED", 400, ["id"]);
         
         try {
             // delete linked permissions
@@ -76,7 +76,7 @@ class Delete
             $result = $sth->execute(["id" => $id]);
         } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1451) // foreign key error (token_link_permissions)
-                throw new CustomException(Response::FOREIGN_KEY_ERROR, "FOREIGN_KEY_ERROR", 400);
+                throw new CustomException(Response::FOREIGN_KEY_ERROR, "FOREIGN_KEY_ERROR", 400, ["id"]);
             else // other error
                 throw new CustomException($e->getMessage(), "BAD_REQUEST", 400);
         }
@@ -93,12 +93,12 @@ class Delete
         $sql = "SELECT COUNT(1) FROM $table";
         $sth = $pdo->query($sql);
         $countAll = $sth->fetchAll();
-
+        /* // Could be useful in the future if wanted to throw an error when table is empty
         if (!$countAll)
-            throw new CustomException("$table table ist leer", "BAD_REQUEST", 400);
+            throw new CustomException("$table table ist leer", "BAD_REQUEST", 400, ["table"]);
         else if ($condition && empty($countCondition[0]["COUNT(1)"]))
-            throw new CustomException("In $table wurden keine löschbaren Zeilen gefunden", "BAD_REQUEST", 400);
-        
+            throw new CustomException("In $table wurden keine löschbaren Zeilen gefunden", "BAD_REQUEST", 400, ["table", "condition"]);
+        */
         $sql = ($reset_id && !$condition) ? "TRUNCATE TABLE $table" : "DELETE FROM $table";
         $sql .= ($condition) ? " WHERE $condition" : "";
 
@@ -118,7 +118,7 @@ class Delete
         $sth->execute();
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         if (!$result)
-            throw new CustomException(Response::EMPTY_TABLE, "EMPTY_TABLE", 400);
+            throw new CustomException(Response::EMPTY_TABLE, "EMPTY_TABLE", 400, ["table"]);
         return array_key_first($result);
     }
 }

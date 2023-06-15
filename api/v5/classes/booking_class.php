@@ -41,7 +41,7 @@ class Booking
         $device_2 = $pdo->query($sql)->fetch();
 
         if (!$device_2)
-					throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $this->uid_2)", "DEVICE_NOT_FOUND", 400);
+					throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $this->uid_2)", "DEVICE_NOT_FOUND", 400, ["uid_2"]);
         
         // Ausleihe
         // ist $this->uid_1 eine usercard und $this->uid_2 ein Gerät?
@@ -79,7 +79,7 @@ class Booking
           $this->deviceInfo($device_1['device_id']);
           return $return_result;
         }
-        else if (!$usercard) // Keine Rückgabe möglich
+        else if (!$usercard) // Keine Rückgabe möglich: Gerät wird nicht ausgeliehen
           throw new CustomException(Response::RETURN_NOT_POSSIBLE, "RETURN_NOT_POSSIBLE", 400);
         else if ($usercard) // Info
         {
@@ -90,7 +90,7 @@ class Booking
     else
     {
       // Input $this->uid_1 is empty
-      throw new CustomException(Response::UID_NOT_FOUND . " (uid: $this->uid_1)", "UID_NOT_FOUND", 400);
+      throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $this->uid_1)", "DEVICE_NOT_FOUND", 400, ["uid_1"]);
     }
   }
 
