@@ -36,8 +36,8 @@ function getData($method, array $requirements)
 
 	if (empty($input))
 	{
-		$errors = implode(", ", $requirements);
-		throw new CustomException(Response::REQUIRED_DATA_MISSING . " ($errors)", "REQUIRED_DATA_MISSING", 400);
+		$errors_str = implode(", ", $requirements);
+		throw new CustomException(Response::REQUIRED_DATA_MISSING . " ($errors_str)", "REQUIRED_DATA_MISSING", 400, ["fields" => $requirements]);
 	}
 
 	if (isset($requirements) && $input)
@@ -49,8 +49,8 @@ function getData($method, array $requirements)
 		}
 		if (!empty($errors))
 		{
-			$errors = implode(", ", $errors);
-			throw new CustomException(Response::REQUIRED_DATA_MISSING . " ($errors)", "REQUIRED_DATA_MISSING", 400);
+			$errors_str = implode(", ", $errors);
+			throw new CustomException(Response::REQUIRED_DATA_MISSING . " ($errors_str)", "REQUIRED_DATA_MISSING", 400, ["fields" => $errors]);
 		}
 	}
 	return $input;
