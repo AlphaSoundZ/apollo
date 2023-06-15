@@ -14,29 +14,29 @@ $new_user = ($data["new_user"] == "true") ? true : false;
 
 $user_id = Create::checkUser($firstname, $lastname);
 if ($new_user && $user_id)
-    throw new CustomException(Response::USER_ALREADY_EXISTS, "USER_ALREADY_EXISTS", 400);
+    throw new CustomException(Response::USER_ALREADY_EXISTS, "USER_ALREADY_EXISTS", 400, ["firstname", "lastname"]);
 if (!$new_user && !$user_id)
-    throw new CustomException(Response::USER_NOT_FOUND, "USER_NOT_FOUND", 400);
+    throw new CustomException(Response::USER_NOT_FOUND, "USER_NOT_FOUND", 400, ["firstname", "lastname"]);
 if (!$new_user && Create::checkUserForAssignement($user_id))
-    throw new CustomException(Response::USER_ALREADY_ASSIGNED, "USER_ALREADY_ASSIGNED", 400);
+    throw new CustomException(Response::USER_ALREADY_ASSIGNED, "USER_ALREADY_ASSIGNED", 400, ["firstname", "lastname"]);
 
 $usercard_check = Create::checkUsercard($usercard_uid);
 if ($usercard_check == "USERCARD_NOT_FOUND" && !$new_usercard)
-    throw new CustomException(Response::USERCARD_NOT_FOUND, "USERCARD_NOT_FOUND", 400);
+    throw new CustomException(Response::USERCARD_NOT_FOUND, "USERCARD_NOT_FOUND", 400, ["usercard_uid"]);
 else if ($usercard_check == "USERCARD_ALREADY_ASSIGNED")
-    throw new CustomException(Response::USERCARD_ALREADY_ASSIGNED, "USERCARD_ALREADY_ASSIGNED", 400);
+    throw new CustomException(Response::USERCARD_ALREADY_ASSIGNED, "USERCARD_ALREADY_ASSIGNED", 400, ["usercard_uid"]);
 
 if ($usercard_check == "USERCARD_NOT_FOUND" && $new_usercard) // create new usercard and usercard does not exist
     $usercard_id = Create::createUserCard($usercard_uid);
 else if ($usercard_check && !$new_usercard) // do not create usercand and usercard does exist
     $usercard_id = $usercard_check;
 else if ($usercard_check && $new_usercard) // if you want to create a usercard but the usercard already exists
-    throw new CustomException(Response::USERCARD_ALREADY_EXISTS, "USERCARD_ALREADY_EXISTS", 400);
+    throw new CustomException(Response::USERCARD_ALREADY_EXISTS, "USERCARD_ALREADY_EXISTS", 400, ["usercard_uid"]);
 else // if you only want to assign but usercard does not exist
-    throw new CustomException(Response::USERCARD_NOT_FOUND, "USERCARD_NOT_FOUND", 400);
+    throw new CustomException(Response::USERCARD_NOT_FOUND, "USERCARD_NOT_FOUND", 400, ["usercard_uid"]);
 
 if (!Create::checkClass($class))
-    throw new CustomException(Response::CLASS_NOT_FOUND, "CLASS_NOT_FOUND", 400);
+    throw new CustomException(Response::CLASS_NOT_FOUND, "CLASS_NOT_FOUND", 400, ["class"]);
 
 if ($new_user)
     $user_id = Create::createUser($firstname, $lastname, $class);

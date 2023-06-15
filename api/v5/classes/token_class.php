@@ -15,7 +15,7 @@ class Token
         $login_data = $stmt->fetch();
 
         if (!$login_data || !password_verify($password, $login_data["token_password"]))
-            throw new CustomException(Response::NOT_AUTHORIZED . ": Username oder Passwort falsch", "NOT_AUTHORIZED", 401);
+            throw new CustomException(Response::NOT_AUTHORIZED . ": Username oder Passwort falsch", "NOT_AUTHORIZED", 401, ["username", "password"]);
         
         $token_id = $login_data["token_id"];
 
@@ -51,7 +51,7 @@ class Token
         $login_data = $stmt->fetch();       
 
         if (!$login_data || $decoded["iat"] <= strtotime($login_data['token_last_change']))
-            throw new CustomException(Response::NOT_AUTHORIZED . ": Username oder Passwort falsch", "NOT_AUTHORIZED", 401);
+            throw new CustomException(Response::NOT_AUTHORIZED . ": Username oder Passwort falsch", "NOT_AUTHORIZED", 401, ["username", "password"]);
         
         return array_values((array) $decoded["permissions"]);
     }

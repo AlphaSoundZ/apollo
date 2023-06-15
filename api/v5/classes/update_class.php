@@ -19,7 +19,7 @@ class Update
         foreach ($updating_values as $key => $value) {
             // check if key is valid
             if (!in_array($key, $changeable_columns))
-                throw new CustomException(Response::INVALID_KEY, "INVALID_KEY", 400);
+                throw new CustomException(Response::INVALID_KEY, "INVALID_KEY", 400, [$key]);
             
             // check if value changed (if not, skip)
             if ($row[$key] == $value || $value === "" || $value === null)
@@ -29,7 +29,7 @@ class Update
         }
 
         if (!$row)
-            throw new CustomException($not_found_errorhandling["message"], $not_found_errorhandling["response_code"], 400);
+            throw new CustomException($not_found_errorhandling["message"], $not_found_errorhandling["response_code"], 400, ["id"]);
         if (!$changes)
             Response::success("Keine Änderung: alter und neuer Wert sind indentisch", "SUCCESS");
         if (empty($updating_values))
@@ -50,7 +50,7 @@ class Update
             $result = $sth->execute(array_merge($updating_values, ["id" => $id]));
         } catch (PDOException $th) {
             if ($th->errorInfo[1] == "1062") // check if class exists
-                throw new CustomException($duplicate_errorhandling["message"], $duplicate_errorhandling["response_code"], 400);
+                throw new CustomException($duplicate_errorhandling["message"], $duplicate_errorhandling["response_code"], 400, ["id"]);
             
             // unexpected error
             throw $th;
@@ -65,7 +65,7 @@ class Update
         $sth->execute();
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         if (!$result)
-            throw new CustomException("Tabelle ist leer", "BAD_REQUEST", 400);
+            throw new CustomException("Tabelle ist leer", "BAD_REQUEST", 400, ["table"]);
         return array_key_first($result);
     }
 }

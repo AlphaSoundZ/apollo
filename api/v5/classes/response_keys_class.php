@@ -70,7 +70,6 @@ abstract class Response extends BasicEnum {
 	const PERMISSION_NOT_FOUND = "Token Permission nicht gefunden"; // Permission not found in databases
 	const USER_ALREADY_ASSIGNED_TO_TOKEN = "User ist bereits einem Token zugewiesen"; // User already assigned to a token
 	const USERCARD_NOT_FOUND = "Usercard nicht gefunden"; // Usercard not found in database
-	const UID_NOT_FOUND = "UID nicht gefunden"; // UID not found in database
 	const UID_ALREADY_EXISTS = "UID existiert bereits"; // UID already exists in database
 	const INSERT_ERROR = "Fehler beim Einfügen in die Datenbank"; // Error while inserting into database
 	const TOKEN_NOT_FOUND = "Token nicht gefunden"; // Token does not exist in database
