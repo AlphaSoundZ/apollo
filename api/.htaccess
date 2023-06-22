@@ -1,6 +1,6 @@
 Options -MultiViews
 RewriteEngine On
-RewriteBase /
+RewriteBase /v5
 
 
 RewriteCond %{HTTP:Authorization} ^(.*)
