@@ -1,8 +1,8 @@
 # REST API-Documentation
 
-[V4 Documentation](/docs/v4/DOCS.md)
+[V5 Documentation](/docs/v5/DOCS.md)
 
-[V4 List of Endpoints](https://github.com/AlphaSoundZ/apollo/issues/4)
+[V4 & V5 List of Endpoints](https://github.com/AlphaSoundZ/apollo/issues/4)
 
 ---
 
