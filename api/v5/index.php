@@ -8,6 +8,11 @@ $router->set404('/', function() {
     throw new CustomException(Response::ROUTE_NOT_DEFINED, "ROUTE_NOT_DEFINED", 404);
 });
 
+// Home route
+$router->get('/', function () {
+    Response::success("API is running", "SUCCESS", ["version" => "v5"]);
+});
+
 // GET
 $router->get('/status', function () {
     require 'status.php';
