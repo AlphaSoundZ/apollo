@@ -1319,6 +1319,15 @@ $router->delete('/token/delete', function () {
     Response::success(Response::SUCCESS, "SUCCESS");
 });
 
+$router->delete('/event/clear', function () {
+    require "classes/delete_class.php";
+    authorize("clear_event");
+
+    $amount = Delete::clearEvent();
+    
+    Response::success(Response::SUCCESS, "SUCCESS", ["amount" => $amount]);
+});
+
 // Client side routes
 $router->post('/booking', function () {
     require 'classes/booking_class.php';

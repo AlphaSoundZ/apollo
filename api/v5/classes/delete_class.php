@@ -2,7 +2,7 @@
 require_once 'config.php';
 class Delete
 {
-    static function deleteRow($table, $id)
+    static function deleteRow($table, $id) // delete row by id in table
     {
         global $pdo;
         $identityColumn = self::getIdentityColumn($table);
@@ -17,11 +17,9 @@ class Delete
         $sql = "DELETE FROM $table WHERE $identityColumn = '$id'";
         $sth = $pdo->prepare($sql);
         $result = $sth->execute();
-        
-        return "SUCCESS";
     }
 
-    static function delete($table, $id, $not_found_errorhandling = ["message" => Response::ID_NOT_FOUND, "response_code" => "ID_NOT_FOUND"], $foreign_key_errorhandling = ["message" => Response::FOREIGN_KEY_ERROR, "response_code" => "FOREIGN_KEY_ERROR"])
+    static function delete($table, $id, $not_found_errorhandling = ["message" => Response::ID_NOT_FOUND, "response_code" => "ID_NOT_FOUND"], $foreign_key_errorhandling = ["message" => Response::FOREIGN_KEY_ERROR, "response_code" => "FOREIGN_KEY_ERROR"]) 
     {
         global $pdo;
         $identityColumn = self::getIdentityColumn($table);
@@ -44,8 +42,6 @@ class Delete
             else
                 throw new CustomException($e->getMessage(), "BAD_REQUEST", 400);
         }
-        
-        return "SUCCESS";
     }
 
     static function deleteToken($id, $token)
@@ -108,6 +104,24 @@ class Delete
         $sth = $pdo->prepare($sql);
         $sth->execute();
         return $countCondition[0]["COUNT(1)"];
+    }
+
+    static function clearEvent() // delete active events
+    {
+        global $pdo;
+
+        // set device_lend_user_id to 0 for all devices that are currently lent
+        $sql = "UPDATE devices SET device_lend_user_id = 0 WHERE device_lend_user_id != 0";
+        $sth = $pdo->prepare($sql);
+        $sth->execute();
+
+        // delete all events that are currently active
+        $sql = "DELETE FROM event WHERE event_end IS NULL";
+        $sth = $pdo->prepare($sql);
+        $sth->execute();
+
+        // return number of deleted rows
+        return $sth->rowCount();
     }
 
     private static function getIdentityColumn($table)
