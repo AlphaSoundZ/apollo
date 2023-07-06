@@ -124,6 +124,32 @@ class Delete
         return $sth->rowCount();
     }
 
+    static function clearUserEvent($user_id) // delete active events of user
+    {
+        global $pdo;
+
+        // check for user
+        $sql = "SELECT * FROM user WHERE user_id = :id";
+        $sth = $pdo->prepare($sql);
+        $sth->execute(["id" => $user_id]);
+
+        if (!$sth->fetch())
+            throw new CustomException(Response::USER_NOT_FOUND, "USER_NOT_FOUND", 400, ["id"]);
+
+        // set device_lend_user_id to 0 for all devices that are currently lent
+        $sql = "UPDATE devices SET device_lend_user_id = 0 WHERE device_lend_user_id = :id";
+        $sth = $pdo->prepare($sql);
+        $sth->execute(["id" => $user_id]);
+
+        // delete all events that are currently active of user
+        $sql = "DELETE FROM event WHERE event_end IS NULL AND event_user_id = :id";
+        $sth = $pdo->prepare($sql);
+        $sth->execute(["id" => $user_id]);
+
+        // return number of deleted rows
+        return $sth->rowCount();
+    }
+
     private static function getIdentityColumn($table)
     {
         global $pdo;

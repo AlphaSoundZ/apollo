@@ -1328,6 +1328,17 @@ $router->delete('/event/clear', function () {
     Response::success(Response::SUCCESS, "SUCCESS", ["amount" => $amount]);
 });
 
+$router->delete('/user/event/clear', function () {
+    require "classes/delete_class.php";
+    authorize("clear_event");
+
+    $data = getData("POST", ["id"]);
+
+    $amount = Delete::clearUserEvent($data["id"]);
+    
+    Response::success(Response::SUCCESS, "SUCCESS", ["amount" => $amount]);
+});
+
 // Client side routes
 $router->post('/booking', function () {
     require 'classes/booking_class.php';
