@@ -869,7 +869,7 @@ $router->patch('/user/change', function () {
 
     $data = getData("POST", ["id"]);
 
-    Update::update(
+    DataUpdate::update(
         "user",
         $data["id"],
         $updating_values = [
@@ -905,7 +905,7 @@ $router->patch('/user/class/change', function () {
 
     $data = getData("POST", ["id"]);
 
-    Update::update(
+    DataUpdate::update(
         "property_class", 
         $data["id"], 
         $updating_values = [
@@ -935,7 +935,7 @@ $router->patch('/device/type/change', function () {
 
     $data = getData("POST", ["id", "name"]);
 
-    Update::update(
+    DataUpdate::update(
         "property_device_type", 
         $data["id"], 
         $updating_values = [
@@ -963,7 +963,7 @@ $router->patch('/usercard/type/change', function () {
 
     $data = getData("POST", ["id", "name"]);
 
-    Update::update(
+    DataUpdate::update(
         "property_usercard_type", 
         $data["id"], 
         $updating_values = [
@@ -991,7 +991,7 @@ $router->patch('device/change', function () {
 
     $data = getData("POST", ["id"]);
 
-    Update::update(
+    DataUpdate::update(
         "devices", 
         $data["id"],
         $updating_values = [
@@ -1021,7 +1021,7 @@ $router->patch('/usercard/change', function () {
 
     $data = getData("POST", ["id"]);
 
-    Update::update(
+    DataUpdate::update(
         "usercard",
         $data["id"],
         $updating_values = [

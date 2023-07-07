@@ -1,5 +1,5 @@
 <?php
-class Update
+class DataUpdate
 {
     static function update($table, $id, $updating_values, $duplicate_errorhandling = ["message" => Response::DUPLICATE, "response_code" => "DUPLICATE"], $not_found_errorhandling = ["message" => Response::ID_NOT_FOUND, "response_code" => "ID_NOT_FOUND"], $changeable_columns)
     {
