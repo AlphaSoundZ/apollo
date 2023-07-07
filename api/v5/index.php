@@ -781,7 +781,7 @@ $router->post('/token/authorize', function () {
 
 $router->post('/user/create', function () {
     require "classes/create_class.php";
-    authorize("create_user");
+    authorize("CRUD_user");
 
     $data = getData("POST", ["firstname", "lastname", "class_id"]);
     $usercard_id = (isset($data["usercard_id"])) ? $data["usercard_id"] : null;
@@ -795,7 +795,7 @@ $router->post('/user/create', function () {
 
 $router->post('/usercard/create', function () {
     require "classes/create_class.php";
-    authorize("create_usercard");
+    authorize("CRUD_usercard");
 
     $data = getData("POST", ["uid", "type"]);
 
@@ -809,7 +809,7 @@ $router->post('/usercard/create', function () {
 
 $router->post('/device/create', function () {
     require "classes/create_class.php";
-    authorize("create_device");
+    authorize("CRUD_device");
 
     $data = getData("POST", ["uid", "type"]);
 
@@ -820,7 +820,7 @@ $router->post('/device/create', function () {
 
 $router->post('/user/class/create', function () {
     require "classes/create_class.php";
-    authorize("create_user_class");
+    authorize("CRUD_user_class");
     
     $data = getData("POST", ["name", "multi_booking"]);
 
@@ -831,7 +831,7 @@ $router->post('/user/class/create', function () {
 
 $router->post('/device/type/create', function () {
     require "classes/create_class.php";
-    authorize("create_device_type");
+    authorize("CRUD_device_type");
     
     $data = getData("POST", ["name"]);
 
@@ -842,7 +842,7 @@ $router->post('/device/type/create', function () {
 
 $router->post('/usercard/type/create', function () {
     require "classes/create_class.php";
-    authorize("create_usercard_type");
+    authorize("CRUD_usercard_type");
     
     $data = getData("POST", ["name"]);
 
@@ -853,7 +853,7 @@ $router->post('/usercard/type/create', function () {
 
 $router->post('/token/create', function () {
     require 'classes/create_class.php';
-    authorize("create_token");
+    authorize("CRUD_token");
 
     $data = getData("POST", ["username", "password", "permissions"]);
 
@@ -865,7 +865,7 @@ $router->post('/token/create', function () {
 // PATCH
 $router->patch('/user/change', function () {
     require "classes/update_class.php";
-    authorize("create_user");
+    authorize("CRUD_user");
 
     $data = getData("POST", ["id"]);
 
@@ -901,7 +901,7 @@ $router->patch('/user/change', function () {
 
 $router->patch('/user/class/change', function () {
     require "classes/update_class.php";
-    authorize("create_user_class");
+    authorize("CRUD_user_class");
 
     $data = getData("POST", ["id"]);
 
@@ -931,7 +931,7 @@ $router->patch('/user/class/change', function () {
 
 $router->patch('/device/type/change', function () {
     require "classes/update_class.php";
-    authorize("create_device_type");
+    authorize("CRUD_device_type");
 
     $data = getData("POST", ["id", "name"]);
 
@@ -959,7 +959,7 @@ $router->patch('/device/type/change', function () {
 
 $router->patch('/usercard/type/change', function () {
     require "classes/update_class.php";
-    authorize("create_usercard_type");
+    authorize("CRUD_usercard_type");
 
     $data = getData("POST", ["id", "name"]);
 
@@ -987,7 +987,7 @@ $router->patch('/usercard/type/change', function () {
 
 $router->patch('device/change', function () {
     require "classes/update_class.php";
-    authorize("change_device");
+    authorize("CRUD_device");
 
     $data = getData("POST", ["id"]);
 
@@ -1017,7 +1017,7 @@ $router->patch('device/change', function () {
 
 $router->patch('/usercard/change', function () {
     require "classes/update_class.php";
-    authorize("change_usercard");
+    authorize("CRUD_usercard");
 
     $data = getData("POST", ["id"]);
 
@@ -1048,7 +1048,7 @@ $router->patch('/usercard/change', function () {
 // DELETE
 $router->delete('/user/delete', function () {
     require "classes/delete_class.php";
-    authorize("delete_user");
+    authorize("CRUD_user");
 
     // get data from request (id can be either an array of id's or a single id)
     $data = getData("POST", ["id"]);
@@ -1091,7 +1091,7 @@ $router->delete('/user/delete', function () {
 
 $router->delete('/user/class/delete', function () {
     require "classes/delete_class.php";
-    authorize("delete_user_class");
+    authorize("CRUD_user_class");
 
     $data = getData("POST", ["id"]);
 
@@ -1133,7 +1133,7 @@ $router->delete('/user/class/delete', function () {
 
 $router->delete('/device/delete', function () {
     require "classes/delete_class.php";
-    authorize("delete_device");
+    authorize("CRUD_device");
 
     $data = getData("POST", ["id"]);
 
@@ -1175,7 +1175,7 @@ $router->delete('/device/delete', function () {
 
 $router->delete('/device/type/delete', function () {
     require "classes/delete_class.php";
-    authorize("delete_device_type");
+    authorize("CRUD_device_type");
 
     $data = getData("POST", ["id"]);
 
@@ -1217,7 +1217,7 @@ $router->delete('/device/type/delete', function () {
 
 $router->delete('/usercard/delete', function () {
     require "classes/delete_class.php";
-    authorize("delete_usercard");
+    authorize("CRUD_usercard");
 
     $data = getData("POST", ["id"]);
 
@@ -1259,7 +1259,7 @@ $router->delete('/usercard/delete', function () {
 
 $router->delete('/usercard/type/delete', function () {
     require "classes/delete_class.php";
-    authorize("delete_usercard_type");
+    authorize("CRUD_usercard_type");
 
     $data = getData("POST", ["id"]);
 
@@ -1301,7 +1301,7 @@ $router->delete('/usercard/type/delete', function () {
 
 $router->delete('/token/delete', function () {
     require "classes/delete_class.php";
-    $token = authorize("delete_token");
+    $token = authorize("CRUD_token");
 
     $data = getData("POST", ["id"]);
 
@@ -1321,7 +1321,7 @@ $router->delete('/token/delete', function () {
 
 $router->delete('/event/clear', function () {
     require "classes/delete_class.php";
-    authorize("clear_event");
+    authorize("CRUD_event");
 
     $amount = Delete::clearEvent();
     
@@ -1330,7 +1330,7 @@ $router->delete('/event/clear', function () {
 
 $router->delete('/user/event/clear', function () {
     require "classes/delete_class.php";
-    authorize("clear_event");
+    authorize("delete_event");
 
     $data = getData("POST", ["id"]);
 
