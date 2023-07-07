@@ -19,7 +19,7 @@ $router->get('/status', function () {
 });
 
 $router->get('/user/class(/\d+)?', function ($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -104,7 +104,7 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
 });
 
 $router->get('/user(/[^/]+)?', function($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -203,7 +203,7 @@ $router->get('/user(/[^/]+)?', function($id = null) {
 });
 
 $router->get('/user(/\d+)/history', function($id) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -254,7 +254,7 @@ $router->get('/user(/\d+)/history', function($id) {
 });
 
 $router->get('/device/type(/\d+)?', function ($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -321,7 +321,7 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
 });
 
 $router->get('/device(/[^/]+)?', function ($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
@@ -399,7 +399,7 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
 });
 
 $router->get('/device(/[^/]+)/history', function ($id) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
@@ -467,7 +467,7 @@ $router->get('/device(/[^/]+)/history', function ($id) {
 });
 
 $router->get('/usercard/type(/\d+)?', function ($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -533,7 +533,7 @@ $router->get('/usercard/type(/\d+)?', function ($id = null) {
 });
 
 $router->get('/usercard(/[^/]+)?', function ($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -592,7 +592,7 @@ $router->get('/usercard(/[^/]+)?', function ($id = null) {
 });
 
 $router->get('/token(/\d+)?', function ($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -684,7 +684,7 @@ $router->get('/token(/\d+)?', function ($id = null) {
 });
 
 $router->get('/token/permission(/\d+)?', function ($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -752,7 +752,7 @@ $router->get('/token/permission(/\d+)?', function ($id = null) {
 
 // POST
 $router->post('/csv', function () {
-    require 'classes/csv_class.php';
+    require 'classes/csv.class.php';
     authorize("add_csv");
 
     $data = getData("POST", ["table", "columns", "string", "seperator", "linebreak"]);
@@ -767,7 +767,7 @@ $router->post('/csv', function () {
 });
 
 $router->post('/token/authorize', function () {
-    require 'classes/token_class.php';
+    require 'classes/token.class.php';
 
     $data = getData("POST", ["username", "password"]);
 
@@ -780,7 +780,7 @@ $router->post('/token/authorize', function () {
 });
 
 $router->post('/user/create', function () {
-    require "classes/create_class.php";
+    require "classes/create.class.php";
     authorize("CRUD_user");
 
     $data = getData("POST", ["firstname", "lastname", "class_id"]);
@@ -794,7 +794,7 @@ $router->post('/user/create', function () {
 });
 
 $router->post('/usercard/create', function () {
-    require "classes/create_class.php";
+    require "classes/create.class.php";
     authorize("CRUD_usercard");
 
     $data = getData("POST", ["uid", "type"]);
@@ -808,7 +808,7 @@ $router->post('/usercard/create', function () {
 });
 
 $router->post('/device/create', function () {
-    require "classes/create_class.php";
+    require "classes/create.class.php";
     authorize("CRUD_device");
 
     $data = getData("POST", ["uid", "type"]);
@@ -819,7 +819,7 @@ $router->post('/device/create', function () {
 });
 
 $router->post('/user/class/create', function () {
-    require "classes/create_class.php";
+    require "classes/create.class.php";
     authorize("CRUD_user_class");
     
     $data = getData("POST", ["name", "multi_booking"]);
@@ -830,7 +830,7 @@ $router->post('/user/class/create', function () {
 });
 
 $router->post('/device/type/create', function () {
-    require "classes/create_class.php";
+    require "classes/create.class.php";
     authorize("CRUD_device_type");
     
     $data = getData("POST", ["name"]);
@@ -841,7 +841,7 @@ $router->post('/device/type/create', function () {
 });
 
 $router->post('/usercard/type/create', function () {
-    require "classes/create_class.php";
+    require "classes/create.class.php";
     authorize("CRUD_usercard_type");
     
     $data = getData("POST", ["name"]);
@@ -852,7 +852,7 @@ $router->post('/usercard/type/create', function () {
 });
 
 $router->post('/token/create', function () {
-    require 'classes/create_class.php';
+    require 'classes/create.class.php';
     authorize("CRUD_token");
 
     $data = getData("POST", ["username", "password", "permissions"]);
@@ -864,7 +864,7 @@ $router->post('/token/create', function () {
 
 // PATCH
 $router->patch('/user/change', function () {
-    require "classes/update_class.php";
+    require "classes/update.class.php";
     authorize("CRUD_user");
 
     $data = getData("POST", ["id"]);
@@ -900,7 +900,7 @@ $router->patch('/user/change', function () {
 });
 
 $router->patch('/user/class/change', function () {
-    require "classes/update_class.php";
+    require "classes/update.class.php";
     authorize("CRUD_user_class");
 
     $data = getData("POST", ["id"]);
@@ -930,7 +930,7 @@ $router->patch('/user/class/change', function () {
 });
 
 $router->patch('/device/type/change', function () {
-    require "classes/update_class.php";
+    require "classes/update.class.php";
     authorize("CRUD_device_type");
 
     $data = getData("POST", ["id", "name"]);
@@ -958,7 +958,7 @@ $router->patch('/device/type/change', function () {
 });
 
 $router->patch('/usercard/type/change', function () {
-    require "classes/update_class.php";
+    require "classes/update.class.php";
     authorize("CRUD_usercard_type");
 
     $data = getData("POST", ["id", "name"]);
@@ -986,14 +986,14 @@ $router->patch('/usercard/type/change', function () {
 });
 
 $router->patch('device/change', function () {
-    require "classes/update_class.php";
+    require "classes/update.class.php";
     authorize("CRUD_device");
 
     $data = getData("POST", ["id"]);
 
     Update::update(
         "devices", 
-        $data["id"], 
+        $data["id"],
         $updating_values = [
             "device_uid" => $data["values"]["uid"] ?? null, 
             "device_type" => $data["values"]["type"] ?? null
@@ -1016,7 +1016,7 @@ $router->patch('device/change', function () {
 });
 
 $router->patch('/usercard/change', function () {
-    require "classes/update_class.php";
+    require "classes/update.class.php";
     authorize("CRUD_usercard");
 
     $data = getData("POST", ["id"]);
@@ -1047,7 +1047,7 @@ $router->patch('/usercard/change', function () {
 
 // DELETE
 $router->delete('/user/delete', function () {
-    require "classes/delete_class.php";
+    require "classes/delete.class.php";
     authorize("CRUD_user");
 
     // get data from request (id can be either an array of id's or a single id)
@@ -1090,7 +1090,7 @@ $router->delete('/user/delete', function () {
 });
 
 $router->delete('/user/class/delete', function () {
-    require "classes/delete_class.php";
+    require "classes/delete.class.php";
     authorize("CRUD_user_class");
 
     $data = getData("POST", ["id"]);
@@ -1132,7 +1132,7 @@ $router->delete('/user/class/delete', function () {
 });
 
 $router->delete('/device/delete', function () {
-    require "classes/delete_class.php";
+    require "classes/delete.class.php";
     authorize("CRUD_device");
 
     $data = getData("POST", ["id"]);
@@ -1174,7 +1174,7 @@ $router->delete('/device/delete', function () {
 });
 
 $router->delete('/device/type/delete', function () {
-    require "classes/delete_class.php";
+    require "classes/delete.class.php";
     authorize("CRUD_device_type");
 
     $data = getData("POST", ["id"]);
@@ -1216,7 +1216,7 @@ $router->delete('/device/type/delete', function () {
 });
 
 $router->delete('/usercard/delete', function () {
-    require "classes/delete_class.php";
+    require "classes/delete.class.php";
     authorize("CRUD_usercard");
 
     $data = getData("POST", ["id"]);
@@ -1258,7 +1258,7 @@ $router->delete('/usercard/delete', function () {
 });
 
 $router->delete('/usercard/type/delete', function () {
-    require "classes/delete_class.php";
+    require "classes/delete.class.php";
     authorize("CRUD_usercard_type");
 
     $data = getData("POST", ["id"]);
@@ -1300,7 +1300,7 @@ $router->delete('/usercard/type/delete', function () {
 });
 
 $router->delete('/token/delete', function () {
-    require "classes/delete_class.php";
+    require "classes/delete.class.php";
     $token = authorize("CRUD_token");
 
     $data = getData("POST", ["id"]);
@@ -1320,7 +1320,7 @@ $router->delete('/token/delete', function () {
 });
 
 $router->delete('/event/clear', function () {
-    require "classes/delete_class.php";
+    require "classes/delete.class.php";
     authorize("CRUD_event");
 
     $amount = Delete::clearEvent();
@@ -1329,7 +1329,7 @@ $router->delete('/event/clear', function () {
 });
 
 $router->delete('/user/event/clear', function () {
-    require "classes/delete_class.php";
+    require "classes/delete.class.php";
     authorize("delete_event");
 
     $data = getData("POST", ["id"]);
@@ -1341,7 +1341,7 @@ $router->delete('/user/event/clear', function () {
 
 // Client side routes
 $router->post('/booking', function () {
-    require 'classes/booking_class.php';
+    require 'classes/booking.class.php';
     authorize("book");
 
     $data = getData("POST", ["uid_1"]);
@@ -1355,7 +1355,7 @@ $router->post('/booking', function () {
 });
 
 $router->post('/token/validate', function () {
-    require 'classes/token_class.php';
+    require 'classes/token.class.php';
     if (!isset($_SERVER["HTTP_AUTHORIZATION"]))
         throw new CustomException(Response::REQUIRED_DATA_MISSING . " (HTTP_AUTHORIZATION)", "REQUIRED_DATA_MISSING", 400, ["HTTP_AUTHORIZATION"]);
     $given_token = $_SERVER["HTTP_AUTHORIZATION"];

@@ -1,6 +1,6 @@
 <?php
 require 'config.php';
-require 'classes/create_class.php';
+require 'classes/create.class.php';
 
 authorize("add_user");
 $data = getData("POST", ["firstname", "lastname", "class", "usercard_uid", "new_usercard", "new_user"]);
