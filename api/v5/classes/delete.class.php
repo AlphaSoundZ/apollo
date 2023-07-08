@@ -1,6 +1,6 @@
 <?php
 require_once 'config.php';
-class Delete
+class DataDelete
 {
     static function deleteRow($table, $id) // delete row by id in table
     {
@@ -12,14 +12,14 @@ class Delete
         $stmt->execute();
         $row = $stmt->fetch();
         if ($row == false)
-            throw new CustomException(Response::ID_NOT_FOUND, "ID_NOT_FOUND", 400, ["id"]);
+            Response::error(Response::ID_NOT_FOUND, ["id"]);
         
         $sql = "DELETE FROM $table WHERE $identityColumn = '$id'";
         $sth = $pdo->prepare($sql);
         $result = $sth->execute();
     }
 
-    static function delete($table, $id, $not_found_errorhandling = ["message" => Response::ID_NOT_FOUND, "response_code" => "ID_NOT_FOUND"], $foreign_key_errorhandling = ["message" => Response::FOREIGN_KEY_ERROR, "response_code" => "FOREIGN_KEY_ERROR"]) 
+    static function delete($table, $id, $not_found_errorhandling = Response::ID_NOT_FOUND, $foreign_key_errorhandling = Response::FOREIGN_KEY_ERROR) 
     {
         global $pdo;
         $identityColumn = self::getIdentityColumn($table);
@@ -28,8 +28,8 @@ class Delete
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         $row = $stmt->fetch();
-        if ($row == false)
-            throw new CustomException($not_found_errorhandling["message"], $not_found_errorhandling["response_code"], 400, ["id"]);
+        if ($row == false) // check if id exists
+            Response::error($not_found_errorhandling, ["id"]);
         
         try {
             $sql = "DELETE FROM $table WHERE $identityColumn = :id";
@@ -37,10 +37,10 @@ class Delete
             $result = $sth->execute(["id" => $id]);
             
         } catch (PDOException $e) {
-            if ($e->errorInfo[1] == 1451)
-                throw new CustomException($foreign_key_errorhandling["message"], $foreign_key_errorhandling["response_code"], 400, ["id"]);
+            if ($e->errorInfo[1] == 1451) // check for constraint error
+                Response::error($foreign_key_errorhandling, ["id"]);
             else
-                throw new CustomException($e->getMessage(), "BAD_REQUEST", 400);
+                throw $e;
         }
     }
 
@@ -56,9 +56,9 @@ class Delete
         $row = $stmt->fetch();
 
         if (!$row)
-            throw new CustomException(Response::TOKEN_NOT_FOUND, "TOKEN_NOT_FOUND", 400, ["id"]);
+            Response::error(Response::TOKEN_NOT_FOUND, ["id"]);
         else if ($id == $token['sub'])
-            throw new CustomException(Response::DELETE_OWN_TOKEN_NOT_ALLOWED, "DELETE_OWN_TOKEN_NOT_ALLOWED", 400, ["id"]);
+            Response::error(Response::DELETE_OWN_TOKEN_NOT_ALLOWED, ["id"]);
         
         try {
             // delete linked permissions
@@ -72,9 +72,9 @@ class Delete
             $result = $sth->execute(["id" => $id]);
         } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1451) // foreign key error (token_link_permissions)
-                throw new CustomException(Response::FOREIGN_KEY_ERROR, "FOREIGN_KEY_ERROR", 400, ["id"]);
+                Response::error(Response::FOREIGN_KEY_ERROR, ["id"]);
             else // other error
-                throw new CustomException($e->getMessage(), "BAD_REQUEST", 400);
+                throw $e;
         }
     }
 
@@ -89,12 +89,7 @@ class Delete
         $sql = "SELECT COUNT(1) FROM $table";
         $sth = $pdo->query($sql);
         $countAll = $sth->fetchAll();
-        /* // Could be useful in the future if wanted to throw an error when table is empty
-        if (!$countAll)
-            throw new CustomException("$table table ist leer", "BAD_REQUEST", 400, ["table"]);
-        else if ($condition && empty($countCondition[0]["COUNT(1)"]))
-            throw new CustomException("In $table wurden keine löschbaren Zeilen gefunden", "BAD_REQUEST", 400, ["table", "condition"]);
-        */
+
         $sql = ($reset_id && !$condition) ? "TRUNCATE TABLE $table" : "DELETE FROM $table";
         $sql .= ($condition) ? " WHERE $condition" : "";
 
@@ -134,7 +129,7 @@ class Delete
         $sth->execute(["id" => $user_id]);
 
         if (!$sth->fetch())
-            throw new CustomException(Response::USER_NOT_FOUND, "USER_NOT_FOUND", 400, ["id"]);
+            Response::error(Response::USER_NOT_FOUND, ["id"]);
 
         // set device_lend_user_id to 0 for all devices that are currently lent
         $sql = "UPDATE devices SET device_lend_user_id = 0 WHERE device_lend_user_id = :id";
@@ -153,12 +148,12 @@ class Delete
     private static function getIdentityColumn($table)
     {
         global $pdo;
-        $sql = "SELECT * FROM $table";
+        $sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = :table_name AND COLUMN_KEY = 'PRI'";
         $sth = $pdo->prepare($sql);
-        $sth->execute();
+        $sth->execute(["table_name" => $table]);
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         if (!$result)
-            throw new CustomException(Response::EMPTY_TABLE, "EMPTY_TABLE", 400, ["table"]);
-        return array_key_first($result);
+            Response::error(Response::INTERNAL_SERVER_ERROR);
+        return $result["COLUMN_NAME"];
     }
 }

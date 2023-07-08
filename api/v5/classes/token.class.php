@@ -15,7 +15,7 @@ class Token
         $login_data = $stmt->fetch();
 
         if (!$login_data || !password_verify($password, $login_data["token_password"]))
-            throw new CustomException(Response::NOT_AUTHORIZED . ": Username oder Passwort falsch", "NOT_AUTHORIZED", 401, ["username", "password"]);
+            Response::error(array_merge(Response::NOT_AUTHORIZED, ["message" => Response::NOT_AUTHORIZED["message"] . ": Username oder Passwort falsch"]), ["username", "password"]);
         
         $token_id = $login_data["token_id"];
 
@@ -41,7 +41,7 @@ class Token
             $decoded = JWT::decode($jwt, new Key($key, 'HS256'));
             $decoded = (array) $decoded;
         } catch (Exception $e) {
-            throw new CustomException(Response::NOT_AUTHORIZED . ": " . $e->getMessage(), "NOT_AUTHORIZED", 401);
+            Response::error(array_merge(Response::NOT_AUTHORIZED, ["message" => Response::NOT_AUTHORIZED["message"] . " ({$e->getMessage()})"]));
         }
         
         // check if iat and username in payload are correct
@@ -49,9 +49,11 @@ class Token
         $stmt = $pdo->prepare($stmt);
         $stmt->execute();
         $login_data = $stmt->fetch();       
-
-        if (!$login_data || $decoded["iat"] <= strtotime($login_data['token_last_change']))
-            throw new CustomException(Response::NOT_AUTHORIZED . ": Username oder Passwort falsch", "NOT_AUTHORIZED", 401, ["username", "password"]);
+        
+        if (!$login_data)
+        Response::error(array_merge(Response::NOT_AUTHORIZED, ["message" => "Username oder Passwort falsch"]), ["username", "password"]);
+        else if ($decoded["iat"] <= strtotime($login_data['token_last_change']))
+            Response::error(array_merge(Response::NOT_AUTHORIZED, ["message" => Response::NOT_AUTHORIZED["message"] . ". Token ist abgelaufen"]));
         
         return array_values((array) $decoded["permissions"]);
     }

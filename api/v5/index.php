@@ -5,12 +5,12 @@ require 'vendor/autoload.php';
 $router = new \Bramus\Router\Router;
 
 $router->set404('/', function() {
-    throw new CustomException(Response::ROUTE_NOT_DEFINED, "ROUTE_NOT_DEFINED", 404);
+    Response::error(Response::ROUTE_NOT_DEFINED);
 });
 
 // Home route
 $router->get('/', function () {
-    Response::success("API is running", "SUCCESS", ["version" => "v5"]);
+    Response::success(Response::API_RUNNING);
 });
 
 // GET
@@ -100,7 +100,7 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
     $results["data"] = $response["data"];
 
     
-    Response::success($response["message"], "SUCCESS", $results);
+    Response::success(array_merge(Response::SUCCESS, ["message" => $response["message"]]), $results);
 });
 
 $router->get('/user(/[^/]+)?', function($id = null) {
@@ -199,7 +199,7 @@ $router->get('/user(/[^/]+)?', function($id = null) {
     $results["data"] = $response["data"];
 
     
-    Response::success($response["message"], "SUCCESS", $results);
+    Response::success(array_merge(Response::SUCCESS, ["message" => $response["message"]]), $results);
 });
 
 $router->get('/user(/\d+)/history', function($id) {
@@ -237,7 +237,7 @@ $router->get('/user(/\d+)/history', function($id) {
     if (!$response["data"])
     {
         // No bookings found
-        Response::success(Response::NO_DATA_FOUND, "NO_DATA_FOUND");
+        Response::success(Response::NO_CONTENT, "NO_CONTENT");
     }
     $response["message"] = "Buchungen zu diesem Benutzer gefunden";
 
@@ -249,7 +249,7 @@ $router->get('/user(/\d+)/history', function($id) {
     $results["data"] = $response["data"];
 
     
-    Response::success($response["message"], "SUCCESS", $results);
+    Response::success(array_merge(Response::SUCCESS, ["message" => $response["message"]]), $results);
 });
 
 $router->get('/device/type(/\d+)?', function ($id = null) {
@@ -316,7 +316,7 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
     $results["data"] = $response["data"];
 
     
-    Response::success($response["message"], "SUCCESS", $results);
+    Response::success(array_merge(Response::SUCCESS, ["message" => $response["message"]]), $results);
 });
 
 $router->get('/device(/[^/]+)?', function ($id = null) {
@@ -394,7 +394,7 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
     $results["data"] = $response["data"];
 
     
-    Response::success($response["message"], "SUCCESS", $results);
+    Response::success(array_merge(Response::SUCCESS, ["message" => $response["message"]]), $results);
 });
 
 $router->get('/device(/[^/]+)/history', function ($id) {
@@ -438,7 +438,7 @@ $router->get('/device(/[^/]+)/history', function ($id) {
     if (!$device["data"])
     {
         // device not found
-        throw new CustomException(Response::DEVICE_NOT_FOUND, "DEVICE_NOT_FOUND", 404);
+        Response::error(Response::DEVICE_NOT_FOUND);
     }
 
     // if $id is an $uid
@@ -448,7 +448,7 @@ $router->get('/device(/[^/]+)/history', function ($id) {
     if (!$response["data"])
     {
         // No bookings found
-        Response::success(Response::NO_DATA_FOUND, "NO_DATA_FOUND");
+        Response::success(Response::NO_CONTENT, "NO_CONTENT");
     }
     $response["message"] = "Buchungen zu diesem Device gefunden";
 
@@ -459,7 +459,7 @@ $router->get('/device(/[^/]+)/history', function ($id) {
     }
     $results["data"] = $response["data"];
     
-    Response::success($response["message"], "SUCCESS", $results);
+    Response::success(array_merge(Response::SUCCESS, ["message" => $response["message"]]), $results);
 });
 
 $router->get('/usercard/type(/\d+)?', function ($id = null) {
@@ -525,7 +525,7 @@ $router->get('/usercard/type(/\d+)?', function ($id = null) {
     $results["data"] = $response["data"];
 
     
-    Response::success($response["message"], "SUCCESS", $results);
+    Response::success(array_merge(Response::SUCCESS, ["message" => $response["message"]]), $results);
 });
 
 $router->get('/usercard(/[^/]+)?', function ($id = null) {
@@ -584,7 +584,7 @@ $router->get('/usercard(/[^/]+)?', function ($id = null) {
     $results["data"] = $response["data"];
 
     
-    Response::success($response["message"], "SUCCESS", $results);
+    Response::success(array_merge(Response::SUCCESS, ["message" => $response["message"]]), $results);
 });
 
 $router->get('/token(/\d+)?', function ($id = null) {
@@ -676,7 +676,7 @@ $router->get('/token(/\d+)?', function ($id = null) {
     $results["data"] = $response["data"];
 
     
-    Response::success($response["message"], "SUCCESS", $results);
+    Response::success(array_merge(Response::SUCCESS, ["message" => $response["message"]]), $results);
 });
 
 $router->get('/token/permission(/\d+)?', function ($id = null) {
@@ -743,13 +743,15 @@ $router->get('/token/permission(/\d+)?', function ($id = null) {
     $results["data"] = $response["data"];
 
     
-    Response::success($response["message"], "SUCCESS", $results);
+    Response::success(array_merge(Response::SUCCESS, ["message" => $response["message"]]), $results);
 });
 
 // POST
-$router->post('/csv', function () {
+$router->post('/csv/import', function () {
     require 'classes/csv.class.php';
     authorize("add_csv");
+
+    $response["message"] = "";
 
     $data = getData("POST", ["table", "columns", "string", "seperator", "linebreak"]);
     $global = (isset($data["global"])) ? $data["global"] : [];
@@ -759,7 +761,10 @@ $router->post('/csv', function () {
     $csv->checkForError();
     $csv->add();
 
-    Response::success(count($csv->rows) . " Zeilen wurden eingefügt");
+    $total_rows = count($csv->rows);
+    $response["message"] = count($csv->rows) . " Zeilen wurden eingefügt";
+
+    Response::success(array_merge(Response::SUCCESS, ["message" => $response["message"]]), ["amount" => $total_rows]);
 });
 
 $router->post('/token/authorize', function () {
@@ -772,7 +777,7 @@ $router->post('/token/authorize', function () {
 
     $token["jwt"] = Token::getToken($username, $password, $_ENV["JWT_KEY"]);
 
-    Response::success(Response::SUCCESS, "SUCCESS", $token);
+    Response::success(Response::SUCCESS, $token);
 });
 
 $router->post('/user/create', function () {
@@ -875,14 +880,8 @@ $router->patch('/user/change', function () {
             "user_token_id" => $data["values"]["token_id"] ?? null,
             "user_usercard_id" => $data["values"]["usercard_id"] ?? null
         ],
-        $duplicate_errorhandling = [
-            "message" => Response::USER_ALREADY_EXISTS, 
-            "response_code" => "USER_ALREADY_EXISTS"
-        ],
-        $not_found_errorhandling = [
-            "message" => Response::USER_NOT_FOUND, 
-            "response_code" => "USER_NOT_FOUND"
-        ],
+        $duplicate_errorhandling = Response::USER_ALREADY_EXISTS,
+        $not_found_errorhandling = Response::USER_NOT_FOUND,
         $changeable_columns = [
             "user_firstname",
             "user_lastname",
@@ -908,14 +907,8 @@ $router->patch('/user/class/change', function () {
             "class_name" => $data["values"]["name"] ?? null,
             "multi_booking" => $data["values"]["multi_booking"] ?? null
         ],
-        $duplicate_errorhandling = [
-            "message" => Response::CLASS_ALREADY_EXISTS, 
-            "response_code" => "CLASS_ALREADY_EXISTS"
-        ], 
-        $not_found_errorhandling = [
-            "message" => Response::CLASS_NOT_FOUND, 
-            "response_code" => "CLASS_NOT_FOUND"
-        ], 
+        $duplicate_errorhandling = Response::CLASS_ALREADY_EXISTS,
+        $not_found_errorhandling = Response::CLASS_NOT_FOUND,
         $changeable_columns = [
             "class_name",
             "multi_booking"
@@ -937,14 +930,8 @@ $router->patch('/device/type/change', function () {
         $updating_values = [
             "device_type_name" => $data["values"]["name"]
         ],
-        $duplicate_errorhandling = [
-            "message" => Response::DEVICE_TYPE_ALREADY_EXISTS, 
-            "response_code" => "DEVICE_TYPE_ALREADY_EXISTS"
-        ], 
-        $not_found_errorhandling = [
-            "message" => Response::DEVICE_TYPE_NOT_FOUND, 
-            "response_code" => "DEVICE_TYPE_NOT_FOUND"
-        ], 
+        $duplicate_errorhandling = Response::DEVICE_TYPE_ALREADY_EXISTS,
+        $not_found_errorhandling = Response::DEVICE_TYPE_NOT_FOUND,
         $changeable_columns = [
             "device_type_name"
         ]
@@ -965,14 +952,8 @@ $router->patch('/usercard/type/change', function () {
         $updating_values = [
             "usercard_type_name" => $data["values"]["name"]
         ],
-        $duplicate_errorhandling = [
-            "message" => Response::USERCARD_TYPE_ALREADY_EXISTS, 
-            "response_code" => "USERCARD_TYPE_ALREADY_EXISTS"
-        ], 
-        $not_found_errorhandling = [
-            "message" => Response::USERCARD_TYPE_NOT_FOUND, 
-            "response_code" => "USERCARD_TYPE_NOT_FOUND"
-        ], 
+        $duplicate_errorhandling = Response::USERCARD_TYPE_ALREADY_EXISTS,
+        $not_found_errorhandling = Response::USERCARD_TYPE_NOT_FOUND,
         $changeable_columns = [
             "usercard_type_name"
         ]
@@ -994,14 +975,8 @@ $router->patch('device/change', function () {
             "device_uid" => $data["values"]["uid"] ?? null, 
             "device_type" => $data["values"]["type"] ?? null
         ],
-        $duplicate_errorhandling = [
-            "message" => Response::DEVICE_ALREADY_EXISTS, 
-            "response_code" => "DEVICE_ALREADY_EXISTS"
-        ], 
-        $not_found_errorhandling = [
-            "message" => Response::DEVICE_NOT_FOUND, 
-            "response_code" => "DEVICE_NOT_FOUND"
-        ], 
+        $duplicate_errorhandling = Response::DEVICE_ALREADY_EXISTS,
+        $not_found_errorhandling = Response::DEVICE_NOT_FOUND,
         $changeable_columns = [
             "device_uid", 
             "device_type"
@@ -1024,14 +999,8 @@ $router->patch('/usercard/change', function () {
             "usercard_uid" => $data["values"]["uid"] ?? null,
             "usercard_type" => $data["values"]["type"] ?? null
         ],
-        $duplicate_errorhandling = [
-            "message" => Response::USERCARD_ALREADY_EXISTS, 
-            "response_code" => "USERCARD_ALREADY_EXISTS"
-        ],
-        $not_found_errorhandling = [
-            "message" => Response::USERCARD_NOT_FOUND, 
-            "response_code" => "USERCARD_NOT_FOUND"
-        ],
+        $duplicate_errorhandling = Response::USERCARD_ALREADY_EXISTS,
+        $not_found_errorhandling = Response::USERCARD_NOT_FOUND,
         $changeable_columns = [
             "usercard_uid",
             "usercard_type"
@@ -1052,34 +1021,21 @@ $router->delete('/user/delete', function () {
     // when id is an array of id's
     if (is_array($data["id"])) {
         foreach ($data["id"] as $id) {
-            Delete::delete(
+            DataDelete::delete(
                 "user", 
                 $id, 
-                $not_found_errorhandling = [
-                    "message" => Response::USER_NOT_FOUND, 
-                    "response_code" => "USER_NOT_FOUND"
-                ],
-                $foreign_key_errorhandling = [
-                    "message" => Response::USER_HAS_BOOKINGS, 
-                    "response_code" => "USER_HAS_BOOKINGS"
-                ]
+                $not_found_errorhandling = Response::USER_NOT_FOUND,
+                $foreign_key_errorhandling = Response::USER_HAS_BOOKINGS,
             );
         }
     }
     else {
-        Delete::delete(
+        DataDelete::delete(
             "user", 
             $data["id"], 
-            $not_found_errorhandling = [
-                "message" => Response::USER_NOT_FOUND, 
-                "response_code" => "USER_NOT_FOUND"
-            ],
-            $foreign_key_errorhandling = [
-                "message" => Response::USER_HAS_BOOKINGS, 
-                "response_code" => "USER_HAS_BOOKINGS"
-            ]
+            $not_found_errorhandling = Response::USER_NOT_FOUND,
+            $foreign_key_errorhandling = Response::USER_HAS_BOOKINGS,
         );
-    
     }
     
     Response::success();
@@ -1094,34 +1050,21 @@ $router->delete('/user/class/delete', function () {
     // when id is an array of id's
     if (is_array($data["id"])) {
         foreach ($data["id"] as $id) {
-            Delete::delete(
+            DataDelete::delete(
                 "property_class", 
                 $id, 
-                $not_found_errorhandling = [
-                    "message" => Response::CLASS_NOT_FOUND, 
-                    "response_code" => "CLASS_NOT_FOUND"
-                ],
-                $foreign_key_errorhandling = [
-                    "message" => Response::CLASS_HAS_USERS,
-                    "response_code" => "CLASS_HAS_USERS"
-                ]
+                $not_found_errorhandling = Response::CLASS_NOT_FOUND,
+                $foreign_key_errorhandling = Response::CLASS_HAS_USERS,
             );
         }
     }
     else {
-        Delete::delete(
+        DataDelete::delete(
             "user", 
             $data["id"], 
-            $not_found_errorhandling = [
-                "message" => Response::CLASS_NOT_FOUND, 
-                "response_code" => "CLASS_NOT_FOUND"
-            ],
-            $foreign_key_errorhandling = [
-                "message" => Response::CLASS_HAS_USERS, 
-                "response_code" => "CLASS_HAS_USERS"
-            ]
+            $not_found_errorhandling = Response::CLASS_NOT_FOUND,
+            $foreign_key_errorhandling = Response::CLASS_HAS_USERS,
         );
-    
     }
     
     Response::success();
@@ -1136,34 +1079,21 @@ $router->delete('/device/delete', function () {
     // when id is an array of id's
     if (is_array($data["id"])) {
         foreach ($data["id"] as $id) {
-            Delete::delete(
+            DataDelete::delete(
                 "devices", 
                 $id, 
-                $not_found_errorhandling = [
-                    "message" => Response::DEVICE_NOT_FOUND, 
-                    "response_code" => "DEVICE_NOT_FOUND"
-                ],
-                $foreign_key_errorhandling = [
-                    "message" => Response::DEVICE_HAS_ACTIVE_BOOKING,
-                    "response_code" => "DEVICE_HAS_ACTIVE_BOOKING"
-                ]
+                $not_found_errorhandling = Response::DEVICE_NOT_FOUND,
+                $foreign_key_errorhandling = Response::DEVICE_HAS_ACTIVE_BOOKING,
             );
         }
     }
     else {
-        Delete::delete(
+        DataDelete::delete(
             "devices", 
             $data["id"], 
-            $not_found_errorhandling = [
-                "message" => Response::DEVICE_NOT_FOUND, 
-                "response_code" => "DEVICE_NOT_FOUND"
-            ],
-            $foreign_key_errorhandling = [
-                "message" => Response::DEVICE_HAS_ACTIVE_BOOKING, 
-                "response_code" => "DEVICE_HAS_ACTIVE_BOOKING"
-            ]
+            $not_found_errorhandling = Response::DEVICE_NOT_FOUND,
+            $foreign_key_errorhandling = Response::DEVICE_HAS_ACTIVE_BOOKING,
         );
-    
     }
     
     Response::success();
@@ -1178,34 +1108,21 @@ $router->delete('/device/type/delete', function () {
     // when id is an array of id's
     if (is_array($data["id"])) {
         foreach ($data["id"] as $id) {
-            Delete::delete(
+            DataDelete::delete(
                 "property_device_type", 
                 $id, 
-                $not_found_errorhandling = [
-                    "message" => Response::DEVICE_TYPE_NOT_FOUND, 
-                    "response_code" => "DEVICE_TYPE_NOT_FOUND"
-                ],
-                $foreign_key_errorhandling = [
-                    "message" => Response::DEVICE_TYPE_HAS_DEVICES,
-                    "response_code" => "DEVICE_TYPE_HAS_DEVICES"
-                ]
+                $not_found_errorhandling = Response::DEVICE_TYPE_NOT_FOUND,
+                $foreign_key_errorhandling = Response::DEVICE_TYPE_HAS_DEVICES,
             );
         }
     }
     else {
-        Delete::delete(
+        DataDelete::delete(
             "property_device_type", 
             $data["id"], 
-            $not_found_errorhandling = [
-                "message" => Response::DEVICE_TYPE_NOT_FOUND,
-                "response_code" => "DEVICE_TYPE_NOT_FOUND"
-            ],
-            $foreign_key_errorhandling = [
-                "message" => Response::DEVICE_TYPE_HAS_DEVICES,
-                "response_code" => "DEVICE_TYPE_HAS_DEVICES"
-            ]
+            $not_found_errorhandling = Response::DEVICE_TYPE_NOT_FOUND,
+            $foreign_key_errorhandling = Response::DEVICE_TYPE_HAS_DEVICES,
         );
-    
     }
     
     Response::success();
@@ -1220,34 +1137,21 @@ $router->delete('/usercard/delete', function () {
     // when id is an array of id's
     if (is_array($data["id"])) {
         foreach ($data["id"] as $id) {
-            Delete::delete(
+            DataDelete::delete(
                 "usercard", 
                 $id,
-                $not_found_errorhandling = [
-                    "message" => Response::USERCARD_NOT_FOUND, 
-                    "response_code" => "USERCARD_NOT_FOUND"
-                ],
-                $foreign_key_errorhandling = [
-                    "message" => Response::USERCARD_HAS_USER,
-                    "response_code" => "USERCARD_HAS_USER"
-                ]
+                $not_found_errorhandling = Response::USERCARD_NOT_FOUND,
+                $foreign_key_errorhandling = Response::USERCARD_HAS_USER
             );
         }
     }
     else {
-        Delete::delete(
+        DataDelete::delete(
             "usercard", 
             $data["id"], 
-            $not_found_errorhandling = [
-                "message" => Response::USERCARD_NOT_FOUND,
-                "response_code" => "USERCARD_NOT_FOUND"
-            ],
-            $foreign_key_errorhandling = [
-                "message" => Response::USERCARD_HAS_USER,
-                "response_code" => "USERCARD_HAS_USER"
-            ]
+            $not_found_errorhandling = Response::USERCARD_NOT_FOUND,
+            $foreign_key_errorhandling = Response::USERCARD_HAS_USER,
         );
-    
     }
     
     Response::success();
@@ -1262,32 +1166,20 @@ $router->delete('/usercard/type/delete', function () {
     // when id is an array of id's
     if (is_array($data["id"])) {
         foreach ($data["id"] as $id) {
-            Delete::delete(
+            DataDelete::delete(
                 "property_usercard_type", 
                 $id, 
-                $not_found_errorhandling = [
-                    "message" => Response::USERCARD_TYPE_NOT_FOUND, 
-                    "response_code" => "USERCARD_TYPE_NOT_FOUND"
-                ],
-                $foreign_key_errorhandling = [
-                    "message" => Response::USERCARD_TYPE_HAS_USERCARDS,
-                    "response_code" => "USERCARD_TYPE_HAS_USERCARDS"
-                ]
+                $not_found_errorhandling = Response::USERCARD_TYPE_NOT_FOUND,
+                $foreign_key_errorhandling = Response::USERCARD_TYPE_HAS_USERCARDS,
             );
         }
     }
     else {
-        Delete::delete(
+        DataDelete::delete(
             "property_usercard_type", 
             $data["id"], 
-            $not_found_errorhandling = [
-                "message" => Response::USERCARD_TYPE_NOT_FOUND,
-                "response_code" => "USERCARD_TYPE_NOT_FOUND"
-            ],
-            $foreign_key_errorhandling = [
-                "message" => Response::USERCARD_TYPE_HAS_USERCARDS,
-                "response_code" => "USERCARD_TYPE_HAS_USERCARDS"
-            ]
+            $not_found_errorhandling = Response::USERCARD_TYPE_NOT_FOUND,
+            $foreign_key_errorhandling = Response::USERCARD_TYPE_HAS_USERCARDS,
         );
     
     }
@@ -1305,11 +1197,11 @@ $router->delete('/token/delete', function () {
     // when id is an array of id's
     if (is_array($data["id"])) {
         foreach ($data["id"] as $id) {
-            Delete::deleteToken($id, $token);
+            DataDelete::deleteToken($id, $token);
         }
     }
     else {
-        Delete::deleteToken($data["id"], $token);
+        DataDelete::deleteToken($data["id"], $token);
     }
     
     Response::success();
@@ -1319,7 +1211,7 @@ $router->delete('/event/clear', function () {
     require "classes/delete.class.php";
     authorize("CRUD_event");
 
-    $amount = Delete::clearEvent();
+    $amount = DataDelete::clearEvent();
     
     Response::success(Response::SUCCESS, "SUCCESS", ["amount" => $amount]);
 });
@@ -1330,7 +1222,7 @@ $router->delete('/user/event/clear', function () {
 
     $data = getData("POST", ["id"]);
 
-    $amount = Delete::clearUserEvent($data["id"]);
+    $amount = DataDelete::clearUserEvent($data["id"]);
     
     Response::success(Response::SUCCESS, "SUCCESS", ["amount" => $amount]);
 });
@@ -1344,22 +1236,23 @@ $router->post('/booking', function () {
     $uid_2 = (isset($data["uid_2"])) ? $data["uid_2"] : null;
 
     $booking = new Booking($data["uid_1"], $uid_2);
-    $response_code = $booking->execute();
+    $response_type = $booking->execute();
     $response["data"] = $booking->fetchUserData();
 
-    Response::success(Response::getValue($response_code), $response_code, $response);
+    Response::success($response_type, $response);
 });
 
 $router->post('/token/validate', function () {
     require 'classes/token.class.php';
+    
     if (!isset($_SERVER["HTTP_AUTHORIZATION"]))
-        throw new CustomException(Response::REQUIRED_DATA_MISSING . " (HTTP_AUTHORIZATION)", "REQUIRED_DATA_MISSING", 400, ["HTTP_AUTHORIZATION"]);
+        Response::error(Response::REQUIRED_DATA_MISSING, ["HTTP_AUTHORIZATION"]);
     $given_token = $_SERVER["HTTP_AUTHORIZATION"];
     $jwt = explode(" ", $given_token)[1];
     
     $permissions["permissions"] = Token::validateToken($jwt, $_ENV["JWT_KEY"]);
     
-    Response::success(Response::SUCCESS . ": Token ist valide", "SUCCESS", $permissions);
+    Response::success(array_merge(Response::SUCCESS, ["message" => "Token ist valide"]), $permissions);
 });
 
 // Run the router

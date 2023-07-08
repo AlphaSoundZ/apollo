@@ -1,100 +1,108 @@
 <?php
 abstract class BasicEnum {
-	private static $constCacheArray = NULL;
+	/**
+	 * @param array $response ["status" => "SUCCESS", "message" => "Success", "code" => 200]
+	 * @param array $custom
+	 * @return void
+	 */
+	public static function success($response = ["status" => Response::SUCCESS["status"], "message" => Response::SUCCESS["message"], "code" => Response::SUCCESS["code"]], $custom = []) {
+		$response_status = $response["status"];
+		$response_code = $response["code"];
+		$message = $response["message"];
 
-	private static function getConstants() {
-		if (self::$constCacheArray == NULL) {
-			self::$constCacheArray = [];
-		}
-		$calledClass = get_called_class();
-		if (!array_key_exists($calledClass, self::$constCacheArray)) {
-			$reflect = new ReflectionClass($calledClass);
-			self::$constCacheArray[$calledClass] = $reflect->getConstants();
-		}
-		return self::$constCacheArray[$calledClass];
-	}
-
-	public static function isValidName($name, $strict = false) {
-		$constants = self::getConstants();
-
-		if ($strict) {
-			return array_key_exists($name, $constants);
-		}
-
-		$keys = array_map('strtolower', array_keys($constants));
-		return in_array(strtolower($name), $keys);
-	}
-
-	public static function isValidValue($value, $strict = true) {
-		$values = array_values(self::getConstants());
-		return in_array($value, $values, $strict);
-	}
-
-	public static function success($message = Response::SUCCESS, $response_code = "SUCCESS", $custom = []) {
-		http_response_code(200);
-		echo json_encode(array_merge(["response" => $response_code, "message" => $message], $custom), JSON_NUMERIC_CHECK); // JSON_NUMERIC_CHECK converts numeric strings to numbers
+		// standard payload
+		$payload = [
+			"status" => $response_status,
+			"message" => $message,
+			"code" => $response_code,
+			"version" => "v5",
+			"timestamp" => time(),
+			"request" => $_SERVER["REQUEST_URI"] ?? "",
+			"method" => $_SERVER["REQUEST_METHOD"] ?? "",
+		];
+		
+		
+		http_response_code($response_code);
+		echo json_encode(array_merge($payload, $custom), JSON_NUMERIC_CHECK); // JSON_NUMERIC_CHECK converts numeric strings to numbers
 		die;
 	}
 
-	public static function error($message = Response::UNEXPECTED_ERROR, $response_code = "UNEXPECTED_ERROR", $code = 500, $fields = []) {
-		throw new CustomException($message, $response_code, $code, $fields);
-	}
+	/**
+	 * @param array $response ["status" => "SUCCESS", "message" => "Success", "code" => 200]
+	 * @param array $fields
+	 * @return void
+	 */
+	public static function error($response = ["status" => Response::SUCCESS["status"], "message" => Response::SUCCESS["message"], "code" => Response::SUCCESS["code"]], $fields = [], $custom = []) {
+		$response_status = $response["status"];
+		$response_code = $response["code"];
+		$message = $response["message"];
 
-	public static function getValue($name) // get value of constant by name (e.g. Response::getValue("SUCCESS") returns "Success")
-	{
-		return self::getConstants()[$name];
+		// standard payload
+		$payload = [
+			"status" => $response_status,
+			"message" => $message,
+			"code" => $response_code,
+			"fields" => $fields,
+			"version" => "v5",
+			"timestamp" => time(),
+			"request" => $_SERVER["REQUEST_URI"] ?? "",
+			"method" => $_SERVER["REQUEST_METHOD"] ?? "",
+		];
+		
+		throw new CustomException(array_merge($payload, $custom), $payload["code"]);
 	}
 }
 
 abstract class Response extends BasicEnum {
-
-	const UNEXPECTED_ERROR = "Internal Server Error: "; // Default
-	const PAGE_NOT_FOUND = "Page Not Found"; // Page does not exist (404 error)
-	const ROUTE_NOT_DEFINED = "Route Not Defined"; // Route does not exist (404 error)
-	const SUCCESS = "Success";
-	const DEVICE_NOT_FOUND = "Device ist in der Datenbank nicht verfügbar"; // Devcies not found in database
-	const NOT_ALLOWED = "Dieser Request konnte aufgrund von fehlender Permission nicht ausgeführt werden"; // User is not allowed to do this action (permission missing)
-	const NOT_AUTHORIZED = "Token ist nicht autorisiert"; // Token not valid, or username/password wrong
-	const NOT_ALLOWED_FOR_THIS_CLASS = "Es ist Ihnen nicht erlaubt mehrere Devices auszuleihen"; // User already lending but is no Multibooking-User
-	const NOT_ALLOWED_FOR_THIS_DEVICE = "Das Device wird bereits ausgeliehen"; // Device already lending
-	const REQUIRED_DATA_MISSING = "Input fehlt"; // Required data missing
-	const RETURN_NOT_POSSIBLE = "Device kann nicht zurückgegeben werden"; // Device not lent
-	const RETURN_SUCCESS = "Device wurde zurückgegeben"; // Device returned
-	const INFO_SUCCESS = "Info wird ausgegeben"; // Info sent
-	const BOOKING_SUCCESS = "Ausleihe erfolgreich"; // Booking successfull
-	const DEVICE_TYPE_NOT_FOUND = "Device Typ nicht gefunden"; // Device type does not exist in database
-	const DEVICE_ALREADY_EXISTS = "Device existiert bereits"; // Device already exists in database
-	const USER_ALREADY_EXISTS = "User existiert bereits"; // Device already exists in database
-	const USERCARD_ALREADY_ASSIGNED = "Usercard ist bereits einem User zugewiesen"; // Usercard already assigned to a user
-	const USERCARD_ALREADY_EXISTS = "Usercard existiert bereits"; // Usercard already exists in database
-	const BAD_REQUEST = "Bad Request"; // Bad request
-	const CLASS_NOT_FOUND = "Klasse nicht gefunden"; // Class not found in database
-	const USER_NOT_FOUND = "User nicht gefunden"; // User not found in database
-	const USER_ALREADY_ASSIGNED = "User ist bereits einer Usercard zugewiesen"; // User already assigned to a user
-	const PERMISSION_NOT_FOUND = "Token Permission nicht gefunden"; // Permission not found in databases
-	const USER_ALREADY_ASSIGNED_TO_TOKEN = "User ist bereits einem Token zugewiesen"; // User already assigned to a token
-	const USERCARD_NOT_FOUND = "Usercard nicht gefunden"; // Usercard not found in database
-	const UID_ALREADY_EXISTS = "UID existiert bereits"; // UID already exists in database
-	const INSERT_ERROR = "Fehler beim Einfügen in die Datenbank"; // Error while inserting into database
-	const TOKEN_NOT_FOUND = "Token nicht gefunden"; // Token does not exist in database
-	const USERCARD_TYPE_NOT_FOUND = "Usercard Typ nicht gefunden"; // Usercard type does not exist in database
-	const CLASS_ALREADY_EXISTS = "Klasse existiert bereits"; // class already exists in database
-	const DEVICE_TYPE_ALREADY_EXISTS = "Device Typ existiert bereits"; // Device type already exists in database
-	const USERCARD_TYPE_ALREADY_EXISTS = "Usercard Typ existiert bereits"; // Usercarcd type already exists in database
-	const DUPLICATE_ENTRY = "Es wurden mehrmals der gleiche Eintrag gefunden"; // Integrity constraint violation: 1062 Duplicate entry (sql)
-	const TOKEN_ALREADY_EXISTS = "Username des Tokens existiert bereits"; // Token already exists in database
-	const INVALID_KEY = "Ungültiger Key"; // Invalid key
-	const ID_NOT_FOUND = "ID nicht gefunden"; // ID not found in database (this is just a placeholder (e.g. DEVICE_NOT_FOUND), this will never be returned)
-	const DUPLICATE = "Doppelter Eintrag"; // Duplicate entry (this is just a placeholder (e.g. DEVICE_ALREADY_EXISTS), this will never be returned)
-	const FOREIGN_KEY_ERROR = "Fehler beim Löschen, da Fremdschlüssel vorhanden"; // Error while deleting, because foreign key exists (this is just a placeholder (e.g. USER_HAS_BOOKINGS), this will never be returned)
-	const EMPTY_TABLE = "Tabelle ist leer"; // Table is empty
-	const USER_HAS_BOOKINGS = "User hat noch aktive Ausleihen"; // User has still active bookings
-	const CLASS_HAS_USERS = "Klasse hat noch aktive User"; // Class has still active users
-	const DEVICE_HAS_ACTIVE_BOOKING = "Device wird noch ausgeliehen"; // Device has still active booking
-	const DEVICE_TYPE_HAS_DEVICES = "Device Typ hat noch aktive Devices"; // Device type has still active devices
-	const USERCARD_HAS_USER = "Usercard hat noch User"; // Usercard has still active user
-	const USERCARD_TYPE_HAS_USERCARDS = "Usercard Typ hat noch Usercards"; // Usercard type has still active usercards
-	const DELETE_OWN_TOKEN_NOT_ALLOWED = "Löschen des eigenen Tokens nicht erlaubt"; // Deleting own token not allowed
-	const TOKEN_HAS_USER = "Token hat noch User"; // Token has still active user
-	const NO_DATA_FOUND = "Keine Daten gefunden"; // No data found in database (this could be for example a user where no bookings are found)
+	const UNEXPECTED_ERROR = ["status" => "UNEXPECTED_ERROR", "message" => "Internal Server Error: ", "code" => 500]; // Default error message
+	const PAGE_NOT_FOUND = ["status" => "PAGE_NOT_FOUND", "message" => "Page Not Found", "code" => 404]; // Page does not exist (404 error)
+	const ROUTE_NOT_DEFINED = ["status" => "ROUTE_NOT_DEFINED", "message" => "Route Not Defined", "code" => 404]; // Route does not exist (404 error)
+	const SUCCESS = ["status" => "SUCCESS", "message" => "Success", "code" => 200];
+	const DEVICE_NOT_FOUND = ["status" => "DEVICE_NOT_FOUND", "message" => "Device ist in der Datenbank nicht verfügbar", "code" => 404]; // Devcies not found in database
+	const NOT_ALLOWED = ["status" => "NOT_ALLOWED", "message" => "Dieser Request konnte aufgrund von fehlender Permission nicht ausgeführt werden", "code" => 403]; // User is not allowed to do this action (permission missing)
+	const NOT_AUTHORIZED = ["status" => "NOT_AUTHORIZED", "message" => "Token ist nicht autorisiert", "code" => 401]; // Token not valid, or username/password wrong
+	const NOT_ALLOWED_FOR_THIS_CLASS = ["status" => "NOT_ALLOWED_FOR_THIS_CLASS", "message" => "Es ist Ihnen nicht erlaubt mehrere Devices auszuleihen", "code" => 403]; // User already lending but is no Multibooking-User
+	const DEVICE_ALREADY_LENT = ["status" => "DEVICE_ALREADY_LENT", "message" => "Das Device wird bereits ausgeliehen", "code" => 409]; // Device already lending
+	const REQUIRED_DATA_MISSING = ["status" => "REQUIRED_DATA_MISSING", "message" => "Input fehlt", "code" => 400]; // Required data missing
+	const DEVICE_NOT_LENT = ["status" => "DEVICE_NOT_LENT", "message" => "Device kann nicht zurückgegeben werden", "code" => 409]; // Device not lent
+	const RETURN_SUCCESS = ["status" => "RETURN_SUCCESS", "message" => "Device wurde zurückgegeben", "code" => 200]; // Device returned
+	const INFO_SUCCESS = ["status" => "INFO_SUCCESS", "message" => "Info wird ausgegeben", "code" => 200]; // Info sent	
+	const BOOKING_SUCCESS = ["status" => "BOOKING_SUCCESS", "message" => "Ausleihe erfolgreich", "code" => 201]; // Booking successfull
+	const DEVICE_TYPE_NOT_FOUND = ["status" => "DEVICE_TYPE_NOT_FOUND", "message" => "Device Typ nicht gefunden", "code" => 404]; // Device type does not exist in database
+	const DEVICE_ALREADY_EXISTS = ["status" => "DEVICE_ALREADY_EXISTS", "message" => "Device existiert bereits", "code" => 409]; // Device already exists in database
+	const USER_ALREADY_EXISTS = ["status" => "USER_ALREADY_EXISTS", "message" => "User existiert bereits", "code" => 409]; // User already exists in database
+	const USERCARD_ALREADY_ASSIGNED = ["status" => "USERCARD_ALREADY_ASSIGNED", "message" => "Usercard ist bereits einem User zugewiesen", "code" => 409]; // Usercard already assigned to a user
+	const USERCARD_ALREADY_EXISTS = ["status" => "USERCARD_ALREADY_EXISTS", "message" => "Usercard existiert bereits", "code" => 409]; // Usercard already exists in database
+	const BAD_REQUEST = ["status" => "BAD_REQUEST", "message" => "Bad Request", "code" => 400]; // Bad request
+	const CLASS_NOT_FOUND = ["status" => "CLASS_NOT_FOUND", "message" => "Klasse nicht gefunden", "code" => 404]; // Class does not exist in database
+	const USER_NOT_FOUND = ["status" => "USER_NOT_FOUND", "message" => "User nicht gefunden", "code" => 404]; // User does not exist in database
+	const USER_ALREADY_ASSIGNED = ["status" => "USER_ALREADY_ASSIGNED", "message" => "User ist bereits einer Klasse zugewiesen", "code" => 409]; // User already assigned to a class
+	const INVALID_PERMISSION = ["status" => "INVALID_PERMISSION", "message" => "Permission existiert nicht", "code" => 404]; // Permission does not exist in database 
+	const USER_ALREADY_ASSIGNED_TO_TOKEN = ["status" => "USER_ALREADY_ASSIGNED_TO_TOKEN", "message" => "User ist bereits einem Token zugewiesen", "code" => 409]; // User already assigned to a token
+	const USERCARD_NOT_FOUND = ["status" => "USERCARD_NOT_FOUND", "message" => "Usercard nicht gefunden", "code" => 404]; // Usercard does not exist in database
+	const UID_ALREADY_EXISTS = ["status" => "UID_ALREADY_EXISTS", "message" => "UID existiert bereits", "code" => 409]; // UID already exists in database
+	const INSERT_ERROR = ["status" => "INSERT_ERROR", "message" => "Fehler beim Einfügen in die Datenbank", "code" => 500]; // Error while inserting into database
+	const TOKEN_NOT_FOUND = ["status" => "TOKEN_NOT_FOUND", "message" => "Token nicht gefunden", "code" => 404]; // Token does not exist in database
+	const USERCARD_TYPE_NOT_FOUND = ["status" => "USERCARD_TYPE_NOT_FOUND", "message" => "Usercard Typ nicht gefunden", "code" => 404]; // Usercard type does not exist in database
+	const CLASS_ALREADY_EXISTS = ["status" => "CLASS_ALREADY_EXISTS", "message" => "Klasse existiert bereits", "code" => 409]; // Class already exists in database
+	const DEVICE_TYPE_ALREADY_EXISTS = ["status" => "DEVICE_TYPE_ALREADY_EXISTS", "message" => "Device Typ existiert bereits", "code" => 409]; // Device type already exists in database
+	const USERCARD_TYPE_ALREADY_EXISTS = ["status" => "USERCARD_TYPE_ALREADY_EXISTS", "message" => "Usercard Typ existiert bereits", "code" => 409]; // Usercard type already exists in database
+	const DUPLICATE_ENTRY = ["status" => "DUPLICATE_ENTRY", "message" => "Es wurden mehrmals der gleiche Eintrag gefunden (sql error: 1062)", "code" => 500]; // Integrity constraint violation: 1062 Duplicate entry (sql)
+	const TOKEN_ALREADY_EXISTS = ["status" => "TOKEN_ALREADY_EXISTS", "message" => "Username des tokens existiert bereits", "code" => 409]; // Token already exists in database
+	const INVALID_KEY = ["status" => "INVALID_KEY", "message" => "Ungültiger Key", "code" => 400]; // Key is not valid
+	const ID_NOT_FOUND = ["status" => "ID_NOT_FOUND", "message" => "ID nicht gefunden", "code" => 404]; // ID does not exist in database (this is just a placeholder (e.g. DEVICE_NOT_FOUND, USER_NOT_FOUND, ...))
+	const DUPLICATE = ["status" => "DUPLICATE", "message" => "Doppelter Eintrag", "code" => 409]; // Duplicate entry in database (this is just a placeholder (e.g. DEVICE_ALREADY_EXISTS, USER_ALREADY_EXISTS, ...))
+	const FOREIGN_KEY_ERROR = ["status" => "FOREIGN_KEY_ERROR", "message" => "Fehler beim löschen, da Fremdschlüssel vorhanden", "code" => 409]; // Error while deleting, because of foreign key (this is just a placeholder (e.g. USER_HAS_BOOKINGS, ...))
+	const USER_HAS_BOOKINGS = ["status" => "USER_HAS_BOOKINGS", "message" => "User hat noch aktive Ausleihen", "code" => 409]; // User has still aktive bookings
+	const CLASS_HAS_USERS = ["status" => "CLASS_HAS_USERS", "message" => "Klasse hat noch aktive User", "code" => 409]; // Class has still active users (when deleting class, users aren't allowed to lend devices anymore)
+	const DEVICE_HAS_ACTIVE_BOOKING = ["status" => "DEVICE_HAS_ACTIVE_BOOKING", "message" => "Device wird noch ausgeliehen", "code" => 409]; // Device has still active bookings
+	const DEVICE_TYPE_HAS_DEVICES = ["status" => "DEVICE_TYPE_HAS_DEVICES", "message" => "Device Typ hat noch aktive Devices", "code" => 409]; // Device type has still active devices
+	const USERCARD_HAS_USER = ["status" => "USERCARD_HAS_USER", "message" => "Usercard ist noch einem User zugewiesen", "code" => 409]; // Usercard is still assigned to a user
+	const USERCARD_TYPE_HAS_USERCARDS = ["status" => "USERCARD_TYPE_HAS_USERCARDS", "message" => "Usercard Typ hat noch aktive Usercards", "code" => 409]; // Usercard type has still active usercards
+	const DELETE_OWN_TOKEN_NOT_ALLOWED = ["status" => "DELETE_OWN_TOKEN_NOT_ALLOWED", "message" => "Löschen des eigenen Tokens nicht erlaubt", "code" => 409]; // Deleting own token is not allowed
+	const TOKEN_HAS_USER = ["status" => "TOKEN_HAS_USER", "message" => "Token ist noch einem User zugewiesen", "code" => 409]; // Token is still assigned to a user
+	const NO_CONTENT = ["status" => "NO_CONTENT", "message" => "Keine Daten gefunden", "code" => 204]; // No data found in database (this could be for example a user where no bookings are found)
+	const NO_CHANGES = ["status" => "NO_CHANGES", "message" => "Keine Änderungen, alter und neuer Wert sind identisch", "code" => 200]; // No changes in database (this could be for example a user where no bookings are found)
+	const API_RUNNING = ["status" => "API_RUNNING", "message" => "API ist aktiv", "code" => 200]; // API is running
+	const INTERNAL_SERVER_ERROR = ["status" => "INTERNAL_SERVER_ERROR", "message" => "Interner Server Fehler", "code" => 500]; // Internal server error
 }

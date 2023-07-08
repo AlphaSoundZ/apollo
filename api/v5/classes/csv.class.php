@@ -69,6 +69,6 @@ class Csv
             }
         }
         if ($errorCounter > 0)
-            throw new CustomException("$errorCounter row(s) with errors: line(s) " . implode(", ", $rowsWithError) . ". " . count($this->columns) . " columns expected. No rows were inserted", "INSERT_ERROR", 400, ["rows" => $rowsWithError]);
+            Response::error(array_merge(Response::INSERT_ERROR, ["message" => Response::INSERT_ERROR["message"] . ". $errorCounter row(s) with errors: line(s) " . implode(", ", $rowsWithError) . ". " . count($this->columns) . " columns expected. No rows were inserted", "INSERT_ERROR"]), ["rows" => $rowsWithError]);
     } 
 }

@@ -43,4 +43,4 @@ if ($new_user)
 
 Create::bindUserToUsercard($user_id, $usercard_id);
 
-Response::success("Ausleih-Paket wurde erfolgreich für $firstname $lastname erstellt (user_id: $user_id, usercard_id: $usercard_id)", "SUCCESS", ["user_id" => $user_id, "usercard_id" => $usercard_id]);
+Response::success(array_merge(Response::SUCCESS, ["message" => "Ausleih-Paket wurde erfolgreich für $firstname $lastname erstellt (user_id: $user_id, usercard_id: $usercard_id)"]), ["user_id" => $user_id, "usercard_id" => $usercard_id]);

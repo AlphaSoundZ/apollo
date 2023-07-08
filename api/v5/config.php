@@ -6,6 +6,7 @@ header("Content-Type: application/json");
 
 require 'classes/exception_handler.class.php';
 require 'classes/response_keys.class.php';
+require 'classes/token.class.php';
 require 'vendor/autoload.php';
 
 use Firebase\JWT\JWT;
@@ -13,7 +14,7 @@ use Firebase\JWT\Key;
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
 if (!$dotenv->safeLoad())
-	throw new CustomException(Response::UNEXPECTED_ERROR . "Could not load .env file", "UNEXPECTED_ERROR", 500);
+	Response::error(array_merge(Response::INTERNAL_SERVER_ERROR, ["message" => "Could not load .env file"]));
 
 $__host = $_ENV['HOST'];
 $__db = $_ENV['DB'];
@@ -27,7 +28,7 @@ $authorization_bool = (isset($_ENV['AUTHORIZATION'])) ? $_ENV['AUTHORIZATION'] :
 $pdo = new PDO($__dsn, $__username, $__password);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-function getData($method, array $requirements)
+function getData($method, array $requirements, array $optional = [])
 {
 	if ($method === "POST")
 		$input = (isset($_POST)) ? json_decode(file_get_contents("php://input"), true) : false;
@@ -37,7 +38,7 @@ function getData($method, array $requirements)
 	if (empty($input))
 	{
 		$errors_str = implode(", ", $requirements);
-		throw new CustomException(Response::REQUIRED_DATA_MISSING . " ($errors_str)", "REQUIRED_DATA_MISSING", 400, $requirements);
+		Response::error(array_merge(Response::REQUIRED_DATA_MISSING, ["message" => Response::REQUIRED_DATA_MISSING["message"] . " ($errors_str)"]), $requirements, ["optional_fields" => $optional]);
 	}
 
 	if (isset($requirements) && $input)
@@ -50,13 +51,13 @@ function getData($method, array $requirements)
 		if (!empty($errors))
 		{
 			$errors_str = implode(", ", $errors);
-			throw new CustomException(Response::REQUIRED_DATA_MISSING . " ($errors_str)", "REQUIRED_DATA_MISSING", 400, $errors);
+			Response::error(array_merge(Response::REQUIRED_DATA_MISSING, ["message" => Response::REQUIRED_DATA_MISSING["message"] . " ($errors_str)"]), $requirements, ["optional_fields" => $optional]);
 		}
 	}
 	return $input;
 }
 
-function authorize($file = null)
+function authorize($permission = null)
 {
 	global $pdo, $jwt_key, $authorization_bool;
 
@@ -64,41 +65,21 @@ function authorize($file = null)
 		return "no_auth";
 	
 	if (isset($_SERVER["HTTP_AUTHORIZATION"])) $given_token = $_SERVER["HTTP_AUTHORIZATION"];
-	else throw new CustomException(Response::NOT_AUTHORIZED, "NOT_AUTHORIZED", 401);
+	else Response::error(Response::NOT_AUTHORIZED);
 	$jwt = explode(" ", $given_token)[1];
 
-	// decode token
-	try {
-		$decoded = JWT::decode($jwt, new Key($jwt_key, 'HS256'));
-		$decoded = (array) $decoded;
-	} catch (Exception $e) {
-		throw new CustomException(Response::NOT_AUTHORIZED . " ({$e->getMessage()})", "NOT_AUTHORIZED", 401);
-	}
+	$permissions = Token::validateToken($jwt, $jwt_key);
 
-	// check if iat and username/password in payload are correct
-
-	$stmt = "SELECT * FROM token WHERE token_id = '{$decoded['sub']}'";
-	$stmt = $pdo->prepare($stmt);
-	$stmt->execute();
-	$login_data = $stmt->fetch();
-	if (!$login_data)
-		throw new CustomException(Response::NOT_AUTHORIZED . ": Username oder Passwort falsch", "NOT_AUTHORIZED", 401);
+	if (!$permission)
+		return $permissions;
 	
-	$token_last_change = strtotime($login_data['token_last_change']);
-	if ($decoded["iat"] <= $token_last_change)
-		throw new CustomException(Response::NOT_AUTHORIZED . ": Token ist abgelaufen", "NOT_AUTHORIZED", 401);
-
-
-	if (!$file)
-		return $decoded;
-	
-	// check if token has the right permissions:
-	$sql = "SELECT * FROM property_token_permissions WHERE permission_text = '{$file}'";
+	// check if token has the right permission:
+	$sql = "SELECT * FROM property_token_permissions WHERE permission_text = '{$permission}'";
 	$sth = $pdo->prepare($sql);
 	$sth->execute();
-	$file_id = $sth->fetch();
-	if (array_key_exists("permissions", $decoded) && $file_id && in_array($file_id["permission_id"], (array) $decoded["permissions"]))
-		return $decoded;
+	$permission_id = $sth->fetch();
+	if ($permissions && $permission_id && in_array($permission_id["permission_id"], $permissions))
+		return $permissions;
 	else
-		throw new CustomException(Response::NOT_ALLOWED, "NOT_ALLOWED", 403);
+		Response::error(Response::NOT_ALLOWED, [], ["permission" => $permission]);
 }

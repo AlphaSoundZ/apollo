@@ -41,7 +41,7 @@ class Booking
         $device_2 = $pdo->query($sql)->fetch();
 
         if (!$device_2)
-					throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $this->uid_2)", "DEVICE_NOT_FOUND", 400, ["uid_2"]);
+					Response::error(Response::DEVICE_NOT_FOUND, ["uid_2"]);
         
         // Ausleihe
         // ist $this->uid_1 eine usercard und $this->uid_2 ein Gerät?
@@ -49,13 +49,13 @@ class Booking
         {
           // Wird das auszuleihende Gerät bereits ausgeliehen?
           if ($device_2['device_lend_user_id'] != 0)
-            throw new CustomException(Response::NOT_ALLOWED_FOR_THIS_DEVICE, "NOT_ALLOWED_FOR_THIS_DEVICE", 400);
+            Response::error(Response::DEVICE_ALREADY_LENT, ["uid_2"]);
           
           // Darf der User ein Device ausleihen?
           $sql = "SELECT * FROM devices WHERE device_lend_user_id = '{$user['user_id']}'";
           $status = $pdo->query($sql)->fetchAll();
           if ($status && $user['multi_booking'] != 1)
-            throw new CustomException(Response::NOT_ALLOWED_FOR_THIS_CLASS, "NOT_ALLOWED_FOR_THIS_CLASS", 400);
+            Response::error(Response::NOT_ALLOWED_FOR_THIS_CLASS, ["uid_1"]);
           
           // Keine Probleme, Gerät kann ausgeliehen werden
           $return_result = self::lend($user['user_id'], $device_2['device_id']);
@@ -80,7 +80,7 @@ class Booking
           return $return_result;
         }
         else if (!$usercard) // Keine Rückgabe möglich: Gerät wird nicht ausgeliehen
-          throw new CustomException(Response::RETURN_NOT_POSSIBLE, "RETURN_NOT_POSSIBLE", 409);
+          Response::error(Response::DEVICE_NOT_LENT, ["uid_1"]);
         else if ($usercard) // Info
         {
           return $this->userInfo($user['user_id']);
@@ -90,7 +90,7 @@ class Booking
     else
     {
       // Input $this->uid_1 is empty
-      throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $this->uid_1)", "DEVICE_NOT_FOUND", 404, ["uid_1"]);
+      Response::error(Response::DEVICE_NOT_FOUND, ["uid_1"]);
     }
   }
 
@@ -141,7 +141,7 @@ class Booking
     $sql = "SELECT * FROM event WHERE event_device_id = '$device_id' AND event_end IS NULL";
     $find_events = $pdo->query($sql)->fetchAll();
     if (count($find_events) > 1)
-			throw new CustomException(Response::UNEXPECTED_ERROR . 'In Event wurden '.count($find_events).' Einträge statt 1 gefunden. Device wurde nicht zurückgegeben. Bitte wenden Sie sich an einen Administrator', "UNEXPECTED_ERROR", 400);
+			Response::error(array_merge(Response::UNEXPECTED_ERROR, ["message" => Response::UNEXPECTED_ERROR["message"] . 'In Event wurden '.count($find_events).' Einträge statt 1 gefunden. Device wurde nicht zurückgegeben. Bitte wenden Sie sich an einen Administrator']));
     
     // Update device_lend_user_id
     $sql = "UPDATE devices SET device_lend_user_id = NULL WHERE device_id = '$device_id'";
