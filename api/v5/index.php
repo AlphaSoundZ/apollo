@@ -211,9 +211,9 @@ $router->get('/user(/\d+)/history', function($id) {
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
 
-    $order_by = (isset($_GET["order_by"])) ? $_GET["order_by"] : null;
+    $order_by = (isset($_GET["order_by"])) ? $_GET["order_by"] : "duration.begin";
     
-    $order_strategy = (isset($_GET["order_strategy"])) ? $_GET["order_strategy"] : null;
+    $order_strategy = (isset($_GET["order_strategy"])) ? $_GET["order_strategy"] : "DESC";
 
     $response_structure = array(
         "duration" => [
@@ -233,20 +233,37 @@ $router->get('/user(/\d+)/history', function($id) {
         $order_by = Data::getValueOfStructure($response_structure, $order_by);
     }
 
-    $response = Data::select([["table" => "event"]], ["event.event_begin", "event.event_end", "event.event_multi_booking_id"], $response_structure, ["page" => $page, "size" => $size, "strict" => true, "groupby" => "event.event_multi_booking_id", "order_by" => $order_by, "order_strategy" => $order_strategy, "where" => "event.event_user_id = " . $id]);
+    $response = Data::select([["table" => "event"]], ["event.event_begin", "event.event_end", "event.event_multi_booking_id"], $response_structure, ["page" => $page, "size" => $size, "strict" => true, "order_by" => $order_by, "order_strategy" => $order_strategy, "where" => "event.event_user_id = " . $id]);
+    
+    // Check if bookings were found
     if (!$response["data"])
     {
         // No bookings found
         Response::success(Response::NO_CONTENT);
     }
+
     $response["message"] = "Buchungen zu diesem Benutzer gefunden";
 
-    $results["page"] = $response["page"];
-    if ($id !== null)
+    // Group bookings by multi_booking_id
+    $grouped = array();
+    foreach ($response["data"] as $booking)
     {
-        $results["search"]["id"] = $id;
+        $grouped[$booking["multi_booking_id"]][] = $booking;
     }
-    $results["data"] = $response["data"];
+    
+    // remove multi_booking_id from data
+    foreach ($grouped as $key => $booking)
+    {
+        foreach ($booking as $key2 => $value)
+        {
+            unset($grouped[$key][$key2]["multi_booking_id"]);
+        }
+    }
+    
+    // Set response data
+    $results["page"] = $response["page"];
+    $results["search"]["id"] = $id;
+    $results["data"] = $grouped;
 
     
     Response::success(array_merge(Response::SUCCESS, ["message" => $response["message"]]), $results);
