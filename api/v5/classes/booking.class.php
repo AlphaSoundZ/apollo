@@ -80,7 +80,7 @@ class Booking
           return $return_result;
         }
         else if (!$usercard) // Keine Rückgabe möglich: Gerät wird nicht ausgeliehen
-          throw new CustomException(Response::RETURN_NOT_POSSIBLE, "RETURN_NOT_POSSIBLE", 400);
+          throw new CustomException(Response::RETURN_NOT_POSSIBLE, "RETURN_NOT_POSSIBLE", 409);
         else if ($usercard) // Info
         {
           return $this->userInfo($user['user_id']);
@@ -90,7 +90,7 @@ class Booking
     else
     {
       // Input $this->uid_1 is empty
-      throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $this->uid_1)", "DEVICE_NOT_FOUND", 400, ["uid_1"]);
+      throw new CustomException(Response::DEVICE_NOT_FOUND . " (uid: $this->uid_1)", "DEVICE_NOT_FOUND", 404, ["uid_1"]);
     }
   }
 
@@ -130,7 +130,7 @@ class Booking
     $sql = "INSERT INTO event (event_id, event_user_id, event_device_id, event_begin, event_end, event_multi_booking_id) VALUES (NULL, '$user_id', '$device_id', CURRENT_TIMESTAMP, NULL, '$multi_id')";
     $pdo->query($sql);
 
-    return "BOOKING_SUCCESS";
+    return Response::BOOKING_SUCCESS;
   }
   
   private function return($device_id)
@@ -151,7 +151,7 @@ class Booking
     $sql = "UPDATE event SET event_end = CURRENT_TIMESTAMP WHERE event_device_id = '$device_id' AND event_end IS NULL";
     $pdo->query($sql);
 
-    return "RETURN_SUCCESS";
+    return Response::RETURN_SUCCESS;
   }
 
   private function userInfo($user_id)
@@ -203,7 +203,7 @@ class Booking
         $this->data['user']['history'][$i]['device_type'] = $history[$i]['device_type_name'];
       }
     }
-    return "INFO_SUCCESS";
+    return Response::INFO_SUCCESS;
   }
 
   private function deviceInfo($device_id)
@@ -221,7 +221,7 @@ class Booking
       $this->data['device']['device_type_name'] = $device['device_type_name'];
     }
 
-    return "INFO_SUCCESS";
+    return Response::INFO_SUCCESS;
   }
 
 }

@@ -236,9 +236,8 @@ $router->get('/user(/\d+)/history', function($id) {
     $response = Data::select([["table" => "event"]], ["event.event_begin", "event.event_end", "event.event_multi_booking_id"], $response_structure, ["page" => $page, "size" => $size, "strict" => true, "groupby" => "event.event_multi_booking_id", "order_by" => $order_by, "order_strategy" => $order_strategy, "where" => "event.event_user_id = " . $id]);
     if (!$response["data"])
     {
-        $response["message"] = "Keine Buchungen gefunden";
-        echo json_encode($response);
-        return;
+        // No bookings found
+        Response::success(Response::NO_DATA_FOUND, "NO_DATA_FOUND");
     }
     $response["message"] = "Buchungen zu diesem Benutzer gefunden";
 
@@ -438,9 +437,8 @@ $router->get('/device(/[^/]+)/history', function ($id) {
     $device = Data::select([["table" => "devices"]], ["device_id", "device_uid"], ["device_id" => "device_id"], ["strict" => true, "where" => "device_id = " . $id, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
     if (!$device["data"])
     {
-        $response["message"] = "Gerät nicht gefunden";
-        echo json_encode($response);
-        return;
+        // device not found
+        throw new CustomException(Response::DEVICE_NOT_FOUND, "DEVICE_NOT_FOUND", 404);
     }
 
     // if $id is an $uid
@@ -449,9 +447,8 @@ $router->get('/device(/[^/]+)/history', function ($id) {
     $response = Data::select([["table" => "event"], ["table" => "user", "join" => ["event.event_user_id", "user.user_id"]]], ["event.*", "user.*"], $response_structure, ["page" => $page, "size" => $size, "strict" => true, "where" => "event.event_device_id = " . $id, "order_by" => $order_by, "order_strategy" => $order_strategy]);
     if (!$response["data"])
     {
-        $response["message"] = "Keine Buchungen gefunden";
-        echo json_encode($response);
-        return;
+        // No bookings found
+        Response::success(Response::NO_DATA_FOUND, "NO_DATA_FOUND");
     }
     $response["message"] = "Buchungen zu diesem Device gefunden";
 
@@ -461,7 +458,6 @@ $router->get('/device(/[^/]+)/history', function ($id) {
         $results["search"]["id"] = $id;
     }
     $results["data"] = $response["data"];
-
     
     Response::success($response["message"], "SUCCESS", $results);
 });
@@ -896,7 +892,7 @@ $router->patch('/user/change', function () {
         ]
     );
 
-    Response::success(Response::SUCCESS, "SUCCESS");
+    Response::success();
 });
 
 $router->patch('/user/class/change', function () {
@@ -926,7 +922,7 @@ $router->patch('/user/class/change', function () {
         ]
     );
 
-    Response::success(Response::SUCCESS, "SUCCESS");
+    Response::success();
 });
 
 $router->patch('/device/type/change', function () {
@@ -954,7 +950,7 @@ $router->patch('/device/type/change', function () {
         ]
     );
     
-    Response::success(Response::SUCCESS, "SUCCESS");
+    Response::success();
 });
 
 $router->patch('/usercard/type/change', function () {
@@ -982,7 +978,7 @@ $router->patch('/usercard/type/change', function () {
         ]
     );
 
-    Response::success(Response::SUCCESS, "SUCCESS");
+    Response::success();
 });
 
 $router->patch('device/change', function () {
@@ -1012,7 +1008,7 @@ $router->patch('device/change', function () {
         ]
     );
 
-    Response::success(Response::SUCCESS, "SUCCESS");
+    Response::success();
 });
 
 $router->patch('/usercard/change', function () {
@@ -1042,7 +1038,7 @@ $router->patch('/usercard/change', function () {
         ]
     );
 
-    Response::success(Response::SUCCESS, "SUCCESS");
+    Response::success();
 });
 
 // DELETE
@@ -1086,7 +1082,7 @@ $router->delete('/user/delete', function () {
     
     }
     
-    Response::success(Response::SUCCESS, "SUCCESS");
+    Response::success();
 });
 
 $router->delete('/user/class/delete', function () {
@@ -1128,7 +1124,7 @@ $router->delete('/user/class/delete', function () {
     
     }
     
-    Response::success(Response::SUCCESS, "SUCCESS");
+    Response::success();
 });
 
 $router->delete('/device/delete', function () {
@@ -1170,7 +1166,7 @@ $router->delete('/device/delete', function () {
     
     }
     
-    Response::success(Response::SUCCESS, "SUCCESS");
+    Response::success();
 });
 
 $router->delete('/device/type/delete', function () {
@@ -1212,7 +1208,7 @@ $router->delete('/device/type/delete', function () {
     
     }
     
-    Response::success(Response::SUCCESS, "SUCCESS");
+    Response::success();
 });
 
 $router->delete('/usercard/delete', function () {
@@ -1254,7 +1250,7 @@ $router->delete('/usercard/delete', function () {
     
     }
     
-    Response::success(Response::SUCCESS, "SUCCESS");
+    Response::success();
 });
 
 $router->delete('/usercard/type/delete', function () {
@@ -1296,7 +1292,7 @@ $router->delete('/usercard/type/delete', function () {
     
     }
     
-    Response::success(Response::SUCCESS, "SUCCESS");
+    Response::success();
 });
 
 $router->delete('/token/delete', function () {
@@ -1316,7 +1312,7 @@ $router->delete('/token/delete', function () {
         Delete::deleteToken($data["id"], $token);
     }
     
-    Response::success(Response::SUCCESS, "SUCCESS");
+    Response::success();
 });
 
 $router->delete('/event/clear', function () {

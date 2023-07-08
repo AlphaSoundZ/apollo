@@ -30,13 +30,17 @@ abstract class BasicEnum {
 		return in_array($value, $values, $strict);
 	}
 
-	public static function success($message, $response_code = "SUCCESS", $custom = []) {
+	public static function success($message = Response::SUCCESS, $response_code = "SUCCESS", $custom = []) {
 		http_response_code(200);
-		echo json_encode(array_merge(["response" => $response_code, "message" => $message], $custom), JSON_NUMERIC_CHECK);
+		echo json_encode(array_merge(["response" => $response_code, "message" => $message], $custom), JSON_NUMERIC_CHECK); // JSON_NUMERIC_CHECK converts numeric strings to numbers
 		die;
 	}
 
-	public static function getValue($name)
+	public static function error($message = Response::UNEXPECTED_ERROR, $response_code = "UNEXPECTED_ERROR", $code = 500, $fields = []) {
+		throw new CustomException($message, $response_code, $code, $fields);
+	}
+
+	public static function getValue($name) // get value of constant by name (e.g. Response::getValue("SUCCESS") returns "Success")
 	{
 		return self::getConstants()[$name];
 	}
@@ -92,4 +96,5 @@ abstract class Response extends BasicEnum {
 	const USERCARD_TYPE_HAS_USERCARDS = "Usercard Typ hat noch Usercards"; // Usercard type has still active usercards
 	const DELETE_OWN_TOKEN_NOT_ALLOWED = "Löschen des eigenen Tokens nicht erlaubt"; // Deleting own token not allowed
 	const TOKEN_HAS_USER = "Token hat noch User"; // Token has still active user
+	const NO_DATA_FOUND = "Keine Daten gefunden"; // No data found in database (this could be for example a user where no bookings are found)
 }
