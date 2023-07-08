@@ -18,7 +18,7 @@ https://documenter.getpostman.com/view/20621332/Uz59MyeK
 ```console
 composer install
 ```
-- Set settings in .env
+- configure .env
 
 ## Run
 ```console
@@ -30,7 +30,7 @@ Start MySql Server
 Open in your browser to check if the API is running:
 [http://localhost:8080/api/v5](http://localhost:8080/api/v5)
 
-The response should look sth like:
+The response should look something like:
 ```json
 {
   "status":"API_RUNNING",
