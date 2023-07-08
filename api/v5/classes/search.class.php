@@ -1,7 +1,7 @@
 <?php
 class Data {
     static function select($table, $columns, $response_structure = [], $options = []) {
-        global $pdo, $response;
+        global $pdo;
         $first_table = $table[0]["table"];
         array_shift($table);
         $column = implode(", ", $columns);
@@ -58,9 +58,6 @@ class Data {
         }
 
         //array_push($result, $page);
-
-        $response["message"] = "Selection success";
-        $response["response"] = 2;
         return ["data" => $result, "page" => $page];
     }
 
@@ -76,10 +73,17 @@ class Data {
         unset($options["page"]);
         unset($options["size"]);
         unset($options["strict"]);
+
+        // set sort = false if there is a custom order
+        $sort = true;
+        if (isset($options["order_by"]) && isset($options["order_strategy"]))
+        {
+            $sort = false;
+        }
         
         $select = self::select($table, $columns, $response_structure, $options);
         $haystack = $select["data"];
-        $result = self::searchalgo($needles, $haystack, $search_in_colomns, $strict);
+        $result = self::searchalgo($needles, $haystack, $search_in_colomns, $strict, $sort);
 
         $select["page"]["total"] = $size ? ceil(count($result)/$size) : 1;
         $select["page"]["current"] = $page;
@@ -91,8 +95,7 @@ class Data {
         return ["data" => $result, "page" => $select["page"]];
     }
 
-    private static function searchalgo($needles, $haystack, $columns, $strict = false) {
-        global $response;
+    private static function searchalgo($needles, $haystack, $columns, $strict = false, $sort = true) {
         $result = array();
         $needles = explode(" ", strtolower($needles));
         for ($row = 0; $row < count($haystack); $row++) // loop every row
@@ -116,10 +119,12 @@ class Data {
         if ($strict == false)
         {
             $column_accordance = array_column($result, 'accordance');
-            array_multisort($column_accordance, SORT_DESC, $result);
+
+            if ($sort == true)
+            {
+                array_multisort($column_accordance, SORT_DESC, $result);
+            }
         }
-        $response["message"] = "search success";
-        $response["response"] = 0;
         return $result;
     }
 
