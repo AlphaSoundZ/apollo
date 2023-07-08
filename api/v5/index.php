@@ -237,7 +237,7 @@ $router->get('/user(/\d+)/history', function($id) {
     if (!$response["data"])
     {
         // No bookings found
-        Response::success(Response::NO_CONTENT, "NO_CONTENT");
+        Response::success(Response::NO_CONTENT);
     }
     $response["message"] = "Buchungen zu diesem Benutzer gefunden";
 
@@ -448,7 +448,7 @@ $router->get('/device(/[^/]+)/history', function ($id) {
     if (!$response["data"])
     {
         // No bookings found
-        Response::success(Response::NO_CONTENT, "NO_CONTENT");
+        Response::success(Response::NO_CONTENT);
     }
     $response["message"] = "Buchungen zu diesem Device gefunden";
 
@@ -791,7 +791,7 @@ $router->post('/user/create', function () {
 
     $id = Create::user($data["firstname"], $data["lastname"], $data["class_id"], $usercard_id, $token_id, $ignore_duplicates);
 
-    Response::success(Response::SUCCESS, "SUCCESS", ["user_id" => $id]);
+    Response::success(Response::SUCCESS, ["user_id" => $id]);
 });
 
 $router->post('/usercard/create', function () {
@@ -805,7 +805,7 @@ $router->post('/usercard/create', function () {
 
     $id = Create::usercard($data["uid"], $data["type"], $user_id, $allow_reassigning);
 
-    Response::success(Response::SUCCESS, "SUCCESS", ["usercard_id" => $id]);
+    Response::success(Response::SUCCESS, ["usercard_id" => $id]);
 });
 
 $router->post('/device/create', function () {
@@ -816,7 +816,7 @@ $router->post('/device/create', function () {
 
     $id = Create::device($data["uid"], $data["type"]);
 
-    Response::success(Response::SUCCESS, "SUCCESS", ["device_id" => $id]);
+    Response::success(Response::SUCCESS, ["device_id" => $id]);
 });
 
 $router->post('/user/class/create', function () {
@@ -827,7 +827,7 @@ $router->post('/user/class/create', function () {
 
     $id = Create::property_class($data["name"], $data["multi_booking"]);
 
-    Response::success(Response::SUCCESS, "SUCCESS", ["class_id" => $id]);
+    Response::success(Response::SUCCESS, ["class_id" => $id]);
 });
 
 $router->post('/device/type/create', function () {
@@ -838,7 +838,7 @@ $router->post('/device/type/create', function () {
 
     $id = Create::property_device_type($data["name"]);
 
-    Response::success(Response::SUCCESS, "SUCCESS", ["device_type_id" => $id]);
+    Response::success(Response::SUCCESS, ["device_type_id" => $id]);
 });
 
 $router->post('/usercard/type/create', function () {
@@ -849,7 +849,7 @@ $router->post('/usercard/type/create', function () {
 
     $id = Create::property_usercard_type($data["name"]);
 
-    Response::success(Response::SUCCESS, "SUCCESS", ["usercard_type_id" => $id]);
+    Response::success(Response::SUCCESS, ["usercard_type_id" => $id]);
 });
 
 $router->post('/token/create', function () {
@@ -860,7 +860,7 @@ $router->post('/token/create', function () {
 
     $id = Create::token($data["username"], $data["password"], $data["permissions"]);
 
-    Response::success(Response::SUCCESS, "SUCCESS", ["token_id" => $id]);
+    Response::success(Response::SUCCESS, ["token_id" => $id]);
 });
 
 // PATCH
@@ -1213,7 +1213,7 @@ $router->delete('/event/clear', function () {
 
     $amount = DataDelete::clearEvent();
     
-    Response::success(Response::SUCCESS, "SUCCESS", ["amount" => $amount]);
+    Response::success(Response::SUCCESS, ["amount" => $amount]);
 });
 
 $router->delete('/user/event/clear', function () {
@@ -1224,7 +1224,7 @@ $router->delete('/user/event/clear', function () {
 
     $amount = DataDelete::clearUserEvent($data["id"]);
     
-    Response::success(Response::SUCCESS, "SUCCESS", ["amount" => $amount]);
+    Response::success(Response::SUCCESS, ["amount" => $amount]);
 });
 
 // Client side routes
