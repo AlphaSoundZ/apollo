@@ -1,5 +1,5 @@
 <?php
-class Select {
+class Data {
     static function select($table, $columns, $response_structure = [], $options = []) {
         global $pdo;
         $first_table = $table[0]["table"];

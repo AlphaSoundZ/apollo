@@ -8,13 +8,18 @@ $router->set404('/', function() {
     throw new CustomException(Response::ROUTE_NOT_DEFINED, "ROUTE_NOT_DEFINED", 404);
 });
 
+// Home route
+$router->get('/', function () {
+    Response::success("API is running", "SUCCESS", ["version" => "v5"]);
+});
+
 // GET
 $router->get('/status', function () {
     require 'status.php';
 });
 
 $router->get('/user/class(/\d+)?', function ($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -43,7 +48,7 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
         $results["order"]["strategy"] = $order_strategy;
         
         $order_by = explode(".", $order_by);
-        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+        $order_by = Data::getValueOfStructure($response_structure, $order_by);
     }
 
     $path = array(
@@ -64,7 +69,7 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
 
     if ($id) // search for class with $id
     {
-        $response = Select::search([["table" => "property_class"]], ["*"], $response_structure, $path["id"], $id, ["strict" => true, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+        $response = Data::search([["table" => "property_class"]], ["*"], $response_structure, $path["id"], $id, ["strict" => true, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
         $response["message"] = ($response["data"]) ? "Klasse gefunden" : "Klasse nicht gefunden";
     }
     else
@@ -72,12 +77,12 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
         
         if ($query) // search for class with query
         {
-            $response = Select::search([["table" => "property_class"]], ["*"], $response_structure, $path["name"], $query, ["strict" => $strict, "order_by" => $order_by, "order_strategy" => $order_strategy, "page" => $page, "size" => $size]);
+            $response = Data::search([["table" => "property_class"]], ["*"], $response_structure, $path["name"], $query, ["strict" => $strict, "order_by" => $order_by, "order_strategy" => $order_strategy, "page" => $page, "size" => $size]);
             $response["message"] = ($response["data"]) ? "Klasse gefunden" : "Klasse nicht gefunden";
         }
         else // get all classes
         {
-            $response = Select::select([["table" => "property_class"]], ["*"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+            $response = Data::select([["table" => "property_class"]], ["*"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
             $response["message"] = "Alle Klassen";
         }
     }
@@ -99,7 +104,7 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
 });
 
 $router->get('/user(/[^/]+)?', function($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -133,7 +138,7 @@ $router->get('/user(/[^/]+)?', function($id = null) {
         $results["order"]["strategy"] = $order_strategy;
         
         $order_by = explode(".", $order_by);
-        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+        $order_by = Data::getValueOfStructure($response_structure, $order_by);
     }
 
     $response_structure_booking = $response_structure;
@@ -159,24 +164,24 @@ $router->get('/user(/[^/]+)?', function($id = null) {
     
     if ($id !== null) // search for user with $id
     {
-        $response = Select::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["*"], $response_structure, $path["id"], $id, ["strict" => true, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+        $response = Data::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["*"], $response_structure, $path["id"], $id, ["strict" => true, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
         $response["message"] = ($response["data"]) ? "Benutzer gefunden" : "Benutzer nicht gefunden";
     }
     else if (isset($booking) && $booking == "true") // show all booking users
     {
-        $response = Select::select([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]], ["table" => "event", "join" => ["user.user_id", "event.event_user_id"]]], ["user.*", "property_class.*", "sum(case when event.event_end is null and event.event_user_id = user.user_id then 1 else 0 end) AS amount"], $response_structure_booking, ["page" => $page, "size" => $size, "groupby" => "user.user_id", "having" => "sum(case when event.event_end is null and event.event_user_id = user.user_id then 1 else 0 end) > 0", "order_by" => $order_by, "order_strategy" => $order_strategy]);
+        $response = Data::select([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]], ["table" => "event", "join" => ["user.user_id", "event.event_user_id"]]], ["user.*", "property_class.*", "sum(case when event.event_end is null and event.event_user_id = user.user_id then 1 else 0 end) AS amount"], $response_structure_booking, ["page" => $page, "size" => $size, "groupby" => "user.user_id", "having" => "sum(case when event.event_end is null and event.event_user_id = user.user_id then 1 else 0 end) > 0", "order_by" => $order_by, "order_strategy" => $order_strategy]);
         $response["message"] = ($response["data"]) ? "Benutzer gefunden" : "Es wird zurzeit nichts ausgeliehen";
     }
     else // show all users or search for user using ?query=
     {
         if ($query)
         {
-            $response = Select::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user.*", "property_class.*"], $response_structure, $path["query"], $query, ["page" => $page, "size" => $size, "strict" => $strict, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+            $response = Data::search([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user.*", "property_class.*"], $response_structure, $path["query"], $query, ["page" => $page, "size" => $size, "strict" => $strict, "order_by" => $order_by, "order_strategy" => $order_strategy]);
             $response["message"] = ($response["data"]) ? "Suche erfolgreich" : "Keine Ergebnisse";
         }
         else
         {
-            $response = Select::select([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name", "class_id", "multi_booking", "user_token_id", "user_usercard_id"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+            $response = Data::select([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name", "class_id", "multi_booking", "user_token_id", "user_usercard_id"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
             $response["message"] = "Alle Benutzer";
         }
     }
@@ -198,7 +203,7 @@ $router->get('/user(/[^/]+)?', function($id = null) {
 });
 
 $router->get('/user(/\d+)/history', function($id) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -225,10 +230,10 @@ $router->get('/user(/\d+)/history', function($id) {
         $results["order"]["strategy"] = $order_strategy;
         
         $order_by = explode(".", $order_by);
-        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+        $order_by = Data::getValueOfStructure($response_structure, $order_by);
     }
 
-    $response = Select::select([["table" => "event"]], ["event.event_begin", "event.event_end", "event.event_multi_booking_id"], $response_structure, ["page" => $page, "size" => $size, "strict" => true, "groupby" => "event.event_multi_booking_id", "order_by" => $order_by, "order_strategy" => $order_strategy, "where" => "event.event_user_id = " . $id]);
+    $response = Data::select([["table" => "event"]], ["event.event_begin", "event.event_end", "event.event_multi_booking_id"], $response_structure, ["page" => $page, "size" => $size, "strict" => true, "groupby" => "event.event_multi_booking_id", "order_by" => $order_by, "order_strategy" => $order_strategy, "where" => "event.event_user_id = " . $id]);
     if (!$response["data"])
     {
         $response["message"] = "Keine Buchungen gefunden";
@@ -249,7 +254,7 @@ $router->get('/user(/\d+)/history', function($id) {
 });
 
 $router->get('/device/type(/\d+)?', function ($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -273,7 +278,7 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
         $results["order"]["strategy"] = $order_strategy;
         
         $order_by = explode(".", $order_by);
-        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+        $order_by = Data::getValueOfStructure($response_structure, $order_by);
     }
     
     $query = (isset($_GET["query"])) ? $_GET["query"] : null;
@@ -281,7 +286,7 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
 
     if ($id) // search for class with $id
     {
-        $response = Select::select([["table" => "property_device_type"]], ["*"], $response_structure, ["strict" => true, "where" => "device_type_id = " . $id, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+        $response = Data::select([["table" => "property_device_type"]], ["*"], $response_structure, ["strict" => true, "where" => "device_type_id = " . $id, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
         $response["message"] = ($response["data"]) ? "Gerätetyp gefunden" : "Gerätetyp nicht gefunden";
     }
     else
@@ -289,12 +294,12 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
         
         if ($query) // search for class with $query
         {
-            $response = Select::search([["table" => "property_device_type"]], ["*"], $response_structure, ["name"], $query, ["strict" => $strict, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+            $response = Data::search([["table" => "property_device_type"]], ["*"], $response_structure, ["name"], $query, ["strict" => $strict, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
             $response["message"] = ($response["data"]) ? "Gerätetyp gefunden" : "Gerätetyp nicht gefunden";
         }
         else // show all classes
         {
-            $response = Select::select([["table" => "property_device_type"]], ["*"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+            $response = Data::select([["table" => "property_device_type"]], ["*"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
             $response["message"] = "Alle Gerätetypen";
         }
     }
@@ -316,7 +321,7 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
 });
 
 $router->get('/device(/[^/]+)?', function ($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
@@ -346,7 +351,7 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
         $results["order"]["strategy"] = $order_strategy;
         
         $order_by = explode(".", $order_by);
-        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+        $order_by = Data::getValueOfStructure($response_structure, $order_by);
     }
 
     $response_structure_booking = array(
@@ -369,17 +374,17 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
 
     if ($id !== null) // search for device with $id or uid
     {
-        $response = Select::search([["table" => "devices"], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name"], $response_structure, ["id", "uid"], $id, ["strict" => true, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+        $response = Data::search([["table" => "devices"], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name"], $response_structure, ["id", "uid"], $id, ["strict" => true, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
         $response["message"] = ($response["data"]) ? "Gerät gefunden" : "Gerät nicht gefunden";
     }
     else if ($booking == "true") // show all booked devices
     {
-        $response = Select::select([["table" => "event"], ["table" => "devices", "join" => ["devices.device_id", "event.event_device_id"]], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]], ["table" => "user", "join" => ["user.user_id", "event.event_user_id"]]], ["event.event_begin", "event.event_multi_booking_id", "devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name", "user.user_id", "user.user_firstname", "user.user_lastname"], $response_structure_booking, ["page" => $page, "size" => $size, "where" => "event.event_end IS NULL", "order_by" => $order_by, "order_strategy" => $order_strategy]);
+        $response = Data::select([["table" => "event"], ["table" => "devices", "join" => ["devices.device_id", "event.event_device_id"]], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]], ["table" => "user", "join" => ["user.user_id", "event.event_user_id"]]], ["event.event_begin", "event.event_multi_booking_id", "devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name", "user.user_id", "user.user_firstname", "user.user_lastname"], $response_structure_booking, ["page" => $page, "size" => $size, "where" => "event.event_end IS NULL", "order_by" => $order_by, "order_strategy" => $order_strategy]);
         $response["message"] = ($response["data"]) ? "Alle gebuchten Geräte" : "Es werden derzeit keine Geräte gebucht";
     }
     else // show every device
     {
-        $response = Select::select([["table" => "devices"], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+        $response = Data::select([["table" => "devices"], ["table" => "property_device_type", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["devices.device_id", "devices.device_uid", "property_device_type.device_type_id", "property_device_type.device_type_name"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
         $response["message"] = "Alle Geräte";
     }
     $results["page"] = $response["page"];
@@ -394,7 +399,7 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
 });
 
 $router->get('/device(/[^/]+)/history', function ($id) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
@@ -426,11 +431,11 @@ $router->get('/device(/[^/]+)/history', function ($id) {
         $results["order"]["strategy"] = $order_strategy;
         
         $order_by = explode(".", $order_by);
-        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+        $order_by = Data::getValueOfStructure($response_structure, $order_by);
     }
 
     // check if device exists
-    $device = Select::select([["table" => "devices"]], ["device_id", "device_uid"], ["device_id" => "device_id"], ["strict" => true, "where" => "device_id = " . $id, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+    $device = Data::select([["table" => "devices"]], ["device_id", "device_uid"], ["device_id" => "device_id"], ["strict" => true, "where" => "device_id = " . $id, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
     if (!$device["data"])
     {
         $response["message"] = "Gerät nicht gefunden";
@@ -441,7 +446,7 @@ $router->get('/device(/[^/]+)/history', function ($id) {
     // if $id is an $uid
     $id = $device["data"][0]["device_id"];
 
-    $response = Select::select([["table" => "event"], ["table" => "user", "join" => ["event.event_user_id", "user.user_id"]]], ["event.*", "user.*"], $response_structure, ["page" => $page, "size" => $size, "strict" => true, "where" => "event.event_device_id = " . $id, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+    $response = Data::select([["table" => "event"], ["table" => "user", "join" => ["event.event_user_id", "user.user_id"]]], ["event.*", "user.*"], $response_structure, ["page" => $page, "size" => $size, "strict" => true, "where" => "event.event_device_id = " . $id, "order_by" => $order_by, "order_strategy" => $order_strategy]);
     if (!$response["data"])
     {
         $response["message"] = "Keine Buchungen gefunden";
@@ -462,7 +467,7 @@ $router->get('/device(/[^/]+)/history', function ($id) {
 });
 
 $router->get('/usercard/type(/\d+)?', function ($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -489,24 +494,24 @@ $router->get('/usercard/type(/\d+)?', function ($id = null) {
         $results["order"]["strategy"] = $order_strategy;
         
         $order_by = explode(".", $order_by);
-        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+        $order_by = Data::getValueOfStructure($response_structure, $order_by);
     }
 
     if ($id) // search for usercard type with $id
     {
-        $response = Select::select([["table" => "property_usercard_type"]], ["*"], $response_structure, ["strict" => true, "where" => "usercard_type_id = " . $id, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+        $response = Data::select([["table" => "property_usercard_type"]], ["*"], $response_structure, ["strict" => true, "where" => "usercard_type_id = " . $id, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
         $response["message"] = ($response["data"]) ? "User Indentifikation gefunden" : "User Indentifikation nicht gefunden";
     }
     else
     {
         if ($query) // search for usercard type with $query
         {
-            $response = Select::search([["table" => "property_usercard_type"]], ["*"], $response_structure, ["name"], $query, ["strict" => $strict, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+            $response = Data::search([["table" => "property_usercard_type"]], ["*"], $response_structure, ["name"], $query, ["strict" => $strict, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
             $response["message"] = ($response["data"]) ? "User Indentifikation gefunden" : "User Indentifikation nicht gefunden";
         }
         else // show every usercard type
         {
-            $response = Select::select([["table" => "property_usercard_type"]], ["*"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+            $response = Data::select([["table" => "property_usercard_type"]], ["*"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
             $response["message"] = "Alle User Indentifikationen";
         }
     }
@@ -528,7 +533,7 @@ $router->get('/usercard/type(/\d+)?', function ($id = null) {
 });
 
 $router->get('/usercard(/[^/]+)?', function ($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -561,17 +566,17 @@ $router->get('/usercard(/[^/]+)?', function ($id = null) {
         $results["order"]["strategy"] = $order_strategy;
         
         $order_by = explode(".", $order_by);
-        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+        $order_by = Data::getValueOfStructure($response_structure, $order_by);
     }
 
     if ($id) // search for usercard with $id
     {
-        $response = Select::search([["table" => "usercard"], ["table" => "property_usercard_type", "join" => ["property_usercard_type.usercard_type_id", "usercard.usercard_type"]], ["table" => "user", "join" => ["user.user_id", "usercard.usercard_id"]]], ["usercard.*", "property_usercard_type.*", "user.*"], $response_structure, ["id", "uid"], $id, ["strict" => true, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+        $response = Data::search([["table" => "usercard"], ["table" => "property_usercard_type", "join" => ["property_usercard_type.usercard_type_id", "usercard.usercard_type"]], ["table" => "user", "join" => ["user.user_id", "usercard.usercard_id"]]], ["usercard.*", "property_usercard_type.*", "user.*"], $response_structure, ["id", "uid"], $id, ["strict" => true, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
         $response["message"] = ($response["data"]) ? "User Indentifikation gefunden" : "User Indentifikation nicht gefunden";
     }
     else // show every usercard
     {
-        $response = Select::select([["table" => "usercard"], ["table" => "property_usercard_type", "join" => ["property_usercard_type.usercard_type_id", "usercard.usercard_type"]], ["table" => "user", "join" => ["user.user_id", "usercard.usercard_id"]]], ["usercard.*", "property_usercard_type.*", "user.*"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+        $response = Data::select([["table" => "usercard"], ["table" => "property_usercard_type", "join" => ["property_usercard_type.usercard_type_id", "usercard.usercard_type"]], ["table" => "user", "join" => ["user.user_id", "usercard.usercard_id"]]], ["usercard.*", "property_usercard_type.*", "user.*"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
         $response["message"] = "Alle User Indentifikationen";
     }
     
@@ -587,7 +592,7 @@ $router->get('/usercard(/[^/]+)?', function ($id = null) {
 });
 
 $router->get('/token(/\d+)?', function ($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -619,12 +624,12 @@ $router->get('/token(/\d+)?', function ($id = null) {
         $results["order"]["strategy"] = $order_strategy;
         
         $order_by = explode(".", $order_by);
-        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+        $order_by = Data::getValueOfStructure($response_structure, $order_by);
     }
 
     if ($id !== null) // search for user with $id
     {
-        $response = Select::select([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], $response_structure, ["strict" => true, "groupby" => "token.token_id", "where" => "token.token_id = " . $id, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+        $response = Data::select([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], $response_structure, ["strict" => true, "groupby" => "token.token_id", "where" => "token.token_id = " . $id, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
         $response["message"] = ($response["data"]) ? "Token gefunden" : "Token nicht gefunden";
 
         if ($response["data"])
@@ -639,7 +644,7 @@ $router->get('/token(/\d+)?', function ($id = null) {
         if ($query)
         {
             $response["query"] = $query;
-            $response = Select::search([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], $response_structure, ["username"], $query, ["strict" => $strict, "page" => $page, "size" => $size, "groupby" => "token.token_id", "order_by" => $order_by, "order_strategy" => $order_strategy]);
+            $response = Data::search([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], $response_structure, ["username"], $query, ["strict" => $strict, "page" => $page, "size" => $size, "groupby" => "token.token_id", "order_by" => $order_by, "order_strategy" => $order_strategy]);
             
             for ($i = 0; $i < count($response["data"]); $i++)
             {
@@ -650,7 +655,7 @@ $router->get('/token(/\d+)?', function ($id = null) {
         }
         else
         {
-            $response = Select::select([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], $response_structure, ["strict" => true, "page" => $page, "size" => $size, "groupby" => "token.token_id", "order_by" => $order_by, "order_strategy" => $order_strategy]);
+            $response = Data::select([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], $response_structure, ["strict" => true, "page" => $page, "size" => $size, "groupby" => "token.token_id", "order_by" => $order_by, "order_strategy" => $order_strategy]);
             $response["message"] = "Alle Tokens";
             
             for ($i = 0; $i < count($response["data"]); $i++)
@@ -679,7 +684,7 @@ $router->get('/token(/\d+)?', function ($id = null) {
 });
 
 $router->get('/token/permission(/\d+)?', function ($id = null) {
-    require 'classes/search_class.php';
+    require 'classes/search.class.php';
     authorize("search");
 
     $response["message"] = "";
@@ -706,12 +711,12 @@ $router->get('/token/permission(/\d+)?', function ($id = null) {
         $results["order"]["strategy"] = $order_strategy;
         
         $order_by = explode(".", $order_by);
-        $order_by = Select::getValueOfStructure($response_structure, $order_by);
+        $order_by = Data::getValueOfStructure($response_structure, $order_by);
     }
 
     if ($id !== null)
     {
-        $response = Select::select([["table" => "property_token_permissions"]], ["permission_id", "permission_text"], $response_structure, ["page" => $page, "size" => $size, "strict" => true, "where" => "permission_id = " . $id, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+        $response = Data::select([["table" => "property_token_permissions"]], ["permission_id", "permission_text"], $response_structure, ["page" => $page, "size" => $size, "strict" => true, "where" => "permission_id = " . $id, "order_by" => $order_by, "order_strategy" => $order_strategy]);
         $response["message"] = ($response["data"]) ? "Suche erfolgreich" : "Keine Ergebnisse";
     }
     else
@@ -719,12 +724,12 @@ $router->get('/token/permission(/\d+)?', function ($id = null) {
 
         if ($query)
         {
-            $response = Select::search([["table" => "property_token_permissions"]], ["permission_id", "permission_text"], $response_structure, ["name"], $query, ["page" => $page, "size" => $size, "strict" => $strict, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+            $response = Data::search([["table" => "property_token_permissions"]], ["permission_id", "permission_text"], $response_structure, ["name"], $query, ["page" => $page, "size" => $size, "strict" => $strict, "order_by" => $order_by, "order_strategy" => $order_strategy]);
             $response["message"] = ($response["data"]) ? "Suche erfolgreich" : "Keine Ergebnisse";
         }
         else
         {
-            $response = Select::select([["table" => "property_token_permissions"]], ["permission_id", "permission_text"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+            $response = Data::select([["table" => "property_token_permissions"]], ["permission_id", "permission_text"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
             $response["message"] = "Alle Token Permissions";
         }
     }
@@ -747,7 +752,7 @@ $router->get('/token/permission(/\d+)?', function ($id = null) {
 
 // POST
 $router->post('/csv', function () {
-    require 'classes/csv_class.php';
+    require 'classes/csv.class.php';
     authorize("add_csv");
 
     $data = getData("POST", ["table", "columns", "string", "seperator", "linebreak"]);
@@ -762,7 +767,7 @@ $router->post('/csv', function () {
 });
 
 $router->post('/token/authorize', function () {
-    require 'classes/token_class.php';
+    require 'classes/token.class.php';
 
     $data = getData("POST", ["username", "password"]);
 
@@ -775,8 +780,8 @@ $router->post('/token/authorize', function () {
 });
 
 $router->post('/user/create', function () {
-    require "classes/create_class.php";
-    authorize("create_user");
+    require "classes/create.class.php";
+    authorize("CRUD_user");
 
     $data = getData("POST", ["firstname", "lastname", "class_id"]);
     $usercard_id = (isset($data["usercard_id"])) ? $data["usercard_id"] : null;
@@ -789,8 +794,8 @@ $router->post('/user/create', function () {
 });
 
 $router->post('/usercard/create', function () {
-    require "classes/create_class.php";
-    authorize("create_usercard");
+    require "classes/create.class.php";
+    authorize("CRUD_usercard");
 
     $data = getData("POST", ["uid", "type"]);
 
@@ -803,8 +808,8 @@ $router->post('/usercard/create', function () {
 });
 
 $router->post('/device/create', function () {
-    require "classes/create_class.php";
-    authorize("create_device");
+    require "classes/create.class.php";
+    authorize("CRUD_device");
 
     $data = getData("POST", ["uid", "type"]);
 
@@ -814,8 +819,8 @@ $router->post('/device/create', function () {
 });
 
 $router->post('/user/class/create', function () {
-    require "classes/create_class.php";
-    authorize("create_user_class");
+    require "classes/create.class.php";
+    authorize("CRUD_user_class");
     
     $data = getData("POST", ["name", "multi_booking"]);
 
@@ -825,8 +830,8 @@ $router->post('/user/class/create', function () {
 });
 
 $router->post('/device/type/create', function () {
-    require "classes/create_class.php";
-    authorize("create_device_type");
+    require "classes/create.class.php";
+    authorize("CRUD_device_type");
     
     $data = getData("POST", ["name"]);
 
@@ -836,8 +841,8 @@ $router->post('/device/type/create', function () {
 });
 
 $router->post('/usercard/type/create', function () {
-    require "classes/create_class.php";
-    authorize("create_usercard_type");
+    require "classes/create.class.php";
+    authorize("CRUD_usercard_type");
     
     $data = getData("POST", ["name"]);
 
@@ -847,8 +852,8 @@ $router->post('/usercard/type/create', function () {
 });
 
 $router->post('/token/create', function () {
-    require 'classes/create_class.php';
-    authorize("create_token");
+    require 'classes/create.class.php';
+    authorize("CRUD_token");
 
     $data = getData("POST", ["username", "password", "permissions"]);
 
@@ -859,12 +864,12 @@ $router->post('/token/create', function () {
 
 // PATCH
 $router->patch('/user/change', function () {
-    require "classes/update_class.php";
-    authorize("create_user");
+    require "classes/update.class.php";
+    authorize("CRUD_user");
 
     $data = getData("POST", ["id"]);
 
-    Update::update(
+    DataUpdate::update(
         "user",
         $data["id"],
         $updating_values = [
@@ -895,12 +900,12 @@ $router->patch('/user/change', function () {
 });
 
 $router->patch('/user/class/change', function () {
-    require "classes/update_class.php";
-    authorize("create_user_class");
+    require "classes/update.class.php";
+    authorize("CRUD_user_class");
 
     $data = getData("POST", ["id"]);
 
-    Update::update(
+    DataUpdate::update(
         "property_class", 
         $data["id"], 
         $updating_values = [
@@ -925,12 +930,12 @@ $router->patch('/user/class/change', function () {
 });
 
 $router->patch('/device/type/change', function () {
-    require "classes/update_class.php";
-    authorize("create_device_type");
+    require "classes/update.class.php";
+    authorize("CRUD_device_type");
 
     $data = getData("POST", ["id", "name"]);
 
-    Update::update(
+    DataUpdate::update(
         "property_device_type", 
         $data["id"], 
         $updating_values = [
@@ -953,12 +958,12 @@ $router->patch('/device/type/change', function () {
 });
 
 $router->patch('/usercard/type/change', function () {
-    require "classes/update_class.php";
-    authorize("create_usercard_type");
+    require "classes/update.class.php";
+    authorize("CRUD_usercard_type");
 
     $data = getData("POST", ["id", "name"]);
 
-    Update::update(
+    DataUpdate::update(
         "property_usercard_type", 
         $data["id"], 
         $updating_values = [
@@ -981,14 +986,14 @@ $router->patch('/usercard/type/change', function () {
 });
 
 $router->patch('device/change', function () {
-    require "classes/update_class.php";
-    authorize("change_device");
+    require "classes/update.class.php";
+    authorize("CRUD_device");
 
     $data = getData("POST", ["id"]);
 
-    Update::update(
+    DataUpdate::update(
         "devices", 
-        $data["id"], 
+        $data["id"],
         $updating_values = [
             "device_uid" => $data["values"]["uid"] ?? null, 
             "device_type" => $data["values"]["type"] ?? null
@@ -1011,12 +1016,12 @@ $router->patch('device/change', function () {
 });
 
 $router->patch('/usercard/change', function () {
-    require "classes/update_class.php";
-    authorize("change_usercard");
+    require "classes/update.class.php";
+    authorize("CRUD_usercard");
 
     $data = getData("POST", ["id"]);
 
-    Update::update(
+    DataUpdate::update(
         "usercard",
         $data["id"],
         $updating_values = [
@@ -1042,8 +1047,8 @@ $router->patch('/usercard/change', function () {
 
 // DELETE
 $router->delete('/user/delete', function () {
-    require "classes/delete_class.php";
-    authorize("delete_user");
+    require "classes/delete.class.php";
+    authorize("CRUD_user");
 
     // get data from request (id can be either an array of id's or a single id)
     $data = getData("POST", ["id"]);
@@ -1085,8 +1090,8 @@ $router->delete('/user/delete', function () {
 });
 
 $router->delete('/user/class/delete', function () {
-    require "classes/delete_class.php";
-    authorize("delete_user_class");
+    require "classes/delete.class.php";
+    authorize("CRUD_user_class");
 
     $data = getData("POST", ["id"]);
 
@@ -1127,8 +1132,8 @@ $router->delete('/user/class/delete', function () {
 });
 
 $router->delete('/device/delete', function () {
-    require "classes/delete_class.php";
-    authorize("delete_device");
+    require "classes/delete.class.php";
+    authorize("CRUD_device");
 
     $data = getData("POST", ["id"]);
 
@@ -1169,8 +1174,8 @@ $router->delete('/device/delete', function () {
 });
 
 $router->delete('/device/type/delete', function () {
-    require "classes/delete_class.php";
-    authorize("delete_device_type");
+    require "classes/delete.class.php";
+    authorize("CRUD_device_type");
 
     $data = getData("POST", ["id"]);
 
@@ -1211,8 +1216,8 @@ $router->delete('/device/type/delete', function () {
 });
 
 $router->delete('/usercard/delete', function () {
-    require "classes/delete_class.php";
-    authorize("delete_usercard");
+    require "classes/delete.class.php";
+    authorize("CRUD_usercard");
 
     $data = getData("POST", ["id"]);
 
@@ -1253,8 +1258,8 @@ $router->delete('/usercard/delete', function () {
 });
 
 $router->delete('/usercard/type/delete', function () {
-    require "classes/delete_class.php";
-    authorize("delete_usercard_type");
+    require "classes/delete.class.php";
+    authorize("CRUD_usercard_type");
 
     $data = getData("POST", ["id"]);
 
@@ -1295,8 +1300,8 @@ $router->delete('/usercard/type/delete', function () {
 });
 
 $router->delete('/token/delete', function () {
-    require "classes/delete_class.php";
-    $token = authorize("delete_token");
+    require "classes/delete.class.php";
+    $token = authorize("CRUD_token");
 
     $data = getData("POST", ["id"]);
 
@@ -1314,9 +1319,29 @@ $router->delete('/token/delete', function () {
     Response::success(Response::SUCCESS, "SUCCESS");
 });
 
+$router->delete('/event/clear', function () {
+    require "classes/delete.class.php";
+    authorize("CRUD_event");
+
+    $amount = Delete::clearEvent();
+    
+    Response::success(Response::SUCCESS, "SUCCESS", ["amount" => $amount]);
+});
+
+$router->delete('/user/event/clear', function () {
+    require "classes/delete.class.php";
+    authorize("delete_event");
+
+    $data = getData("POST", ["id"]);
+
+    $amount = Delete::clearUserEvent($data["id"]);
+    
+    Response::success(Response::SUCCESS, "SUCCESS", ["amount" => $amount]);
+});
+
 // Client side routes
 $router->post('/booking', function () {
-    require 'classes/booking_class.php';
+    require 'classes/booking.class.php';
     authorize("book");
 
     $data = getData("POST", ["uid_1"]);
@@ -1330,7 +1355,7 @@ $router->post('/booking', function () {
 });
 
 $router->post('/token/validate', function () {
-    require 'classes/token_class.php';
+    require 'classes/token.class.php';
     if (!isset($_SERVER["HTTP_AUTHORIZATION"]))
         throw new CustomException(Response::REQUIRED_DATA_MISSING . " (HTTP_AUTHORIZATION)", "REQUIRED_DATA_MISSING", 400, ["HTTP_AUTHORIZATION"]);
     $given_token = $_SERVER["HTTP_AUTHORIZATION"];
