@@ -1,5 +1,5 @@
 <?php
-require 'config.php';
+require_once 'config.php';
 authorize("prebook");
 $data = getData("POST", ["user_id", "amount", "begin", "end"]);
 

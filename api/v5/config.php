@@ -4,10 +4,10 @@ declare(strict_types=1);
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
 
-require 'classes/exception_handler.class.php';
-require 'classes/response_keys.class.php';
-require 'classes/token.class.php';
-require 'vendor/autoload.php';
+require_once 'classes/exception_handler.class.php';
+require_once 'classes/response_keys.class.php';
+require_once 'classes/token.class.php';
+require_once 'vendor/autoload.php';
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;

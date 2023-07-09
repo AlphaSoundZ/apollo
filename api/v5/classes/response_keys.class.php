@@ -12,7 +12,7 @@ abstract class BasicEnum {
 
 		// standard payload
 		$payload = [
-			"status" => $response_status,
+			"response" => $response_status,
 			"message" => $message,
 			"code" => $response_code,
 			"version" => "v5",
@@ -39,7 +39,7 @@ abstract class BasicEnum {
 
 		// standard payload
 		$payload = [
-			"status" => $response_status,
+			"response" => $response_status,
 			"message" => $message,
 			"code" => $response_code,
 			"fields" => $fields,
