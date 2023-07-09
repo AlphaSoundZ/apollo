@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Free bootstrap documentation template">
+    <title>Apollo</title>
+    <!-- using online links -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://malihu.github.io/custom-scrollbar/jquery.mCustomScrollbar.min.css">
+    <!-- using local links -->
+    <link rel="stylesheet" href="css/main.min.css">
+    <link rel="stylesheet" href="css/sidebar-themes.min.css">
+    <link rel="stylesheet" href="css/bootstrap-treeview.min.css">
+    <link rel="stylesheet" href="css/postman.min.css">
+
+    <link rel="shortcut icon" type="image/png" href="img/favicon.png" /> </head>
+
+<body>
+    <div class="page-wrapper toggled light-theme">
+        <div class="modal dark-background" id="snippetModal" tabindex="-1" role="dialog" aria-labelledby="documentation-response-modal" style="display: none;">
+        <div class="modal-dialog" role="document">
+          <div class="modal-header">
+            <div class="title">Example Response</div>
+            <button type="button" class="close btn-circle" data-dismiss="modal" aria-label="Close">
+              <div>
+              <span id="closeModal" aria-hidden="true">�</span>
+              </div>
+            </button>
+          </div>
+          <div class="modal-content">
+            <div class="modal-body" style="width: 540.5px;">
+              <pre class="  language-javascript">
+                  <code class=" language-javascript"></code>
+              </pre>
+            </div>
+          </div>
+        </div>
+      </div>
+        <nav id="sidebar" class="sidebar-wrapper">
+            <div class="sidebar-content">
+                <!-- sidebar-brand  -->
+                <div class="sidebar-item sidebar-brand text-white font-weight-bold">API Documentation</div>
+                <!-- sidebar-header  -->
+                <!-- sidebar-menu  -->
+                <div class=" sidebar-item sidebar-menu">
+                    <div id="tree"></div>
+                </div>
+                <!-- sidebar-menu  -->
+            </div>
+        </nav>
+        <!-- page-content  -->
+        <main class="page-content">
+            <div id="overlay" class="overlay"></div>
+            <div class="container-fluid">
+                <div class="row d-flex align-items-center p-3 border-bottom">
+                    <div class="col-md-1">
+                        <a id="toggle-sidebar" class="btn rounded-0 p-3" href="#"> <i class="fas fa-bars"></i> </a>
+                    </div>
+                    <div class="col-md-9"></div>
+                    <div class="col-md-2 text-left">
+                            <a href="postman_collection.json" class="btn btn-sm btn-primary btn-rounded" download>
+                                <i class="fas fa-download"></i> Collection</a>
+                        
+                    </div>
+                </div>
+                <div class="row p-lg-4">
+                    <article class="main-content col-md-12 pr-lg-9" id="doc-body">
+                        <div class="row row-no-padding row-eq-height">
+                            <div class="col-md-6 col-xs-12">
+                                <div class="api-information">
+                                    <div class="collection-name">
+                                        <p>Apollo</p>
+                                    </div>
+                                    <div class="collection-description">
+                                        <p>## Allgemeine Informationen
+
+#### Github
+
+[Link](https://github.com/AlphaSoundZ/apollo)
+
+#### Token
+
+Bei dem Autentifizierungtyp handelt es sich um einen Bearer Token, welcher im Authorization Header gesendet wird. Die Berechtigungen der Token lassen sich in der Datenbank unter der Tabelle `token` nachlesen und befinden sich im Payload unter `permissions`. Den Token erhält man über "get token". Dieser ist nicht Laufzeit beschränkt.
+
+Wenn der Token nicht registriert ist, entspricht `response` den Code `88`. Wenn der Token registriert ist, aber nicht die Berechtigung auf die geforderten Rechte zugewiesen hat ist der `response` Code `99`.
+
+#### Input
+
+Es müssen immer alle notwendigen Inputs angegeben werden. Wenn ein oder mehrere Inputs fehlen ist der `response` Code `400`. Der `http_response_code` wird ebenfalls zurückgegeben.
+
+#### Response (noch nicht so umgesetzt)
+
+Jede Response besteht aus einer `message` und `response`. Bei der `response` handelt es sich um einen Code, der aussagt, ob der Prozess der Anfrage erfolgreich war, oder wenn nicht, um welchen Fehlercode es sich handelt. In `message` wird der Fehler/Prozess kurz erläutert. Der Fehlercode steht auch immer im `http_response_code`.
+
+Codes:
+
+| **Code** | **Beschreibung** |
+| --- | --- |
+| 400 | ein oder mehrere Inputs fehlen, Input falsch |
+| 401 | Token ist nicht autorisiert |
+| 200 | Anfrage wurde erfolgreich bearbeitet |
+
+Bei dem Request `Book` gibt es spezielle Response Codes, welche in dem Kapitel `Book` erläutert werden.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row row-no-padding row-eq-height">
+                            <div class="col-md-6 col-xs-12 section">
+                                <div class="api-information" id="1">
+                                     <div class="heading">
+                                        <div class="name">
+                                            <span class="POST method" >POST</span>
+                                            Search and select table <span class="lock-icon"></span>
+                                        </div>
+                                     </div>
+                                    <div class="url">{{base_path}}/search.php</div>
+                                    
+                                    <div class="description request-description">
+                                        <p><h2 id="input"><strong>Input</strong></h2>
+<h4 id="table"><code>table</code></h4>
+<p>Jede Tabelle in <code>table</code> hat eine eigene <code>table</code> Eigenschaft. In der steht der Name der Tabelle (siehe Datenbank). Alle außer die erste Tabelle müssen einen <code>link</code> besitzen. Mit dem <code>link</code> wird festgelegt, welche Spalten der Tabellen miteinander verknüpft werden sollen. Der <code>link</code> besitzt zwei Werte: die Spalte der eigenen Tabelle und die Spalte der anderen Tabelle, welche verknüpft werden soll. Bei Link gibt man den Namen der Tabelle und den der Spalte an, was man mit einem <code>.</code> voneinander trennt.</p>
+<h4 id="filter"><code>filter</code></h4>
+<p>Mit dem <code>filter</code> kann man u.a. die Anzahl und den Offset der Zeilen einstellen. <code>page</code> ist die Seite und <code>size</code> stellt die Länge da. Wenn <code>page</code> 0 ist und size <code>25</code> , dann erhält man die ersten 25 Einträge. Wenn man <code>page</code> auf 1 setzt, sieht man die darauffolgenden 25 Einträge. Mit <code>orderby</code> und <code>direction</code> kann man die Reihenfolge der Zeilen modifizieren. Bei <code>orderby</code> gibt man die Spalte an, die zur Sortierung verwendet wird. Hier gibt man den Namen der Spalte ohne Tabellennamen an. Mit <code>direction</code> legt man fest, ob die Reihenfolge absteigend oder aufsteigend sein soll. Dazu verwendet man <code>ASC</code> (aufsteigend) oder <code>DESC</code> (absteigend).</p>
+<h4 id="column"><code>column</code></h4>
+<p>Bei <code>column</code> müssen alle Spalten stehen, die sichbar sein sollen. Spalten für Sortierung (<code>orderby</code>) oder das Verlinken (<code>link</code>) müssen dort nicht aufgelistet sein, sofern sie nicht angezeigt werden sollen. Es ist wichtig, dass man immer Tabellen- und Spaltenbezeichnung angibt: <code>TABLE.COLUMN</code>. Diese werden mit einem <code>.</code> voneinander getrennt.</p>
+<h4 id="search"><code>search</code></h4>
+<p>In <code>search</code> wird das Suchwort in <code>value</code> mitgegeben. Außerdem legt man mit <code>column</code> in <code>search</code> die zu durchsuchenden Spalten fest. Die in <code>search -&gt; column</code> angegebenen Spalten müssen in der Tabelle sichtbar sein - sie müssen auch in <code>column</code> angegeben sein.</p>
+<p>Bei der Suche wird Groß- und Kleinschreibung ignoriert. Man kann außerdem eine Tabelle auch eine Suche durchzuführen auslesen, indem man die <code>search</code> Eigenschaft weglässt.</p></p>
+                                    </div>
+                                    
+                                    <div class="request-body">
+                                        <div class="body-heading">BODY <span class="body-type">raw</span></div>
+                                        <hr>
+                                            <div class="raw-body code-snippet">
+                                              <pre class="body-block click-to-expand-wrapper is-snippet-wrapper is-expandable" data-title="Search and select table">
+                                                  <code>
+                                                    
+{
+    "table" : [{"table" : "deces"}],
+    "filter" : {"page" : 0, "size" : 5, "orderby" : "device_id", "direction" : "ASC"},
+    "column" : ["devices.device_id", "devices.device_uid"]
+}
+                                                  </code>
+                                              </pre>
+                                            </div>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xs-12 examples">
+                                <div class="sample-request">
+                                    <div class="heading">
+                                        <span>Example Request</span>
+                                    </div>
+                                    <div class="responses-index">
+                                        <div class="dropdown response-name">
+                                            <button class="btn dropdown-toggle  responses-dropdown truncate" type="button" id="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                              <span id="selected" class="response-name-label">Select one table</span>
+                                                <span class="caret"></span>
+
+                                            </button>
+
+                                            <ul class="dropdown-menu" aria-labelledby="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown">
+                                                <li class="truncate" data-request-info="1" data-response-info="response_1">Select one table</li>
+                                                <li class="truncate" data-request-info="1" data-response-info="response_2">Select multiple tables</li>
+                                                <li class="truncate" data-request-info="1" data-response-info="response_3">Search</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="formatted-requests " data-request-id="1"  data-id="response_1">
+                                    <div class="request code-snippet">
+                                        <div>
+                                            <pre class="click-to-expand-wrapper is-snippet-wrapper is-expandable" data-title="Select one table">
+                                                <code class="is-highlighted">
+POST localhost:8080/search.php
+{
+    "table" : [{"table" : "devices"}],
+    "filter" : {"page" : 0, "size" : 5, "orderby" : "device_id", "direction" : "ASC"},
+    "column" : ["devices.device_id", "devices.device_uid"]
+}</code>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                    <div class="sample-response">
+                                        <div class="heading">
+                                            <span>Example Response</span>
+                                        </div>
+                                        <div class="responses-index">
+                                            <div class="response-status">
+                                                <span>200 - OK</span>
+                                            </div>
+                                        </div>
+                                        <div class="responses code-snippet">
+                                            <div>
+                                                <pre class="click-to-expand-wrapper is-snippet-wrapper is-expandable" data-title="Select one table">
+                                                    <code class="is-highlighted">
+{"message":"Selection success","response":2,"table":[{"device_id":1,"0":1,"device_uid":"2e9ab22","1":"2e9ab22"},{"device_id":2,"0":2,"device_uid":"8846fce","1":"8846fce"},{"device_id":3,"0":3,"device_uid":"884d6cc","1":"884d6cc"},{"device_id":4,"0":4,"device_uid":"8849ec9","1":"8849ec9"},{"device_id":5,"0":5,"device_uid":"884d5cc","1":"884d5cc"}]}</code>
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="formatted-requests hide" data-request-id="1"  data-id="response_2">
+                                    <div class="request code-snippet">
+                                        <div>
+                                            <pre class="click-to-expand-wrapper is-snippet-wrapper is-expandable" data-title="Select multiple tables">
+                                                <code class="is-highlighted">
+POST localhost:8080/search.php
+{
+    "table" : [{"table" : "devices"}, {"table" : "property_device_type", "link" : ["property_device_type.device_type_id", "devices.device_type"]}],
+    "filter" : {"page" : 0, "size" : 5, "orderby" : "device_id", "direction" : "ASC"},
+    "column" : ["devices.device_id", "devices.device_uid", "device_type_name"]
+}</code>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                    <div class="sample-response">
+                                        <div class="heading">
+                                            <span>Example Response</span>
+                                        </div>
+                                        <div class="responses-index">
+                                            <div class="response-status">
+                                                <span>200 - OK</span>
+                                            </div>
+                                        </div>
+                                        <div class="responses code-snippet">
+                                            <div>
+                                                <pre class="click-to-expand-wrapper is-snippet-wrapper is-expandable" data-title="Select multiple tables">
+                                                    <code class="is-highlighted">
+{"message":"Selection success","response":2,"table":[{"device_id":1,"0":1,"device_uid":"2e9ab22","1":"2e9ab22","device_type_name":"UserCard","2":"UserCard"},{"device_id":2,"0":2,"device_uid":"8846fce","1":"8846fce","device_type_name":"Surface Book","2":"Surface Book"},{"device_id":3,"0":3,"device_uid":"884d6cc","1":"884d6cc","device_type_name":"Surface Book","2":"Surface Book"},{"device_id":4,"0":4,"device_uid":"8849ec9","1":"8849ec9","device_type_name":"Surface Book","2":"Surface Book"},{"device_id":5,"0":5,"device_uid":"884d5cc","1":"884d5cc","device_type_name":"Surface Book","2":"Surface Book"}]}</code>
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="formatted-requests hide" data-request-id="1"  data-id="response_3">
+                                    <div class="request code-snippet">
+                                        <div>
+                                            <pre class="click-to-expand-wrapper is-snippet-wrapper is-expandable" data-title="Search">
+                                                <code class="is-highlighted">
+POST localhost:8080/search.php
+{
+    "table" : [{"table" : "user"}],
+    "filter" : {"page" : 0, "size" : 5},
+    "column" : ["user.user_id", "user.user_firstname", "user.user_lastname", "user.user_class"],
+    "search" : {"value" : "Holst", "column" : ["user_lastname"], "limit" : 2}
+}</code>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                    <div class="sample-response">
+                                        <div class="heading">
+                                            <span>Example Response</span>
+                                        </div>
+                                        <div class="responses-index">
+                                            <div class="response-status">
+                                                <span>200 - OK</span>
+                                            </div>
+                                        </div>
+                                        <div class="responses code-snippet">
+                                            <div>
+                                                <pre class="click-to-expand-wrapper is-snippet-wrapper is-expandable" data-title="Search">
+                                                    <code class="is-highlighted">
+{"message":"Selection success","response":2,"table":[{"device_id":1,"0":1,"device_uid":"2e9ab22","1":"2e9ab22"},{"device_id":2,"0":2,"device_uid":"8846fce","1":"8846fce"},{"device_id":3,"0":3,"device_uid":"884d6cc","1":"884d6cc"},{"device_id":4,"0":4,"device_uid":"8849ec9","1":"8849ec9"},{"device_id":5,"0":5,"device_uid":"884d5cc","1":"884d5cc"}]}</code>
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="row row-no-padding row-eq-height">
+                            <div class="col-md-6 col-xs-12 section">
+                                <div class="api-information" id="2">
+                                     <div class="heading">
+                                        <div class="name">
+                                            <span class="POST method" >POST</span>
+                                            Add a device <span class="lock-icon"></span>
+                                        </div>
+                                     </div>
+                                    <div class="url">{{base_path}}/add_device.php</div>
+                                    
+                                    <div class="description request-description">
+                                        <p><h2 id="input">Input</h2>
+<p>In <code>rfid_code</code> steht die UID des Geräts bzw. der Usercard. In <code>type</code> wird der Gerätetyp festgelegt. Alle verfügbaren Gerätetypen sind in der Tabelle <em>property<em>device</em>type</em> hinterlegt.</p>
+<h2 id="output">Output</h2>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;response&quot;</span><span class="p">:</span><span class="s2">&quot;1&quot;</span><span class="p">,</span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="s2">&quot;success&quot;</span><span class="p">}</span>
+</code></pre></div></p>
+                                    </div>
+                                    
+                                    <div class="request-body">
+                                        <div class="body-heading">BODY <span class="body-type">raw</span></div>
+                                        <hr>
+                                            <div class="raw-body code-snippet">
+                                              <pre class="body-block click-to-expand-wrapper is-snippet-wrapper " data-title="Add a device">
+                                                  <code>
+                                                    
+{
+    "rfid_code": "6594",
+    "type": "3"
+}
+                                                  </code>
+                                              </pre>
+                                            </div>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xs-12 examples">
+                                <div class="sample-request">
+                                    <div class="heading">
+                                        <span>Example Request</span>
+                                    </div>
+                                    <div class="responses-index">
+                                        <div class="dropdown response-name">
+                                            <button class="btn   responses-dropdown truncate" type="button" id="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                              <span id="selected" class="response-name-label">Add a device</span>
+                                                <span class="caret"></span>
+
+                                            </button>
+
+                                            <ul class="dropdown-menu" aria-labelledby="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown">
+                                                <li class="truncate" data-request-info="2" data-response-info="response_4">Add a device</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="formatted-requests " data-request-id="2"  data-id="response_4">
+                                    <div class="request code-snippet">
+                                        <div>
+                                            <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Add a device">
+                                                <code class="is-highlighted">
+POST localhost:8080/add_device.php
+{
+    "rfid_code": "654",
+    "type": "3"
+}</code>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                    <div class="sample-response">
+                                        <div class="heading">
+                                            <span>Example Response</span>
+                                        </div>
+                                        <div class="responses-index">
+                                            <div class="response-status">
+                                                <span>200 - OK</span>
+                                            </div>
+                                        </div>
+                                        <div class="responses code-snippet">
+                                            <div>
+                                                <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Add a device">
+                                                    <code class="is-highlighted">
+{"response":"1","message":"success"}</code>
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="row row-no-padding row-eq-height">
+                            <div class="col-md-6 col-xs-12 section">
+                                <div class="api-information" id="3">
+                                     <div class="heading">
+                                        <div class="name">
+                                            <span class="POST method" >POST</span>
+                                            Add a user <span class="lock-icon"></span>
+                                        </div>
+                                     </div>
+                                    <div class="url">{{base_path}}/add_user.php</div>
+                                    
+                                    <div class="description request-description">
+                                        <p><h2 id="input">Input</h2>
+<p><code>firstname</code> - Vorname des Users</p>
+<p><code>lastname</code> - Nachname des Users</p>
+<p><code>class</code> - Klasse des Users. Wird als Id angegeben. Die Id ist in der Tabelle <em>property_class</em> hinterlegt.</p>
+<p><code>newusercard</code> - Hier legt man fest, ob eine neue Usercard erstellt werden soll, oder die Usercard schon vorhanden ist. Dies legt man mit <code>true</code> oder <code>false</code> fest. Wenn man <code>newusercard</code> auf <code>"auto"</code> setzt, wird automatisch ausgewählt, ob eine Usercard erstellt werden muss.</p></p>
+                                    </div>
+                                    
+                                    <div class="request-body">
+                                        <div class="body-heading">BODY <span class="body-type">raw</span></div>
+                                        <hr>
+                                            <div class="raw-body code-snippet">
+                                              <pre class="body-block click-to-expand-wrapper is-snippet-wrapper is-expandable" data-title="Add a user">
+                                                  <code>
+                                                    
+{
+    "firstname": "Test4905",
+    "lastname": "Test4805",
+    "class": "1",
+    "usercard_uid": "123123123",
+    "new_usercard": "auto"
+}
+                                                  </code>
+                                              </pre>
+                                            </div>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xs-12 examples">
+                                <div class="sample-request">
+                                    <div class="heading">
+                                        <span>Example Request</span>
+                                    </div>
+                                    <div class="responses-index">
+                                        <div class="dropdown response-name">
+                                            <button class="btn   responses-dropdown truncate" type="button" id="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                              <span id="selected" class="response-name-label">Add a user and create a usercard</span>
+                                                <span class="caret"></span>
+
+                                            </button>
+
+                                            <ul class="dropdown-menu" aria-labelledby="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown">
+                                                <li class="truncate" data-request-info="3" data-response-info="response_5">Add a user and create a usercard</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="formatted-requests " data-request-id="3"  data-id="response_5">
+                                    <div class="request code-snippet">
+                                        <div>
+                                            <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Add a user and create a usercard">
+                                                <code class="is-highlighted">
+POST localhost:8080/add_user.php
+{
+    "firstname": "Test4905",
+    "lastname": "Test4805",
+    "class": "1",
+    "usercard_uid": "123123123",
+    "new_usercard": "auto"
+}</code>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                    <div class="sample-response">
+                                        <div class="heading">
+                                            <span>Example Response</span>
+                                        </div>
+                                        <div class="responses-index">
+                                            <div class="response-status">
+                                                <span>200 - OK</span>
+                                            </div>
+                                        </div>
+                                        <div class="responses code-snippet">
+                                            <div>
+                                                <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Add a user and create a usercard">
+                                                    <code class="is-highlighted">
+{"response":3,"message":"Usercard wird erstellt und zugewiesen"}</code>
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="row row-no-padding row-eq-height">
+                            <div class="col-md-6 col-xs-12 section">
+                                <div class="api-information" id="4">
+                                     <div class="heading">
+                                        <div class="name">
+                                            <span class="POST method" >POST</span>
+                                            Update <span class="lock-icon"></span>
+                                        </div>
+                                     </div>
+                                    <div class="url">{{base_path}}/update.php</div>
+                                    
+                                    <div class="description request-description">
+                                        <p><h2 id="input">Input</h2>
+<p>In <code>rfid_code</code> steht die UID des Geräts bzw. der Usercard. In <code>type</code> wird der Gerätetyp festgelegt. Alle verfügbaren Gerätetypen sind in der Tabelle <em>property<em>device</em>type</em> hinterlegt.</p></p>
+                                    </div>
+                                    
+                                    <div class="request-body">
+                                        <div class="body-heading">BODY <span class="body-type">raw</span></div>
+                                        <hr>
+                                            <div class="raw-body code-snippet">
+                                              <pre class="body-block click-to-expand-wrapper is-snippet-wrapper " data-title="Update">
+                                                  <code>
+                                                    
+{
+    "table": "user",
+    "id": 1,
+    "update" : {"user_firstname" : "Test Vorname", "user_lastname" : "Test Nachname"}
+}
+                                                  </code>
+                                              </pre>
+                                            </div>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xs-12 examples">
+                                <div class="sample-request">
+                                    <div class="heading">
+                                        <span>Example Request</span>
+                                    </div>
+                                    <div class="responses-index">
+                                        <div class="dropdown response-name">
+                                            <button class="btn   responses-dropdown truncate" type="button" id="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                              <span id="selected" class="response-name-label">Update user</span>
+                                                <span class="caret"></span>
+
+                                            </button>
+
+                                            <ul class="dropdown-menu" aria-labelledby="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown">
+                                                <li class="truncate" data-request-info="4" data-response-info="response_6">Update user</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="formatted-requests " data-request-id="4"  data-id="response_6">
+                                    <div class="request code-snippet">
+                                        <div>
+                                            <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Update user">
+                                                <code class="is-highlighted">
+POST localhost:8080/update.php
+{
+    "table": "user",
+    "id": 1,
+    "update" : {"user_firstname" : "Test Vorname", "user_lastname" : "Test Nachname"}
+}</code>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                    <div class="sample-response">
+                                        <div class="heading">
+                                            <span>Example Response</span>
+                                        </div>
+                                        <div class="responses-index">
+                                            <div class="response-status">
+                                                <span>200 - OK</span>
+                                            </div>
+                                        </div>
+                                        <div class="responses code-snippet">
+                                            <div>
+                                                <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Update user">
+                                                    <code class="is-highlighted">
+{"message":"Update success","response":1}</code>
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="row row-no-padding row-eq-height">
+                            <div class="col-md-6 col-xs-12 section">
+                                <div class="api-information" id="5">
+                                     <div class="heading">
+                                        <div class="name">
+                                            <span class="POST method" >POST</span>
+                                            Delete <span class="lock-icon"></span>
+                                        </div>
+                                     </div>
+                                    <div class="url">{{base_path}}/delete.php</div>
+                                    
+                                    <div class="description request-description">
+                                        <p><h2 id="input">Input</h2>
+<p>In <code>rfid_code</code> steht die UID des Geräts bzw. der Usercard. In <code>type</code> wird der Gerätetyp festgelegt. Alle verfügbaren Gerätetypen sind in der Tabelle <em>property<em>device</em>type</em> hinterlegt.</p></p>
+                                    </div>
+                                    
+                                    <div class="request-body">
+                                        <div class="body-heading">BODY <span class="body-type">raw</span></div>
+                                        <hr>
+                                            <div class="raw-body code-snippet">
+                                              <pre class="body-block click-to-expand-wrapper is-snippet-wrapper " data-title="Delete">
+                                                  <code>
+                                                    
+{
+    "table": "event",
+    "id": 1
+}
+                                                  </code>
+                                              </pre>
+                                            </div>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xs-12 examples">
+                                <div class="sample-request">
+                                    <div class="heading">
+                                        <span>Example Request</span>
+                                    </div>
+                                    <div class="responses-index">
+                                        <div class="dropdown response-name">
+                                            <button class="btn   responses-dropdown truncate" type="button" id="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                              <span id="selected" class="response-name-label">Delete</span>
+                                                <span class="caret"></span>
+
+                                            </button>
+
+                                            <ul class="dropdown-menu" aria-labelledby="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown">
+                                                <li class="truncate" data-request-info="5" data-response-info="response_7">Delete</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="formatted-requests " data-request-id="5"  data-id="response_7">
+                                    <div class="request code-snippet">
+                                        <div>
+                                            <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Delete">
+                                                <code class="is-highlighted">
+POST localhost:8080/delete.php
+{
+    "table": "event",
+    "id": 2
+}</code>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                    <div class="sample-response">
+                                        <div class="heading">
+                                            <span>Example Response</span>
+                                        </div>
+                                        <div class="responses-index">
+                                            <div class="response-status">
+                                                <span>200 - OK</span>
+                                            </div>
+                                        </div>
+                                        <div class="responses code-snippet">
+                                            <div>
+                                                <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Delete">
+                                                    <code class="is-highlighted">
+{"message":"Delete success","response":1}</code>
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="row row-no-padding row-eq-height">
+                            <div class="col-md-6 col-xs-12 section">
+                                <div class="api-information" id="6">
+                                     <div class="heading">
+                                        <div class="name">
+                                            <span class="POST method" >POST</span>
+                                            Get token <span class="lock-icon"></span>
+                                        </div>
+                                     </div>
+                                    <div class="url">{{base_path}}/get_token.php</div>
+                                    
+                                    <div class="description request-description">
+                                        <p><h2 id="input"><strong>Input</strong></h2>
+<p>Bei dem Feld <code>username</code> steht der Benutzername. Bei <code>password</code> steht das Passwort.</p></p>
+                                    </div>
+                                    
+                                    <div class="request-body">
+                                        <div class="body-heading">BODY <span class="body-type">raw</span></div>
+                                        <hr>
+                                            <div class="raw-body code-snippet">
+                                              <pre class="body-block click-to-expand-wrapper is-snippet-wrapper " data-title="Get token">
+                                                  <code>
+                                                    
+{
+    "username": "test_usr",
+    "password": "test_pwd"
+}
+                                                  </code>
+                                              </pre>
+                                            </div>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xs-12 examples">
+                                <div class="sample-request">
+                                    <div class="heading">
+                                        <span>Example Request</span>
+                                    </div>
+                                    <div class="responses-index">
+                                        <div class="dropdown response-name">
+                                            <button class="btn   responses-dropdown truncate" type="button" id="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                              <span id="selected" class="response-name-label">Get token</span>
+                                                <span class="caret"></span>
+
+                                            </button>
+
+                                            <ul class="dropdown-menu" aria-labelledby="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown">
+                                                <li class="truncate" data-request-info="6" data-response-info="response_8">Get token</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="formatted-requests " data-request-id="6"  data-id="response_8">
+                                    <div class="request code-snippet">
+                                        <div>
+                                            <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Get token">
+                                                <code class="is-highlighted">
+POST {[base_path}}/get_token.php
+{
+    "username": "test_usr",
+    "password": "test_pwd"
+}</code>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                    <div class="sample-response">
+                                        <div class="heading">
+                                            <span>Example Response</span>
+                                        </div>
+                                        <div class="responses-index">
+                                            <div class="response-status">
+                                                <span>200 - OK</span>
+                                            </div>
+                                        </div>
+                                        <div class="responses code-snippet">
+                                            <div>
+                                                <pre class="click-to-expand-wrapper is-snippet-wrapper is-expandable" data-title="Get token">
+                                                    <code class="is-highlighted">
+{"response":0,"message":"success","jwt":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwZXJtaXNzaW9ucyI6eyIxIjoiYWRkX2RldmljZSIsIjIiOiJhZGRfdXNlciIsIjMiOiJzZWFyY2giLCI0IjoibG9naW4iLCI1IjoicmVzZXQiLCI2IjoicHJlYm9vayJ9fQ.zDtJyKnBv4PKvKqULG61fI8c_J_LIxm2jIpRob-g8SM"}</code>
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="row row-no-padding row-eq-height">
+                            <div class="col-md-6 col-xs-12 section">
+                                <div class="api-information" id="7">
+                                     <div class="heading">
+                                        <div class="name">
+                                            <span class="POST method" >POST</span>
+                                            Check token <span class="lock-icon"></span>
+                                        </div>
+                                     </div>
+                                    <div class="url">{{base_path}}/check_token.php</div>
+                                    
+                                    <div class="description request-description">
+                                        <p><h2 id="input">Input</h2>
+<p>Der einzige Input ist der Token, welcher in die Authorization kommt. Der Body bleibt leer.</p>
+<h2 id="output">Output</h2>
+<p>Bei <code>permissions</code> sieht man die Rechte, des gegebenen Tokens. Dieser Array besteht aus einem Schlüssel, welcher die <code>permission_id</code> darstellt, und einem Wert, der den <code>permission_text</code> zu der <code>permission_id</code> angibt.</p></p>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xs-12 examples">
+                                <div class="sample-request">
+                                    <div class="heading">
+                                        <span>Example Request</span>
+                                    </div>
+                                    <div class="responses-index">
+                                        <div class="dropdown response-name">
+                                            <button class="btn   responses-dropdown truncate" type="button" id="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                              <span id="selected" class="response-name-label">Check token</span>
+                                                <span class="caret"></span>
+
+                                            </button>
+
+                                            <ul class="dropdown-menu" aria-labelledby="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown">
+                                                <li class="truncate" data-request-info="7" data-response-info="response_9">Check token</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="formatted-requests " data-request-id="7"  data-id="response_9">
+                                    <div class="request code-snippet">
+                                        <div>
+                                            <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Check token">
+                                                <code class="is-highlighted">
+POST localhost:8080/check_token.php</code>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                    <div class="sample-response">
+                                        <div class="heading">
+                                            <span>Example Response</span>
+                                        </div>
+                                        <div class="responses-index">
+                                            <div class="response-status">
+                                                <span>200 - OK</span>
+                                            </div>
+                                        </div>
+                                        <div class="responses code-snippet">
+                                            <div>
+                                                <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Check token">
+                                                    <code class="is-highlighted">
+{"response":0,"message":"Authorized","permissions":["add_device","add_user","search","login","reset"]}</code>
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="row row-no-padding row-eq-height">
+                            <div class="col-md-6 col-xs-12 section">
+                                <div class="api-information" id="8">
+                                     <div class="heading">
+                                        <div class="name">
+                                            <span class="POST method" >POST</span>
+                                            Reset <span class="lock-icon"></span>
+                                        </div>
+                                     </div>
+                                    <div class="url">{{base_path}}/reset.php</div>
+                                    
+                                    <div class="description request-description">
+                                        <p><h2 id="input">Input</h2>
+<p><code>table</code> - Tabellenname, der zurückgesetzt werden soll</p>
+<p><code>reset_id</code> - Soll auch die id der Zeilen zurückgesetzt werden?</p>
+<p><code>rows_deleted</code> - Anzahl der Zeilen, die gelöscht wurden</p>
+<h3 id="response-codes">Response Codes</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Code</strong></th>
+<th><strong>Bedeutung</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Device oder Usercard konnte nicht in der Datenbank gefunden werden.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Device kann nciht zurückgegeben werden, weil es nicht ausgeliehen ist.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Device kann nicht ausgeliehen werden, weil man bereits etwas ausleiht. Dies ist der Fall, wenn der User kein Multiuser (i.d.R. Lehrer) ist. Diese sind in der Config festgelegt.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Device wird bereits ausgeliehen.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Es handelt sich nicht um ein Device. I.d.R. handelt es sich um eine zweimal hintereinander eingescannte Usercard.</td>
+</tr>
+</tbody>
+</table></p>
+                                    </div>
+                                    
+                                    <div class="request-body">
+                                        <div class="body-heading">BODY <span class="body-type">raw</span></div>
+                                        <hr>
+                                            <div class="raw-body code-snippet">
+                                              <pre class="body-block click-to-expand-wrapper is-snippet-wrapper " data-title="Reset">
+                                                  <code>
+                                                    
+{
+    "table": "event",
+    "reset_id": true
+}
+                                                  </code>
+                                              </pre>
+                                            </div>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xs-12 examples">
+                                <div class="sample-request">
+                                    <div class="heading">
+                                        <span>Example Request</span>
+                                    </div>
+                                    <div class="responses-index">
+                                        <div class="dropdown response-name">
+                                            <button class="btn   responses-dropdown truncate" type="button" id="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                              <span id="selected" class="response-name-label">Reset event table</span>
+                                                <span class="caret"></span>
+
+                                            </button>
+
+                                            <ul class="dropdown-menu" aria-labelledby="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown">
+                                                <li class="truncate" data-request-info="8" data-response-info="response_10">Reset event table</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="formatted-requests " data-request-id="8"  data-id="response_10">
+                                    <div class="request code-snippet">
+                                        <div>
+                                            <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Reset event table">
+                                                <code class="is-highlighted">
+POST localhost:8080/reset.php
+{
+    "table": "event",
+    "reset_id": true
+}</code>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                    <div class="sample-response">
+                                        <div class="heading">
+                                            <span>Example Response</span>
+                                        </div>
+                                        <div class="responses-index">
+                                            <div class="response-status">
+                                                <span>200 - OK</span>
+                                            </div>
+                                        </div>
+                                        <div class="responses code-snippet">
+                                            <div>
+                                                <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Reset event table">
+                                                    <code class="is-highlighted">
+{"response":"0","message":"success","rows_deleted":1}</code>
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="row row-no-padding row-eq-height">
+                            <div class="col-md-6 col-xs-12 section">
+                                <div class="api-information" id="9">
+                                     <div class="heading">
+                                        <div class="name">
+                                            <span class="POST method" >POST</span>
+                                            Book <span class="lock-icon"></span>
+                                        </div>
+                                     </div>
+                                    <div class="url">{{base_path}}/booking.php</div>
+                                    
+                                    <div class="description request-description">
+                                        <p><h2 id="input">Input</h2>
+<h4 id="ausleihen">Ausleihen</h4>
+<p><code>uid_1</code> - UID der Usercard</p>
+<p><code>uid_2</code> - UID des Geräts</p>
+<h4 id="zura14ckgeben">Zurückgeben</h4>
+<p><code>uid_1</code> - UID des Geräts</p>
+<h4 id="user-info">User Info</h4>
+<p><code>uid_1</code> - UID der Usercard</p></p>
+                                    </div>
+                                    
+                                    <div class="request-body">
+                                        <div class="body-heading">BODY <span class="body-type">raw</span></div>
+                                        <hr>
+                                            <div class="raw-body code-snippet">
+                                              <pre class="body-block click-to-expand-wrapper is-snippet-wrapper " data-title="Book">
+                                                  <code>
+                                                    
+{
+    "uid_1" : "884d6cc"
+}
+                                                  </code>
+                                              </pre>
+                                            </div>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xs-12 examples">
+                                <div class="sample-request">
+                                    <div class="heading">
+                                        <span>Example Request</span>
+                                    </div>
+                                    <div class="responses-index">
+                                        <div class="dropdown response-name">
+                                            <button class="btn dropdown-toggle  responses-dropdown truncate" type="button" id="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                              <span id="selected" class="response-name-label">Return</span>
+                                                <span class="caret"></span>
+
+                                            </button>
+
+                                            <ul class="dropdown-menu" aria-labelledby="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown">
+                                                <li class="truncate" data-request-info="9" data-response-info="response_11">Return</li>
+                                                <li class="truncate" data-request-info="9" data-response-info="response_12">Userinfo</li>
+                                                <li class="truncate" data-request-info="9" data-response-info="response_13">Lend</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="formatted-requests " data-request-id="9"  data-id="response_11">
+                                    <div class="request code-snippet">
+                                        <div>
+                                            <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Return">
+                                                <code class="is-highlighted">
+POST localhost:8080/booking.php
+{
+    "uid_1" : "884d6cc"
+}</code>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                    <div class="sample-response">
+                                        <div class="heading">
+                                            <span>Example Response</span>
+                                        </div>
+                                        <div class="responses-index">
+                                            <div class="response-status">
+                                                <span>200 - OK</span>
+                                            </div>
+                                        </div>
+                                        <div class="responses code-snippet">
+                                            <div>
+                                                <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Return">
+                                                    <code class="is-highlighted">
+{"message":"Ger\u00e4t zur\u00fcckgegeben","response":200}</code>
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="formatted-requests hide" data-request-id="9"  data-id="response_12">
+                                    <div class="request code-snippet">
+                                        <div>
+                                            <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Userinfo">
+                                                <code class="is-highlighted">
+POST localhost:8080/booking.php
+{
+    "uid_1" : "2e9ab22"
+}</code>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                    <div class="sample-response">
+                                        <div class="heading">
+                                            <span>Example Response</span>
+                                        </div>
+                                        <div class="responses-index">
+                                            <div class="response-status">
+                                                <span>200 - OK</span>
+                                            </div>
+                                        </div>
+                                        <div class="responses code-snippet">
+                                            <div>
+                                                <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Userinfo">
+                                                    <code class="is-highlighted">
+{"message":"Info zu User erfolgt","user":{"firstname":"Test Vorname","lastname":"TestNachname","user_id":1,"class":"Lehrer","status":[]},"response":200}</code>
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="formatted-requests hide" data-request-id="9"  data-id="response_13">
+                                    <div class="request code-snippet">
+                                        <div>
+                                            <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Lend">
+                                                <code class="is-highlighted">
+POST localhost:8080/booking.php
+{
+    "uid_1" : "2e9ab22",
+    "uid_2" : "884d6cc"
+}</code>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                    <div class="sample-response">
+                                        <div class="heading">
+                                            <span>Example Response</span>
+                                        </div>
+                                        <div class="responses-index">
+                                            <div class="response-status">
+                                                <span>200 - OK</span>
+                                            </div>
+                                        </div>
+                                        <div class="responses code-snippet">
+                                            <div>
+                                                <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Lend">
+                                                    <code class="is-highlighted">
+{"message":"Ger\u00e4t ausgeliehen","response":200}</code>
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="row row-no-padding row-eq-height">
+                            <div class="col-md-6 col-xs-12 section">
+                                <div class="api-information" id="10">
+                                     <div class="heading">
+                                        <div class="name">
+                                            <span class="POST method" >POST</span>
+                                            Prebook <span class="lock-icon"></span>
+                                        </div>
+                                     </div>
+                                    <div class="url">{{base_path}}/prebook.php</div>
+                                    
+                                    <div class="request-body">
+                                        <div class="body-heading">BODY <span class="body-type">raw</span></div>
+                                        <hr>
+                                            <div class="raw-body code-snippet">
+                                              <pre class="body-block click-to-expand-wrapper is-snippet-wrapper " data-title="Prebook">
+                                                  <code>
+                                                    
+{
+    "user_id" : 1,
+    "amount" : 10,
+    "begin" : "2022-06-08 11:10:00",
+    "end" : "2022-06-08 11:50:00"
+}
+                                                  </code>
+                                              </pre>
+                                            </div>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xs-12 examples">
+                                <div class="sample-request">
+                                    <div class="heading">
+                                        <span>Example Request</span>
+                                    </div>
+                                    <div class="responses-index">
+                                        <div class="dropdown response-name">
+                                            <button class="btn   responses-dropdown truncate" type="button" id="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                              <span id="selected" class="response-name-label">Prebook</span>
+                                                <span class="caret"></span>
+
+                                            </button>
+
+                                            <ul class="dropdown-menu" aria-labelledby="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown">
+                                                <li class="truncate" data-request-info="10" data-response-info="response_14">Prebook</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="formatted-requests " data-request-id="10"  data-id="response_14">
+                                    <div class="request code-snippet">
+                                        <div>
+                                            <pre class="click-to-expand-wrapper is-snippet-wrapper " data-title="Prebook">
+                                                <code class="is-highlighted">
+POST {{base_path}}/prebook.php
+
+{
+    "user_id" : 1,
+    "amount" : 10,
+    "begin" : "2022-06-08 11:10:00",
+    "end" : "2022-06-08 11:50:00"
+}</code>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="row row-no-padding row-eq-height">
+                            <div class="col-md-6 col-xs-12 section">
+                                <div class="api-information" id="11">
+                                     <div class="heading">
+                                        <div class="name">
+                                            <span class="POST method" >POST</span>
+                                            Add CSV <span class="lock-icon"></span>
+                                        </div>
+                                     </div>
+                                    <div class="url">{{base_path}}/in_work/csv_add.php</div>
+                                    
+                                    <div class="request-body">
+                                        <div class="body-heading">BODY <span class="body-type">raw</span></div>
+                                        <hr>
+                                            <div class="raw-body code-snippet">
+                                              <pre class="body-block click-to-expand-wrapper is-snippet-wrapper is-expandable" data-title="Add CSV">
+                                                  <code>
+                                                    
+{
+    "table" : "property_class",
+    "columns" : ["class_name"],
+    "string" : "'10a', '10b', '10c'",
+    "seperator" : ",",
+    "enclosure" : "'",
+    "escape" : "."
+}
+                                                  </code>
+                                              </pre>
+                                            </div>
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xs-12 examples">
+                                <div class="sample-request">
+                                    <div class="heading">
+                                        <span>Example Request</span>
+                                    </div>
+                                    <div class="responses-index">
+                                        <div class="dropdown response-name">
+                                            <button class="btn   responses-dropdown truncate" type="button" id="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                              <span id="selected" class="response-name-label">Add CSV</span>
+                                                <span class="caret"></span>
+
+                                            </button>
+
+                                            <ul class="dropdown-menu" aria-labelledby="f678f251-1750-4e3a-b5d8-05b4c6b0fb37_dropdown">
+                                                <li class="truncate" data-request-info="11" data-response-info="response_15">Add CSV</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="formatted-requests " data-request-id="11"  data-id="response_15">
+                                    <div class="request code-snippet">
+                                        <div>
+                                            <pre class="click-to-expand-wrapper is-snippet-wrapper is-expandable" data-title="Add CSV">
+                                                <code class="is-highlighted">
+POST {{base_path}}/in_work/csv_add.php
+
+{
+    "table" : "property_class",
+    "columns" : ["class_name"],
+    "string" : "'10a', '10b', '10c'",
+    "seperator" : ",",
+    "enclosure" : "'",
+    "escape" : "."
+}</code>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </main>
+        <!-- page-content" -->
+    </div>
+    <!-- page-wrapper -->
+    <!-- using online scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous">
+    </script>
+    <script src="https://malihu.github.io/custom-scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="js/bootstrap-treeview.min.js"></script>
+    <script src="js/main.min.js"></script>
+    <script type="application/javascript">
+        var data = [{'text': 'Search and select table', 'href': '#1', 'method': 'POST'}, {'text': 'Add a device', 'href': '#2', 'method': 'POST'}, {'text': 'Add a user', 'href': '#3', 'method': 'POST'}, {'text': 'Update', 'href': '#4', 'method': 'POST'}, {'text': 'Delete', 'href': '#5', 'method': 'POST'}, {'text': 'Get token', 'href': '#6', 'method': 'POST'}, {'text': 'Check token', 'href': '#7', 'method': 'POST'}, {'text': 'Reset', 'href': '#8', 'method': 'POST'}, {'text': 'Book', 'href': '#9', 'method': 'POST'}, {'text': 'Prebook', 'href': '#10', 'method': 'POST'}, {'text': 'Add CSV', 'href': '#11', 'method': 'POST'}]
+        $('#tree').treeview({
+            data: data,
+            levels: 10,
+            expandIcon: 'fas fa-caret-right',
+            collapseIcon: 'fas fa-caret-down',
+            enableLinks: true,
+            showIcon: true,
+            showMethod: true
+        });
+    </script>
+
+</body>
+
+</html>
