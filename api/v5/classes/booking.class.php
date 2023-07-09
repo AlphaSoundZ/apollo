@@ -189,7 +189,7 @@ class Booking
 
     // Amount of devices
     $this->data['user']['devices_amount']['currently'] = $amount_of_devices[0];
-    $this->data['user']['devices_amount']['session'] = $amount_of_devices_in_session[0];
+    $this->data['user']['devices_amount']['session'] = ($amount_of_devices[0] > 0) ? $amount_of_devices_in_session[0] : 0;
     $this->data['user']['devices_amount']['ever'] = $amount_of_devices_ever[0];
 
     // History of devices
