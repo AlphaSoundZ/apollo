@@ -105,4 +105,6 @@ abstract class Response extends BasicEnum {
 	const NO_CHANGES = ["status" => "NO_CHANGES", "message" => "Keine Änderungen, alter und neuer Wert sind identisch", "code" => 200]; // No changes in database (this could be for example a user where no bookings are found)
 	const API_RUNNING = ["status" => "API_RUNNING", "message" => "API ist aktiv", "code" => 200]; // API is running
 	const INTERNAL_SERVER_ERROR = ["status" => "INTERNAL_SERVER_ERROR", "message" => "Interner Server Fehler", "code" => 500]; // Internal server error
+	const CONFLICT_WITH_PREBOOK = ["status" => "CONFLICT_WITH_PREBOOK", "message" => "Ausleihe nicht möglich, da dieses Gerät reserviert ist", "code" => 409]; // Booking not allowed, because device is reserved
+	const NOT_ENOUGH_DEVICES_AVAILABLE = ["status" => "NOT_ENOUGH_DEVICES_AVAILABLE", "message" => "Nicht genügend Geräte verfügbar", "code" => 409]; // Not enough devices available for prebooking
 }

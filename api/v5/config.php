@@ -16,6 +16,7 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
 if (!$dotenv->safeLoad())
 	Response::error(array_merge(Response::INTERNAL_SERVER_ERROR, ["message" => "Could not load .env file"]));
 
+// Database
 $__host = $_ENV['HOST'];
 $__db = $_ENV['DB'];
 $__username = $_ENV['USERNAME'];

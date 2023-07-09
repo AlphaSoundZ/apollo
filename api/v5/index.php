@@ -880,6 +880,23 @@ $router->post('/token/create', function () {
     Response::success(Response::SUCCESS, ["token_id" => $id]);
 });
 
+$router->post('/prebook', function () {
+    require_once 'classes/prebook.class.php';
+    authorize("prebook");
+
+    $data = getData("POST", ["user_id", "amount", "begin", "end"]);
+
+    $available_devices_amount = Prebook::availableDevicesForPrebooking($data["begin"], $data["end"]);
+
+    if ($available_devices_amount < $data["amount"]) {
+        Response::error(Response::NOT_ENOUGH_DEVICES_AVAILABLE);
+    }
+
+    $id = Prebook::create($data["user_id"], $data["amount"], $data["begin"], $data["end"]);
+
+    Response::success(Response::SUCCESS, ["availableDevices" => $available_devices_amount]);
+});
+
 // PATCH
 $router->patch('/user/change', function () {
     require_once "classes/update.class.php";
@@ -1247,6 +1264,7 @@ $router->delete('/user/event/clear', function () {
 // Client side routes
 $router->post('/booking', function () {
     require_once 'classes/booking.class.php';
+    require_once 'classes/prebook.class.php';
     authorize("book");
 
     $data = getData("POST", ["uid_1"]);

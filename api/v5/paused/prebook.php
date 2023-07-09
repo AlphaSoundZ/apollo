@@ -61,7 +61,7 @@ function prebook($user_id, $amount, $prebook_begin, $prebook_end)
     }
 }
 
-/**
+/*
  * - berechne wie viele Geräte in dem Zeitraum frei sind
  * - sind genug Geräte frei?
  * - setze Zeitraum
