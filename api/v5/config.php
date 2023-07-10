@@ -58,25 +58,24 @@ function getData($method, array $requirements, array $optional = [])
 	return $input;
 }
 
-function authorize($permission = null, $return = false)
+function authorize($permission = null, $callback = null)
 {
 	global $pdo, $jwt_key, $authorization_bool;
 
 	if ($authorization_bool == 0)
-		return true;
+		return ["permissions" => [], "id" => null, "username" => null];
 	
 	if (isset($_SERVER["HTTP_AUTHORIZATION"])) 
 		$given_token = $_SERVER["HTTP_AUTHORIZATION"];
-	else if (!$return) 
+	else
 		Response::error(Response::NOT_AUTHORIZED);
-	else 
-		return false;
 	$jwt = explode(" ", $given_token)[1];
 
-	$permissions = Token::validateToken($jwt, $jwt_key);
+	$token = Token::validateToken($jwt, $jwt_key);
+	$permissions = $token["permissions"];
 
 	if (!$permission)
-		return $permissions;
+		return $token;
 	
 	// check if token has the right permission:
 	$sql = "SELECT * FROM property_token_permissions WHERE permission_text = '{$permission}'";
@@ -84,9 +83,20 @@ function authorize($permission = null, $return = false)
 	$sth->execute();
 	$permission_id = $sth->fetch();
 	if ($permissions && $permission_id && in_array($permission_id["permission_id"], $permissions))
-		return $permissions;
-	else if (!$return)
-		Response::error(Response::NOT_ALLOWED, [], ["permission" => $permission]);
+		return $token;
 	else
-		return false;
+	{
+		// run callback if given
+		if ($callback)
+		{
+			if ($callback())
+				return $token;
+			else
+				Response::error(Response::NOT_ALLOWED, [], ["permission" => $permission]);
+		}
+		else
+		{
+			Response::error(Response::NOT_ALLOWED, [], ["permission" => $permission]);
+		}
+	}
 }
