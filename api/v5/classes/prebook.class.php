@@ -2,14 +2,33 @@
 require_once 'config.php';
 
 class Prebook {
-    public static function create($user_id, $device_amount, $booking_begin, $booking_end) {
+    /**
+     * @param int $user_id The id of the user who wants to prebook
+     * @param int $device_amount The amount of devices the user wants to prebook
+     * @param string $booking_begin The begin of the prebooking (US format)
+     * @param string $booking_end The end of the prebooking (US format)
+     * @param int $token_id if set to some id, it will check whether the user prebooks for himself; if not set, user can also prebook for others
+     * @return int The prebook id
+     * @throws ResponseException
+     */
+    public static function create($user_id, $device_amount, $booking_begin, $booking_end, $own_token_id = null) {
         global $pdo;
 
-        // check if there are enough devices available
-        $available_devices = self::availableDevicesForPrebooking($booking_begin, $booking_end);
-
-        if ($available_devices < $device_amount) {
-            Response::error(Response::NOT_ENOUGH_DEVICES_AVAILABLE, [], ["available_devices" => $available_devices]);
+        if ($own_token_id)
+        {
+            // check if the user is allowed to prebook (for himself or for all)
+            $sql = "SELECT * FROM user WHERE user_token_id = :token_id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(array(
+                "token_id" => $own_token_id
+            ));
+            $token_user = $stmt->fetch(PDO::FETCH_ASSOC)["user_id"];
+            
+            if ($user_id != $token_user && !isset(authorize()["permissions"]["CRUD_prebook"]))
+            {
+                // user is not allowed to prebook for others
+                Response::error(Response::NOT_ALLOWED);
+            }
         }
 
         // check if the user has already prebooked devices at that time
@@ -57,6 +76,13 @@ class Prebook {
         $day_of_booking_begin = date("Y-m-d", strtotime($booking_begin));
         $day_of_min = date("Y-m-d", strtotime("+$min_next_prebook_distance days"));
         $day_of_max = date("Y-m-d", strtotime("+$max_next_prebook_distance days"));
+
+        // check if there are enough devices available
+        $available_devices = self::availableDevicesForPrebooking($booking_begin, $booking_end);
+
+        if ($available_devices < $device_amount) {
+            Response::error(Response::NOT_ENOUGH_DEVICES_AVAILABLE, [], ["available_devices" => $available_devices]);
+        }
 
         if ($day_of_booking_begin < $day_of_min) {
             Response::error(Response::BOOKING_TIME_NOT_ALLOWED, ["begin"], ["min_booking_begin" => $day_of_min]);

@@ -1,7 +1,7 @@
 <?php
 
 set_exception_handler(function ($e) {
-    if ($e instanceof CustomException) {
+    if ($e instanceof ResponseException) {
       http_response_code($e->getCode());
       echo json_encode($e->payload, JSON_NUMERIC_CHECK);
     } else {
@@ -25,7 +25,7 @@ set_exception_handler(function ($e) {
     }
   } );
 
-class CustomException extends Exception
+class ResponseException extends Exception
 {
     public $payload = [];
     public function __construct($payload, int $code) {

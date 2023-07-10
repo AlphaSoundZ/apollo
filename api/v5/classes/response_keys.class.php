@@ -49,7 +49,7 @@ abstract class BasicEnum {
 			"method" => $_SERVER["REQUEST_METHOD"] ?? "",
 		];
 		
-		throw new CustomException(array_merge($payload, $custom), $payload["code"]);
+		throw new ResponseException(array_merge($payload, $custom), $payload["code"]);
 	}
 }
 

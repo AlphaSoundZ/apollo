@@ -880,13 +880,15 @@ $router->post('/token/create', function () {
     Response::success(Response::SUCCESS, ["token_id" => $id]);
 });
 
-$router->post('/prebook/create', function () {
+$router->post('/prebook', function () {
     require_once 'classes/prebook.class.php';
-    authorize("CRUD_prebook");
+    $token = authorize("prebook", function () {
+        return authorize("CRUD_prebook");
+    });
 
     $data = getData("POST", ["user_id", "amount", "begin", "end"]);
 
-    $id = Prebook::create($data["user_id"], $data["amount"], $data["begin"], $data["end"]);
+    $id = Prebook::create($data["user_id"], $data["amount"], $data["begin"], $data["end"], $token["id"]);
 
     Response::success(Response::SUCCESS);
 });
@@ -1217,7 +1219,7 @@ $router->delete('/usercard/type/delete', function () {
 
 $router->delete('/token/delete', function () {
     require_once "classes/delete.class.php";
-    $token = authorize("CRUD_token");
+    $token = authorize("CRUD_token")["id"];
 
     $data = getData("POST", ["id"]);
 
@@ -1257,11 +1259,13 @@ $router->delete('/user/event/clear', function () {
 
 $router->delete('/prebook/delete', function () {
     require_once "classes/delete.class.php";
-    authorize("CRUD_prebook");
+    $token = authorize("CRUD_prebook", function () {
+        return authorize("prebook");
+    });
 
     $data = getData("POST", ["id"]);
 
-    DataDelete::delete("prebook", $data["id"], Response::PREBOOK_NOT_FOUND);
+    DataDelete::deletePrebook($data["id"], $token["id"]);
 
     Response::success(Response::SUCCESS);
 });
@@ -1290,7 +1294,7 @@ $router->post('/token/validate', function () {
     $given_token = $_SERVER["HTTP_AUTHORIZATION"];
     $jwt = explode(" ", $given_token)[1];
     
-    $permissions["permissions"] = Token::validateToken($jwt, $_ENV["JWT_KEY"]);
+    $permissions["permissions"] = Token::validateToken($jwt, $_ENV["JWT_KEY"])["permissions"];
     
     Response::success(array_merge(Response::SUCCESS, ["message" => "Token ist valide"]), $permissions);
 });
