@@ -13,11 +13,25 @@ $router->get('/', function () {
     Response::success(Response::API_RUNNING);
 });
 
-// GET
+// ####################
+// #### USER ROUTES ###
+
 $router->get('/status', function () {
-    require_once 'status.php';
+    require_once 'controlpanel/status.php';
 });
 
+$router->get('/login', function () {
+    require_once 'controlpanel/login.php';
+});
+
+$router->get('/dashboard', function () {
+    require_once 'controlpanel/dashboard.php';
+});
+
+// ####################
+// #### API ROUTES ####
+
+// GET
 $router->get('/user/class(/\d+)?', function ($id = null) {
     require_once 'classes/search.class.php';
     authorize("search");
@@ -795,15 +809,22 @@ $router->post('/csv/import', function () {
 
 $router->post('/token/authorize', function () {
     require_once 'classes/token.class.php';
+    require_once 'classes/search.class.php';
 
     $data = getData("POST", ["username", "password"]);
 
     $username = $data["username"];
     $password = $data["password"];
+    
+    $token = Token::getToken($username, $password, $_ENV["JWT_KEY"]);
+    $token_id = $token["token_id"];
 
-    $token["jwt"] = Token::getToken($username, $password, $_ENV["JWT_KEY"]);
+    // Get user
+    $user_raw = Data::select([["table" => "token"], ["table" => "user", "join" => ["user.user_id", "token.token_user_id"]]], ["user_id", "user_firstname", "user_lastname", "user_class", "user_usercard_id", "token_username"], ["id" => "user_id", "firstname" => "user_firstname", "lastname" => "user_lastname", "username" => "token_username", "class_id" => "user_class", "usercard_id" => "usercard_id"], ["where" => "token_id = '" . $token_id . "'"]);
+    $user = $user_raw["data"][0];
+    // get user
 
-    Response::success(Response::SUCCESS, $token);
+    Response::success(Response::SUCCESS, array_merge($token, ["user" => $user]));
 });
 
 $router->post('/user/create', function () {

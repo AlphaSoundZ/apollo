@@ -31,7 +31,7 @@ class Token
         ];
         $jwt = JWT::encode($payload, $key, 'HS256');
 
-        return $jwt;
+        return ["token_id" => $token_id, "jwt" => $jwt];
     }
 
     public static function validateToken($jwt, $key)
