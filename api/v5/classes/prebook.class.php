@@ -17,7 +17,7 @@ class Prebook {
         if ($own_token_id)
         {
             // check if the user is allowed to prebook (for himself or for all)
-            $sql = "SELECT * FROM user WHERE user_token_id = :token_id";
+            $sql = "SELECT * FROM token WHERE token_id = :token_id";
             $stmt = $pdo->prepare($sql);
             $stmt->execute(array(
                 "token_id" => $own_token_id

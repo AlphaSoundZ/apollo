@@ -138,8 +138,15 @@ class Data {
                 $response_structure[$key] = $recursive_results[0];
                 $keys = $recursive_results[1];
             } else {
-                $response_structure[$key] = $row[$value];
-                array_push($keys, $value);
+                if (array_key_exists($value, $row))
+                {
+                    $response_structure[$key] = $row[$value];
+                    array_push($keys, $value);
+                }
+                else
+                {
+                    $response_structure[$key] = null;
+                }
             }
         }
 

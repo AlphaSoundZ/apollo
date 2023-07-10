@@ -126,7 +126,7 @@ $router->get('/user(/[^/]+)?', function($id = null) {
             "id" => "class_id",
             "name" => "class_name",
         ],
-        "token_id" => "user_token_id",
+        "token_id" => "token_id",
         "usercard_id" => "user_usercard_id",
         "multi_booking" => "multi_booking"
     );
@@ -181,7 +181,7 @@ $router->get('/user(/[^/]+)?', function($id = null) {
         }
         else
         {
-            $response = Data::select([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["user_id", "user_firstname", "user_lastname", "class_name", "class_id", "multi_booking", "user_token_id", "user_usercard_id"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+            $response = Data::select([["table" => "user"], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]], ["table" => "token", "join" => ["token.token_user_id", "user.user_id"]]], ["user_id", "user_firstname", "user_lastname", "class_name", "class_id", "multi_booking", "user_usercard_id", "token_id"], $response_structure, ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
             $response["message"] = "Alle Benutzer";
         }
     }
@@ -625,6 +625,15 @@ $router->get('/token(/\d+)?', function ($id = null) {
         "permission_id" => "permission_id",
         "permission_text" => "permission_text",
         "last_change" => "token_last_change",
+        "user" => [
+            "id" => "user_id",
+            "firstname" => "user_firstname",
+            "lastname" => "user_lastname",
+            "class" => [
+                "id" => "class_id",
+                "name" => "class_name",
+            ]
+        ]
     );
     
     $query = (isset($_GET["query"])) ? $_GET["query"] : null;
@@ -642,7 +651,7 @@ $router->get('/token(/\d+)?', function ($id = null) {
 
     if ($id !== null) // search for user with $id
     {
-        $response = Data::select([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], $response_structure, ["strict" => true, "groupby" => "token.token_id", "where" => "token.token_id = " . $id, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+        $response = Data::select([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_id", "token.token_user_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], $response_structure, ["strict" => true, "groupby" => "token.token_id", "where" => "token.token_id = " . $id, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
         $response["message"] = ($response["data"]) ? "Token gefunden" : "Token nicht gefunden";
 
         if ($response["data"])
@@ -657,7 +666,7 @@ $router->get('/token(/\d+)?', function ($id = null) {
         if ($query)
         {
             $response["query"] = $query;
-            $response = Data::search([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], $response_structure, ["username"], $query, ["strict" => $strict, "page" => $page, "size" => $size, "groupby" => "token.token_id", "order_by" => $order_by, "order_strategy" => $order_strategy]);
+            $response = Data::search([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_id", "token.token_user_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], $response_structure, ["username"], $query, ["strict" => $strict, "page" => $page, "size" => $size, "groupby" => "token.token_id", "order_by" => $order_by, "order_strategy" => $order_strategy]);
             
             for ($i = 0; $i < count($response["data"]); $i++)
             {
@@ -668,7 +677,7 @@ $router->get('/token(/\d+)?', function ($id = null) {
         }
         else
         {
-            $response = Data::select([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_token_id", "token.token_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], $response_structure, ["strict" => true, "page" => $page, "size" => $size, "groupby" => "token.token_id", "order_by" => $order_by, "order_strategy" => $order_strategy]);
+            $response = Data::select([["table" => "token"], ["table" => "token_link_permissions", "join" => ["token_link_permissions.link_token_id", "token.token_id"]], ["table" => "property_token_permissions", "join" => ["property_token_permissions.permission_id", "token_link_permissions.link_token_permission_id"]], ["table" => "user", "join" => ["user.user_id", "token.token_user_id"]], ["table" => "property_class", "join" => ["property_class.class_id", "user.user_class"]]], ["token.token_id", "token.token_username", "GROUP_CONCAT(token_link_permissions.link_token_permission_id SEPARATOR ', ') AS permission_id", "GROUP_CONCAT(property_token_permissions.permission_text SEPARATOR ', ') AS permission_text", "token.token_last_change", "user.user_id", "user.user_firstname", "user.user_lastname", "property_class.class_id", "property_class.class_name"], $response_structure, ["strict" => true, "page" => $page, "size" => $size, "groupby" => "token.token_id", "order_by" => $order_by, "order_strategy" => $order_strategy]);
             $response["message"] = "Alle Tokens";
             
             for ($i = 0; $i < count($response["data"]); $i++)
@@ -803,10 +812,9 @@ $router->post('/user/create', function () {
 
     $data = getData("POST", ["firstname", "lastname", "class_id"]);
     $usercard_id = (isset($data["usercard_id"])) ? $data["usercard_id"] : null;
-    $token_id = (isset($data["token_id"])) ? $data["token_id"] : null;
     $ignore_duplicates = (isset($data["ignore_duplicates"]) && $data["ignore_duplicates"] == true) ? true : false;
 
-    $id = Create::user($data["firstname"], $data["lastname"], $data["class_id"], $usercard_id, $token_id, $ignore_duplicates);
+    $id = Create::user($data["firstname"], $data["lastname"], $data["class_id"], $usercard_id, $ignore_duplicates);
 
     Response::success(Response::SUCCESS, ["user_id" => $id]);
 });
@@ -873,9 +881,9 @@ $router->post('/token/create', function () {
     require_once 'classes/create.class.php';
     authorize("CRUD_token");
 
-    $data = getData("POST", ["username", "password", "permissions"]);
+    $data = getData("POST", ["username", "password", "permissions", "user_id"]);
 
-    $id = Create::token($data["username"], $data["password"], $data["permissions"]);
+    $id = Create::token($data["username"], $data["password"], $data["permissions"], $data["user_id"]);
 
     Response::success(Response::SUCCESS, ["token_id" => $id]);
 });
@@ -907,7 +915,6 @@ $router->patch('/user/change', function () {
             "user_firstname" => $data["values"]["firstname"] ?? null,
             "user_lastname" => $data["values"]["lastname"] ?? null,
             "user_class" => $data["values"]["class_id"] ?? null,
-            "user_token_id" => $data["values"]["token_id"] ?? null,
             "user_usercard_id" => $data["values"]["usercard_id"] ?? null
         ],
         $duplicate_errorhandling = Response::USER_ALREADY_EXISTS,
@@ -916,7 +923,6 @@ $router->patch('/user/change', function () {
             "user_firstname",
             "user_lastname",
             "user_class",
-            "user_token_id",
             "user_usercard_id"
         ]
     );

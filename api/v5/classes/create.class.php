@@ -3,7 +3,7 @@ require_once "config.php";
 
 class Create
 {
-    public static function user($firstname, $lastname, $class_id, $usercard_id = null, $token_id = null, $ignore_duplicates = false) 
+    public static function user($firstname, $lastname, $class_id, $usercard_id = null, $ignore_duplicates = false) 
     {
         global $pdo;
 
@@ -23,9 +23,10 @@ class Create
 
         // insert user
         try {
-            $sql = "INSERT INTO user (user_id, user_firstname, user_lastname, user_class, user_token_id, user_usercard_id) VALUES (NULL, :firstname, :lastname, :class, :token, :usercard)";
+            $sql = "INSERT INTO user (user_id, user_firstname, user_lastname, user_class, user_usercard_id) VALUES (NULL, :firstname, :lastname, :class, :usercard)";
             $sth = $pdo->prepare($sql);
-            $sth->execute(["firstname" => $firstname, "lastname" => $lastname, "class" => $class_id, "token" => $token_id, "usercard" => $usercard_id]);
+            $sth->execute(["firstname" => $firstname, "lastname" => $lastname, "class" => $class_id, "usercard" => $usercard_id]);
+
         } catch (PDOException $th) {
             if ($th->errorInfo[1] == "1452") // check for constraint error
             {
@@ -173,7 +174,7 @@ class Create
         }
     }
 
-    public static function token ($username, $password, array $permissions)
+    public static function token ($username, $password, array $permissions, $user_id)
     {
         global $pdo;
         // check permissions
@@ -190,14 +191,20 @@ class Create
         $password_hash = password_hash($password, PASSWORD_BCRYPT);
 
         try {
-            $sql = "INSERT INTO token (token_id, token_username, token_password, token_last_change) VALUES (NULL, :username, :password, CURRENT_TIMESTAMP)";
+            $sql = "INSERT INTO token (token_id, token_username, token_password, token_last_change, token_user_id) VALUES (NULL, :username, :password, CURRENT_TIMESTAMP, :user_id)";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute(["username" => $username, "password" => $password_hash]);
+            $stmt->execute(array(
+                "username" => $username, 
+                "password" => $password_hash,
+                "user_id" => $user_id
+            ));
             
             $id = $pdo->lastInsertId();
         } catch (PDOException $th) {
             if ($th->errorInfo[1] == "1062") // check if username/token already exists
-                Response::error(Response::TOKEN_ALREADY_EXISTS, ["username"]);
+                Response::error(Response::TOKEN_ALREADY_EXISTS, ["username", "user_id"]);
+            if ($th->errorInfo[1] == "1452") // check if user exists
+                Response::error(Response::USER_NOT_FOUND, ["user_id"]);
             
             // unexpected error
             throw $th;

@@ -85,7 +85,7 @@ class DataDelete
         if ($own_token_id == null)
         {
             // check if user is allowed to delete prebook (user of token is owner of prebook, or user has CRUD_prebook permission)
-            $sql = "SELECT * FROM user WHERE user_token_id = :token_id";
+            $sql = "SELECT * FROM token WHERE token_id = :token_id";
             $stmt = $pdo->prepare($sql);
             $stmt->execute(array(
                 "token_id" => $own_token_id
