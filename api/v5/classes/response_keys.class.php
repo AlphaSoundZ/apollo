@@ -109,4 +109,5 @@ abstract class Response extends BasicEnum {
 	const NOT_ENOUGH_DEVICES_AVAILABLE = ["status" => "NOT_ENOUGH_DEVICES_AVAILABLE", "message" => "Nicht genügend Geräte verfügbar", "code" => 409]; // Not enough devices available for prebooking
 	const USER_ALREADY_HAS_PREBOOKING_AT_THAT_TIME = ["status" => "USER_ALREADY_HAS_PREBOOKING_AT_THAT_TIME", "message" => "User hat bereits eine Reservierung in diesem Zeitraum", "code" => 409]; // User already has a prebooking at that time period
 	const BOOKING_TIME_NOT_ALLOWED = ["status" => "BOOKING_TIME_NOT_ALLOWED", "message" => "Ausleihe in dieser Zeit nicht erlaubt", "code" => 409]; // Booking not allowed
+	const PREBOOK_NOT_FOUND = ["status" => "PREBOOK_NOT_FOUND", "message" => "Reservierung nicht gefunden", "code" => 404]; // Prebooking not found
 }

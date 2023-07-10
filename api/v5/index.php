@@ -880,9 +880,9 @@ $router->post('/token/create', function () {
     Response::success(Response::SUCCESS, ["token_id" => $id]);
 });
 
-$router->post('/prebook', function () {
+$router->post('/prebook/create', function () {
     require_once 'classes/prebook.class.php';
-    authorize("prebook");
+    authorize("CRUD_prebook");
 
     $data = getData("POST", ["user_id", "amount", "begin", "end"]);
 
@@ -1253,6 +1253,17 @@ $router->delete('/user/event/clear', function () {
     $amount = DataDelete::clearUserEvent($data["id"]);
     
     Response::success(Response::SUCCESS, ["amount" => $amount]);
+});
+
+$router->delete('/prebook/delete', function () {
+    require_once "classes/delete.class.php";
+    authorize("CRUD_prebook");
+
+    $data = getData("POST", ["id"]);
+
+    DataDelete::delete("prebook", $data["id"], Response::PREBOOK_NOT_FOUND);
+
+    Response::success(Response::SUCCESS);
 });
 
 // Client side routes

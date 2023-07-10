@@ -58,15 +58,19 @@ function getData($method, array $requirements, array $optional = [])
 	return $input;
 }
 
-function authorize($permission = null)
+function authorize($permission = null, $return = false)
 {
 	global $pdo, $jwt_key, $authorization_bool;
 
 	if ($authorization_bool == 0)
-		return "no_auth";
+		return true;
 	
-	if (isset($_SERVER["HTTP_AUTHORIZATION"])) $given_token = $_SERVER["HTTP_AUTHORIZATION"];
-	else Response::error(Response::NOT_AUTHORIZED);
+	if (isset($_SERVER["HTTP_AUTHORIZATION"])) 
+		$given_token = $_SERVER["HTTP_AUTHORIZATION"];
+	else if (!$return) 
+		Response::error(Response::NOT_AUTHORIZED);
+	else 
+		return false;
 	$jwt = explode(" ", $given_token)[1];
 
 	$permissions = Token::validateToken($jwt, $jwt_key);
@@ -81,6 +85,8 @@ function authorize($permission = null)
 	$permission_id = $sth->fetch();
 	if ($permissions && $permission_id && in_array($permission_id["permission_id"], $permissions))
 		return $permissions;
-	else
+	else if (!$return)
 		Response::error(Response::NOT_ALLOWED, [], ["permission" => $permission]);
+	else
+		return false;
 }
