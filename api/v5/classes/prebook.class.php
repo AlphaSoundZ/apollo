@@ -4,6 +4,92 @@ require_once 'config.php';
 class Prebook {
     public static function create($user_id, $device_amount, $booking_begin, $booking_end) {
         global $pdo;
+
+        // check if there are enough devices available
+        $available_devices = self::availableDevicesForPrebooking($booking_begin, $booking_end);
+
+        if ($available_devices < $device_amount) {
+            Response::error(Response::NOT_ENOUGH_DEVICES_AVAILABLE, [], ["available_devices" => $available_devices]);
+        }
+
+        // check if the user has already prebooked devices at that time
+        $sql = "SELECT * FROM prebook WHERE prebook_user_id = :user_id AND prebook_begin < :booking_end AND prebook_end > :booking_begin";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(array(
+            "user_id" => $user_id,
+            "booking_begin" => $booking_begin,
+            "booking_end" => $booking_end
+        ));
+
+        if ($stmt->rowCount() > 0) {
+            Response::error(Response::USER_ALREADY_HAS_PREBOOKING_AT_THAT_TIME);
+        }
+
+        // check if the user has multibooking permission
+        $sql = "SELECT * FROM user LEFT JOIN property_class ON property_class.class_id = user.user_class WHERE user_id = :user_id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(array(
+            "user_id" => $user_id
+        ));
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user["multi_booking"] == 0) {
+            Response::error(Response::NOT_ALLOWED_FOR_THIS_CLASS);
+        }
+
+        // check if min and max booking time is respected
+        $min_booking_time = $_ENV["MIN_BOOKING_DURATION"]; // in minutes
+        $max_booking_time = $_ENV["MAX_BOOKING_DURATION"]; // in minutes
+
+        // time difference in seconds
+        $booking_time = strtotime($booking_end) - strtotime($booking_begin);
+
+        // time to minutes
+        $booking_time = $booking_time / 60;
+
+        if ($booking_time < $min_booking_time || $booking_time > $max_booking_time) {
+            Response::error(Response::BOOKING_TIME_NOT_ALLOWED, ["begin", "end"], ["min_booking_duration" => $min_booking_time, "max_booking_duration" => $max_booking_time]);
+        }
+
+        // check if the booking_begin is at least $min_next_prebook_distance days and at most $max_next_prebook_distance days in the future
+        $min_next_prebook_distance = $_ENV["MIN_PREBOOK_TIME_DISTANCE"]; // in days
+        $max_next_prebook_distance = $_ENV["MAX_PREBOOK_TIME_DISTANCE"]; // in days
+        $day_of_booking_begin = date("Y-m-d", strtotime($booking_begin));
+        $day_of_min = date("Y-m-d", strtotime("+$min_next_prebook_distance days"));
+        $day_of_max = date("Y-m-d", strtotime("+$max_next_prebook_distance days"));
+
+        if ($day_of_booking_begin < $day_of_min) {
+            Response::error(Response::BOOKING_TIME_NOT_ALLOWED, ["begin"], ["min_booking_begin" => $day_of_min]);
+        } else if ($day_of_booking_begin > $day_of_max) {
+            Response::error(Response::BOOKING_TIME_NOT_ALLOWED, ["begin"], ["max_booking_begin" => $day_of_max]);
+        }
+        
+        // finally create the prebooking
+        try {
+            $sql = "INSERT INTO prebook (prebook_user_id, prebook_amount, prebook_begin, prebook_end) VALUES (:user_id, :device_amount, :booking_begin, :booking_end)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(array(
+                "user_id" => $user_id,
+                "device_amount" => $device_amount,
+                "booking_begin" => $booking_begin,
+                "booking_end" => $booking_end
+            ));
+        } catch (PDOException $e) {
+            // check if user exists
+            $sql = "SELECT * FROM user WHERE user_id = :user_id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(array(
+                "user_id" => $user_id
+            ));
+
+            if ($stmt->rowCount() == 0) {
+                Response::error(Response::USER_NOT_FOUND);
+            }
+
+            throw $e;
+        }
+
+        return $pdo->lastInsertId();
     }
 
     public static function availableDevicesForBooking() {
@@ -125,7 +211,7 @@ class Prebook {
         }
 
         $buffer = $_ENV["PREBOOK_BUFFER"]; // in minutes
-        $maximum_duration = $_ENV["MAXIMUM_BOOKING_DURATION"]; // in minutes
+        $max_duration = $_ENV["MAX_BOOKING_DURATION"]; // in minutes
         
         // get upcoming prebookings
         $sql = "SELECT * FROM prebook WHERE prebook_begin > NOW() + INTERVAL $buffer MINUTE ORDER BY prebook_begin ASC";
@@ -141,8 +227,8 @@ class Prebook {
             $time_diff = $time_diff / 60;
 
             
-            if ($time_diff > $maximum_duration) {
-                return $maximum_duration;
+            if ($time_diff > $max_duration) {
+                return $max_duration;
             }
             
             $amount_of_needed_devices = 0;
@@ -161,7 +247,7 @@ class Prebook {
             }
         }
 
-        return $maximum_duration; 
+        return $max_duration; 
     }
 }
 

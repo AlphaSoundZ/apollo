@@ -886,15 +886,9 @@ $router->post('/prebook', function () {
 
     $data = getData("POST", ["user_id", "amount", "begin", "end"]);
 
-    $available_devices_amount = Prebook::availableDevicesForPrebooking($data["begin"], $data["end"]);
-
-    if ($available_devices_amount < $data["amount"]) {
-        Response::error(Response::NOT_ENOUGH_DEVICES_AVAILABLE);
-    }
-
     $id = Prebook::create($data["user_id"], $data["amount"], $data["begin"], $data["end"]);
 
-    Response::success(Response::SUCCESS, ["availableDevices" => $available_devices_amount]);
+    Response::success(Response::SUCCESS);
 });
 
 // PATCH
