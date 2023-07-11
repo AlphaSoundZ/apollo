@@ -13,8 +13,8 @@ header("Content-Type: text/html; charset=UTF-8");
 </head>
 <body>
     <form action="" method="post" onsubmit="return validate(event);">
-        <input type="text" name="username" placeholder="Username" id="username">
-        <input type="password" name="password" placeholder="Password" id="password">
+        <input type="text" name="username" placeholder="Username" id="username" required>
+        <input type="password" name="password" placeholder="Password" id="password" required>
         <input type="submit" value="Login">
     </form>
 </body>
@@ -26,7 +26,7 @@ header("Content-Type: text/html; charset=UTF-8");
     function validate(ev) {
         ev.preventDefault();
         
-        var username = document.getElementById("username").value;
+        var username = document.getElementById("username").value.trim();
         var password = document.getElementById("password").value;
 
         data = {

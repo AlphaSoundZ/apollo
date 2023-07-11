@@ -35,7 +35,8 @@ function getData($method, array $requirements, array $optional = [])
 		$input = (isset($_POST)) ? json_decode(file_get_contents("php://input"), true) : false;
 	elseif ($method === "GET")
 		$input = (isset($_GET)) ? $_GET : false;
-
+	
+		
 	if (empty($input))
 	{
 		$errors_str = implode(", ", $requirements);
@@ -52,7 +53,7 @@ function getData($method, array $requirements, array $optional = [])
 		if (!empty($errors))
 		{
 			$errors_str = implode(", ", $errors);
-			Response::error(array_merge(Response::REQUIRED_DATA_MISSING, ["message" => Response::REQUIRED_DATA_MISSING["message"] . " ($errors_str)"]), $requirements, ["optional_fields" => $optional]);
+			Response::error(array_merge(Response::REQUIRED_DATA_MISSING, ["message" => Response::REQUIRED_DATA_MISSING["message"] . " ($errors_str)"]), $errors, ["optional_fields" => $optional]);
 		}
 	}
 	return $input;
@@ -61,20 +62,19 @@ function getData($method, array $requirements, array $optional = [])
 function authorize($permission = null, $callback = null)
 {
 	global $pdo, $jwt_key, $authorization_bool;
-
-	if ($authorization_bool == 0)
-		return ["permissions" => [], "id" => null, "username" => null];
 	
 	if (isset($_SERVER["HTTP_AUTHORIZATION"])) 
 		$given_token = $_SERVER["HTTP_AUTHORIZATION"];
-	else
+	else if ($authorization_bool != 0)
 		Response::error(Response::NOT_AUTHORIZED);
+	else 
+		["permissions" => [], "id" => null, "username" => null];
 	$jwt = explode(" ", $given_token)[1];
 
 	$token = Token::validateToken($jwt, $jwt_key);
 	$permissions = $token["permissions"];
 
-	if (!$permission)
+	if (!$permission || $authorization_bool == 0)
 		return $token;
 	
 	// check if token has the right permission:

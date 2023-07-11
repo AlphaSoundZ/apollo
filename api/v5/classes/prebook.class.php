@@ -11,8 +11,13 @@ class Prebook {
      * @return int The prebook id
      * @throws ResponseException
      */
-    public static function create($user_id, $device_amount, $booking_begin, $booking_end, $own_token_id = null) {
+    public static function create($device_amount, $booking_begin, $booking_end, $user_id = null, $own_token_id = null) {
         global $pdo;
+
+        if (!$user_id && !$own_token_id)
+        {
+            Response::error(array_merge(Response::REQUIRED_DATA_MISSING, ["message" => Response::REQUIRED_DATA_MISSING["message"] . " (user_id)"]), ["user_id"]);
+        }
 
         if ($own_token_id)
         {
@@ -22,12 +27,22 @@ class Prebook {
             $stmt->execute(array(
                 "token_id" => $own_token_id
             ));
-            $token_user = $stmt->fetch(PDO::FETCH_ASSOC)["user_id"];
             
-            if ($user_id != $token_user && !isset(authorize()["permissions"]["CRUD_prebook"]))
+            $token_user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$token_user)
+                Response::error(Response::TOKEN_NOT_FOUND);
+            else
+                $token_user = $token_user["token_user_id"];
+            
+            if ($user_id != null && $user_id != $token_user && !isset(authorize()["permissions"]["CRUD_prebook"]))
             {
                 // user is not allowed to prebook for others
                 Response::error(Response::NOT_ALLOWED);
+            }
+            else
+            {
+                $user_id = $token_user;
             }
         }
 

@@ -28,6 +28,10 @@ $router->get('/dashboard', function () {
     require_once 'controlpanel/dashboard.php';
 });
 
+$router->get('/prebook_page', function () {
+    require_once 'controlpanel/prebook_page.php';
+});
+
 // ####################
 // #### API ROUTES ####
 
@@ -915,11 +919,16 @@ $router->post('/prebook', function () {
         return authorize("CRUD_prebook");
     });
 
-    $data = getData("POST", ["user_id", "amount", "begin", "end"]);
+    $data = getData("POST", ["amount", "begin", "end"]);
 
-    $id = Prebook::create($data["user_id"], $data["amount"], $data["begin"], $data["end"], $token["id"]);
+    $user_id = (isset($data["user_id"])) ? $data["user_id"] : null;
 
-    Response::success(Response::SUCCESS);
+    if ($user_id)
+        $id = Prebook::create($data["amount"], $data["begin"], $data["end"], $data["user_id"], $token["id"]);
+    else
+        $id = Prebook::create($data["amount"], $data["begin"], $data["end"], null, $token["id"]);
+
+    Response::success(Response::SUCCESS, ["prebook_id" => $id]);
 });
 
 // PATCH
