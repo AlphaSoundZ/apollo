@@ -81,8 +81,8 @@ class Prebook {
         // time to minutes
         $booking_time = $booking_time / 60;
 
-        if ($booking_time < $min_booking_time || $booking_time > $max_booking_time) {
-            Response::error(Response::BOOKING_TIME_NOT_ALLOWED, ["begin", "end"], ["min_booking_duration" => $min_booking_time, "max_booking_duration" => $max_booking_time]);
+        if ($booking_time < $min_booking_time || $booking_time > $max_booking_time) { // check if the booking time is in the allowed range
+            Response::error(Response::PREBOOK_DURATION_NOT_ALLOWED, ["begin", "end"], ["duration" => ["min_booking_duration" => $min_booking_time, "max_booking_duration" => $max_booking_time, "current_duration" => $booking_time]]);
         }
 
         // check if the booking_begin is at least $min_next_prebook_distance days and at most $max_next_prebook_distance days in the future
@@ -100,9 +100,9 @@ class Prebook {
         }
 
         if ($day_of_booking_begin < $day_of_min) {
-            Response::error(Response::BOOKING_TIME_NOT_ALLOWED, ["begin"], ["min_booking_begin" => $day_of_min]);
+            Response::error(Response::PREBOOK_TIME_NOT_ALLOWED, ["begin"], ["min_booking_begin" => $day_of_min]);
         } else if ($day_of_booking_begin > $day_of_max) {
-            Response::error(Response::BOOKING_TIME_NOT_ALLOWED, ["begin"], ["max_booking_begin" => $day_of_max]);
+            Response::error(Response::PREBOOK_TIME_NOT_ALLOWED, ["begin"], ["max_booking_begin" => $day_of_max]);
         }
         
         // finally create the prebooking

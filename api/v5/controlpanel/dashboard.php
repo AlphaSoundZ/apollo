@@ -16,10 +16,10 @@ header("Content-Type: text/html; charset=UTF-8");
     <div class="topnav">
         <a class="active" href="/api/v5/dashboard">Dashboard</a>
         <a href="/api/v5/status">Status</a>
-        <a href="/api/v5/login">Logout</a>
         <a href="/api/v5/prebook_page">Prebook</a>
+        <a href="/api/v5/login">Logout</a>
     </div>
-    <h1 id="greetings">Hello Guest</h1>
+    <h1 id="greetings">Hallo Guest</h1>
 </body>
 </html>
 
@@ -62,7 +62,7 @@ header("Content-Type: text/html; charset=UTF-8");
 
         const user_field = document.getElementById("greetings")
 
-        user_field.innerHTML = "Hello " + userdata.firstname + " " + userdata.lastname + "!"
+        user_field.innerHTML = "Hallo " + userdata.firstname + " " + userdata.lastname + "!"
     }
 </script>
 
