@@ -110,6 +110,5 @@ abstract class Response extends BasicEnum {
 	const USER_ALREADY_HAS_PREBOOKING_AT_THAT_TIME = ["status" => "USER_ALREADY_HAS_PREBOOKING_AT_THAT_TIME", "message" => "User hat bereits eine Reservierung in diesem Zeitraum", "code" => 409]; // User already has a prebooking at that time period
 	const PREBOOK_TIME_NOT_ALLOWED = ["status" => "PREBOOK_TIME_NOT_ALLOWED", "message" => "Ausleihe in dieser Zeit nicht erlaubt", "code" => 409]; // Prebook not allowed at that time
 	const PREBOOK_DURATION_NOT_ALLOWED = ["status" => "PREBOOK_DURATION_NOT_ALLOWED", "message" => "Ausleihe mit dieser Dauer nicht erlaubt", "code" => 409]; // Prebook not allowed with that duration
-	
 	const PREBOOK_NOT_FOUND = ["status" => "PREBOOK_NOT_FOUND", "message" => "Reservierung nicht gefunden", "code" => 404]; // Prebooking not found
 }

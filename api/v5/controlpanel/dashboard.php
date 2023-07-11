@@ -19,7 +19,7 @@ header("Content-Type: text/html; charset=UTF-8");
         <a href="/api/v5/prebook_page">Prebook</a>
         <a href="/api/v5/login">Logout</a>
     </div>
-    <h1 id="greetings">Hallo Guest</h1>
+    <h2 id="greetings">Hallo Gast</h2>
 </body>
 </html>
 
