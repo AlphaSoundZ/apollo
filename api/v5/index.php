@@ -1335,5 +1335,9 @@ $router->post('/token/validate', function () {
     Response::success(array_merge(Response::SUCCESS, ["message" => "Token ist valide"]), $permissions);
 });
 
+$router->options('/{route:.*}/', function () {
+    Response::success();
+});
+
 // Run the router
 $router->run();

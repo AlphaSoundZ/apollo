@@ -2,7 +2,10 @@
 declare(strict_types=1);
 
 header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Credentials: true");
 header("Content-Type: application/json");
+header("Access-Control-Allow-Methods: DELETE, POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 
 require_once 'classes/exception_handler.class.php';
 require_once 'classes/response_keys.class.php';
@@ -68,8 +71,19 @@ function authorize($permission = null, $callback = null)
 	else if ($authorization_bool != 0)
 		Response::error(Response::NOT_AUTHORIZED);
 	else 
-		["permissions" => [], "id" => null, "username" => null];
-	$jwt = explode(" ", $given_token)[1];
+		return ["permissions" => [], "id" => null, "username" => null];
+	
+	$jwt_raw = explode(" ", $given_token);
+
+	if ((count($jwt_raw) != 2 || $jwt_raw[0] != "Bearer"))
+	{
+		if ($authorization_bool != 0)
+			Response::error(Response::NOT_AUTHORIZED);
+		else
+			return ["permissions" => [], "id" => null, "username" => null];
+	}
+	
+	$jwt = $jwt_raw[1];
 
 	$token = Token::validateToken($jwt, $jwt_key);
 	$permissions = $token["permissions"];
