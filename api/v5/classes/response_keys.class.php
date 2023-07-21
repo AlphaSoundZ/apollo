@@ -49,7 +49,7 @@ abstract class BasicEnum {
 			"method" => $_SERVER["REQUEST_METHOD"] ?? "",
 		];
 		
-		throw new CustomException(array_merge($payload, $custom), $payload["code"]);
+		throw new ResponseException(array_merge($payload, $custom), $payload["code"]);
 	}
 }
 
@@ -61,7 +61,7 @@ abstract class Response extends BasicEnum {
 	const DEVICE_NOT_FOUND = ["status" => "DEVICE_NOT_FOUND", "message" => "Device ist in der Datenbank nicht verfügbar", "code" => 404]; // Devcies not found in database
 	const NOT_ALLOWED = ["status" => "NOT_ALLOWED", "message" => "Dieser Request konnte aufgrund von fehlender Permission nicht ausgeführt werden", "code" => 403]; // User is not allowed to do this action (permission missing)
 	const NOT_AUTHORIZED = ["status" => "NOT_AUTHORIZED", "message" => "Token ist nicht autorisiert", "code" => 401]; // Token not valid, or username/password wrong
-	const NOT_ALLOWED_FOR_THIS_CLASS = ["status" => "NOT_ALLOWED_FOR_THIS_CLASS", "message" => "Es ist Ihnen nicht erlaubt mehrere Devices auszuleihen", "code" => 403]; // User already lending but is no Multibooking-User
+	const NOT_ALLOWED_FOR_THIS_CLASS = ["status" => "NOT_ALLOWED_FOR_THIS_CLASS", "message" => "Es ist Ihnen nicht erlaubt mehrere Devices auszuleihen", "code" => 403]; // User is not allowed to lend more than one device at the same time
 	const DEVICE_ALREADY_LENT = ["status" => "DEVICE_ALREADY_LENT", "message" => "Das Device wird bereits ausgeliehen", "code" => 409]; // Device already lending
 	const REQUIRED_DATA_MISSING = ["status" => "REQUIRED_DATA_MISSING", "message" => "Input fehlt", "code" => 400]; // Required data missing
 	const DEVICE_NOT_LENT = ["status" => "DEVICE_NOT_LENT", "message" => "Device kann nicht zurückgegeben werden", "code" => 409]; // Device not lent
@@ -105,4 +105,10 @@ abstract class Response extends BasicEnum {
 	const NO_CHANGES = ["status" => "NO_CHANGES", "message" => "Keine Änderungen, alter und neuer Wert sind identisch", "code" => 200]; // No changes in database (this could be for example a user where no bookings are found)
 	const API_RUNNING = ["status" => "API_RUNNING", "message" => "API ist aktiv", "code" => 200]; // API is running
 	const INTERNAL_SERVER_ERROR = ["status" => "INTERNAL_SERVER_ERROR", "message" => "Interner Server Fehler", "code" => 500]; // Internal server error
+	const CONFLICT_WITH_PREBOOK = ["status" => "CONFLICT_WITH_PREBOOK", "message" => "Ausleihe nicht möglich, da dieses Gerät reserviert ist", "code" => 409]; // Booking not allowed, because device is reserved
+	const NOT_ENOUGH_DEVICES_AVAILABLE = ["status" => "NOT_ENOUGH_DEVICES_AVAILABLE", "message" => "Nicht genügend Geräte verfügbar", "code" => 409]; // Not enough devices available for prebooking
+	const USER_ALREADY_HAS_PREBOOKING_AT_THAT_TIME = ["status" => "USER_ALREADY_HAS_PREBOOKING_AT_THAT_TIME", "message" => "User hat bereits eine Reservierung in diesem Zeitraum", "code" => 409]; // User already has a prebooking at that time period
+	const PREBOOK_TIME_NOT_ALLOWED = ["status" => "PREBOOK_TIME_NOT_ALLOWED", "message" => "Ausleihe in dieser Zeit nicht erlaubt", "code" => 409]; // Prebook not allowed at that time
+	const PREBOOK_DURATION_NOT_ALLOWED = ["status" => "PREBOOK_DURATION_NOT_ALLOWED", "message" => "Ausleihe mit dieser Dauer nicht erlaubt", "code" => 409]; // Prebook not allowed with that duration
+	const PREBOOK_NOT_FOUND = ["status" => "PREBOOK_NOT_FOUND", "message" => "Reservierung nicht gefunden", "code" => 404]; // Prebooking not found
 }

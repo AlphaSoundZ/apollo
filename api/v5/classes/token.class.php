@@ -31,7 +31,7 @@ class Token
         ];
         $jwt = JWT::encode($payload, $key, 'HS256');
 
-        return $jwt;
+        return ["token_id" => $token_id, "jwt" => $jwt];
     }
 
     public static function validateToken($jwt, $key)
@@ -55,6 +55,6 @@ class Token
         else if ($decoded["iat"] <= strtotime($login_data['token_last_change']))
             Response::error(array_merge(Response::NOT_AUTHORIZED, ["message" => Response::NOT_AUTHORIZED["message"] . ". Token ist abgelaufen"]));
         
-        return array_values((array) $decoded["permissions"]);
+        return ["permissions" => array_values((array) $decoded["permissions"]), "username" => $login_data["token_username"], "id" => $decoded["sub"]];
     }
 }

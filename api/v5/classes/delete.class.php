@@ -44,7 +44,7 @@ class DataDelete
         }
     }
 
-    static function deleteToken($id, $token)
+    static function deleteToken($id, $own_token_id)
     {
         global $pdo;
         $identityColumn = self::getIdentityColumn("token");
@@ -57,7 +57,7 @@ class DataDelete
 
         if (!$row)
             Response::error(Response::TOKEN_NOT_FOUND, ["id"]);
-        else if ($id == $token['sub'])
+        else if ($id == $own_token_id)
             Response::error(Response::DELETE_OWN_TOKEN_NOT_ALLOWED, ["id"]);
         
         try {
@@ -76,6 +76,43 @@ class DataDelete
             else // other error
                 throw $e;
         }
+    }
+
+    static function deletePrebook($id, $own_token_id = null)
+    {
+        global $pdo;
+
+        if ($own_token_id == null)
+        {
+            // check if user is allowed to delete prebook (user of token is owner of prebook, or user has CRUD_prebook permission)
+            $sql = "SELECT * FROM token WHERE token_id = :token_id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(array(
+                "token_id" => $own_token_id
+            ));
+            $token_user = $stmt->fetch(PDO::FETCH_ASSOC)["user_id"];
+    
+            // get user_id of prebook
+            $sql = "SELECT * FROM prebook WHERE prebook_id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(array(
+                "id" => $id
+            ));
+            $user_id = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            if (!$user_id)
+                Response::error(Response::PREBOOK_NOT_FOUND, ["id"]);
+            
+            $user_id = $user_id["prebook_user_id"];
+            
+            if ($user_id != $token_user && !isset(authorize()["permissions"]["CRUD_prebook"]))
+            {
+                // user is not allowed to delete prebook for others
+                Response::error(Response::NOT_ALLOWED);
+            }
+        }
+        
+        self::delete("prebook", $id, Response::PREBOOK_NOT_FOUND, Response::FOREIGN_KEY_ERROR);
     }
 
     static function reset($table, $reset_id, $condition = null)

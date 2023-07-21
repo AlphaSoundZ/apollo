@@ -1,5 +1,6 @@
 <?php
 require_once "config.php";
+require_once "classes/prebook.class.php";
 
 class Booking
 {
@@ -56,6 +57,12 @@ class Booking
           $status = $pdo->query($sql)->fetchAll();
           if ($status && $user['multi_booking'] != 1)
             Response::error(Response::NOT_ALLOWED_FOR_THIS_CLASS, ["uid_1"]);
+
+          // Ist das Gerät reserviert?
+          $max_duration = Prebook::maxBookingDuration();
+          if ($max_duration == 0) {
+            Response::error(Response::CONFLICT_WITH_PREBOOK);
+          }
           
           // Keine Probleme, Gerät kann ausgeliehen werden
           $return_result = self::lend($user['user_id'], $device_2['device_id']);
@@ -186,11 +193,13 @@ class Booking
     $this->data['user']['class'] = $user['class_name'];
     $this->data['user']['multi_booking'] = $user['multi_booking'];
     $this->data['user']['status'] = $status;
+    $this->data['user']['max_booking_duration'] = Prebook::maxBookingDuration();
 
     // Amount of devices
     $this->data['user']['devices_amount']['currently'] = $amount_of_devices[0];
     $this->data['user']['devices_amount']['session'] = ($amount_of_devices[0] > 0) ? $amount_of_devices_in_session[0] : 0;
     $this->data['user']['devices_amount']['ever'] = $amount_of_devices_ever[0];
+    $this->data['user']['devices_amount']['available'] = Prebook::availableDevicesForBooking();
 
     // History of devices
     $history_stm = "SELECT devices.device_type, devices.device_id, property_device_type.device_type_id, property_device_type.device_type_name, event.* FROM event LEFT JOIN devices ON event.event_device_id = devices.device_id LEFT JOIN property_device_type ON property_device_type.device_type_id = devices.device_type WHERE event_user_id = '".$this->data['user']['user_id']."' ORDER BY event_begin DESC LIMIT 20";
