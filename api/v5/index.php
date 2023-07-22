@@ -50,13 +50,11 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
     $order_strategy = (isset($_GET["order_strategy"])) ? $_GET["order_strategy"] : null;
 
     $response_structure = array(
-        "class" => [
             "id" => "class_id",
             "name" => "class_name",
             "test" => [
                 "id" => "class_id",
             ]
-        ],
     );
 
     $results = array();
@@ -71,14 +69,10 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
 
     $path = array(
         "id" => [
-            "class" => [
-                "id",
-            ],
+            "id",
         ],
-        "name" => [
-            "class" => [
-                "name"
-            ]
+        "query" => [
+            "name",
         ]
     );
 
@@ -87,7 +81,7 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
 
     if ($id) // search for class with $id
     {
-        $response = Data::search([["table" => "property_class"]], ["*"], $response_structure, $path["id"], $id, ["strict" => true, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+        $response = Data::search([["table" => "property_class"]], ["*"], $response_structure, $path["query"], $id, ["strict" => true, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
         $response["message"] = ($response["data"]) ? "Klasse gefunden" : "Klasse nicht gefunden";
     }
     else
@@ -95,7 +89,7 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
         
         if ($query) // search for class with query
         {
-            $response = Data::search([["table" => "property_class"]], ["*"], $response_structure, $path["name"], $query, ["strict" => $strict, "order_by" => $order_by, "order_strategy" => $order_strategy, "page" => $page, "size" => $size]);
+            $response = Data::search([["table" => "property_class"]], ["*"], $response_structure, $path["query"], $query, ["strict" => $strict, "order_by" => $order_by, "order_strategy" => $order_strategy, "page" => $page, "size" => $size]);
             $response["message"] = ($response["data"]) ? "Klasse gefunden" : "Klasse nicht gefunden";
         }
         else // get all classes
