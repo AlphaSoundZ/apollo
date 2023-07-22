@@ -20,18 +20,6 @@ $router->get('/status', function () {
     require_once 'controlpanel/status.php';
 });
 
-$router->get('/login', function () {
-    require_once 'controlpanel/login.php';
-});
-
-$router->get('/dashboard', function () {
-    require_once 'controlpanel/dashboard.php';
-});
-
-$router->get('/prebook_page', function () {
-    require_once 'controlpanel/prebook_page.php';
-});
-
 // ####################
 // #### API ROUTES ####
 
