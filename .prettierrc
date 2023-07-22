@@ -1,6 +1,9 @@
 {
-  "tabWidth": 2,
-  "useTabs": true,
-  "singleQuote": true,
-  "bracketSameLine": false
+	"plugins": ["plugin-php"],
+	"tabWidth": 2,
+	"useTabs": true,
+	"singleQuote": true,
+	"bracketSameLine": false,
+	"trailingComma": "all",
+	"arrowParens": "avoid"
 }
