@@ -312,6 +312,7 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
     $response_structure = array(
         "id" => "device_type_id",
         "name" => "device_type_name",
+        "amount" => "amount",
     );
 
     $results = array();
@@ -328,7 +329,7 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
 
     if ($id) // search for class with $id
     {
-        $response = Data::select([["table" => "property_device_type"]], ["*"], $response_structure, ["strict" => true, "where" => "device_type_id = " . $id, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy]);
+        $response = Data::select([["table" => "property_device_type"], ["table" => "devices", "join" => ["property_device_type.device_type_id", "devices.device_type"]]], ["COUNT(devices.device_id) AS amount, property_device_type.*"], $response_structure, ["strict" => true, "where" => "device_type_id = " . $id, "page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy, "groupby" => "property_device_type.device_type_id"]);
         $response["message"] = ($response["data"]) ? "Gerätetyp gefunden" : "Gerätetyp nicht gefunden";
     } else {
 
