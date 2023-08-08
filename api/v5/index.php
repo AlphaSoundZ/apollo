@@ -362,6 +362,10 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
     require_once 'classes/search.class.php';
     authorize("search");
 
+    if ($id == null) {
+        $id = (isset($_GET["query"])) ? $_GET["query"] : null;
+    }
+
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
 
@@ -556,6 +560,10 @@ $router->get('/usercard/type(/\d+)?', function ($id = null) {
 $router->get('/usercard(/[^/]+)?', function ($id = null) {
     require_once 'classes/search.class.php';
     authorize("search");
+
+    if ($id == null) {
+        $id = (isset($_GET["query"])) ? $_GET["query"] : null;
+    }
 
     $response["message"] = "";
 
@@ -996,7 +1004,7 @@ $router->patch('/usercard/type/change', function () {
     Response::success();
 });
 
-$router->patch('device/change', function () {
+$router->patch('/device/change', function () {
     require_once "classes/update.class.php";
     authorize("CRUD_device");
 
