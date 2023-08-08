@@ -22,7 +22,7 @@ class Prebook {
         if ($own_token_id)
         {
             // check if the user is allowed to prebook (for himself or for all)
-            $sql = "SELECT * FROM token WHERE token_id = :token_id";
+            $sql = "SELECT * FROM user WHERE user_token_id = :token_id";
             $stmt = $pdo->prepare($sql);
             $stmt->execute(array(
                 "token_id" => $own_token_id
@@ -33,7 +33,7 @@ class Prebook {
             if (!$token_user)
                 Response::error(Response::TOKEN_NOT_FOUND);
             else
-                $token_user = $token_user["token_user_id"];
+                $token_user = $token_user["user_id"];
             
             if ($user_id != null && $user_id != $token_user && !isset(authorize()["permissions"]["CRUD_prebook"]))
             {
