@@ -1,13 +1,13 @@
 <?php
 class Data {
-    static function select($table, $columns, $response_structure = [], $options = []) {
+    static function select($tables, $columns, $response_structure = [], $options = []) {
         global $pdo;
-        $first_table = $table[0]["table"];
-        array_shift($table);
+        $first_table = $tables[0]["table"];
+        array_shift($tables);
         $column = implode(", ", $columns);
         $join = "";
 
-        foreach ($table as $key => $t)
+        foreach ($tables as $key => $t)
         {
             $table_name = $t['table'];
             $link_1 = $t['join'][0];
@@ -95,7 +95,7 @@ class Data {
         return ["data" => $result, "page" => $select["page"]];
     }
 
-    private static function searchalgo($needles, $haystack, $columns, $strict = false, $sort = true) {
+    public static function searchalgo($needles, $haystack, $columns, $strict = false, $sort = true) {
         $result = array();
         $needles = explode(" ", strtolower($needles));
         for ($row = 0; $row < count($haystack); $row++) // loop every row
