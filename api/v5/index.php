@@ -268,15 +268,21 @@ $router->get('/user(/\d+)/history', function ($id) {
         $order_by = Data::getValueOfStructure($response_structure, $order_by);
     }
 
+    // check if user exists
+    $user = Data::select([["table" => "user"]], ["user_id"], ["user_id"], ["where" => "user_id = " . $id]);
+    if (!$user["data"]) {
+        Response::error(Response::USER_NOT_FOUND);
+    }
+
     $response = Data::select([["table" => "event"]], ["event.event_begin", "event.event_end", "event.event_multi_booking_id"], $response_structure, ["page" => $page, "size" => $size, "strict" => true, "order_by" => $order_by, "order_strategy" => $order_strategy, "where" => "event.event_user_id = " . $id]);
 
     // Check if bookings were found
-    if (!$response["data"]) {
+    if ($response["data"]) {
+        $response["message"] = "Buchungen zu diesem Benutzer gefunden";
+    } else {
         // No bookings found
-        Response::success(Response::NO_CONTENT);
+        $response["message"] = "Keine Buchungen zu diesem Benutzer gefunden";
     }
-
-    $response["message"] = "Buchungen zu diesem Benutzer gefunden";
 
     // Group bookings by multi_booking_id
     $grouped = array();
@@ -485,12 +491,14 @@ $router->get('/device(/[^/]+)/history', function ($id) {
     // if $id is an $uid
     $id = $device["data"][0]["device_id"];
 
+
     $response = Data::select([["table" => "event"], ["table" => "user", "join" => ["event.event_user_id", "user.user_id"]]], ["event.*", "user.*"], $response_structure, ["page" => $page, "size" => $size, "strict" => true, "where" => "event.event_device_id = " . $id, "order_by" => $order_by, "order_strategy" => $order_strategy]);
-    if (!$response["data"]) {
+    if ($response["data"]) {
+        $response["message"] = "Buchungen zu diesem Device gefunden";
+    } else {
         // No bookings found
-        Response::success(Response::NO_CONTENT);
+        $response["message"] = "Keine Buchungen zu diesem Device gefunden";
     }
-    $response["message"] = "Buchungen zu diesem Device gefunden";
 
     $results["page"] = $response["page"];
     if ($id !== null) {
