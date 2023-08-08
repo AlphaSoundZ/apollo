@@ -778,6 +778,57 @@ $router->get('/token/permission(/\d+)?', function ($id = null) {
     Response::success(array_merge(Response::SUCCESS, ["message" => $response["message"]]), $results);
 });
 
+$router->get('/prebook(/\d+)?', function ($id = null) {
+    require_once 'classes/search.class.php';
+    $token = authorize("prebook");
+
+    $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
+    $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
+    $order_by = (isset($_GET["order_by"])) ? $_GET["order_by"] : null;
+    $order_strategy = (isset($_GET["order_strategy"])) ? $_GET["order_strategy"] : null;
+
+    $response_structure = array(
+        "id" => "prebook_id",
+        "user_id" => "prebook_user_id",
+        "begin" => "prebook_begin",
+        "end" => "prebook_end",
+        "firstname" => "user_firstname",
+        "lastname" => "user_lastname",
+    );
+
+    $table = [
+        ["table" => "prebook"],
+        ["table" => "user", "join" => ["user.user_id", "prebook.prebook_user_id"]]
+    ];
+
+    $options = ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy];
+
+    $results = array();
+    if ($order_by !== null && $order_strategy !== null) {
+        $results["order"]["by"] = $order_by;
+        $results["order"]["strategy"] = $order_strategy;
+
+        $order_by = explode(".", $order_by);
+        $order_by = Data::getValueOfStructure($response_structure, $order_by);
+    }
+
+    if ($id) {
+        $response = Data::select($table, ["*"], $response_structure, array_merge($options, ["where" => "user_id = " . $id]));
+    } else {
+        // everything after now
+        $response = Data::select($table, ["*"], $response_structure, array_merge($options, ["where" => "prebook_begin >= NOW()"]));
+    }
+
+    $results["page"] = $response["page"];
+    if ($id !== null) {
+        $results["search"]["id"] = $id;
+    }
+    $results["data"] = $response["data"];
+
+
+    Response::success(Response::SUCCESS, $results);
+});
+
 // POST
 $router->post('/csv/import', function () {
     require_once 'classes/csv.class.php';
@@ -901,7 +952,7 @@ $router->post('/token/create', function () {
     Response::success(Response::SUCCESS, ["token_id" => $id]);
 });
 
-$router->post('/prebook', function () {
+$router->post('/prebook/book', function () {
     require_once 'classes/prebook.class.php';
     $token = authorize("prebook", function () {
         return authorize("CRUD_prebook");
