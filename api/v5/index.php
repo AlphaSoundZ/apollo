@@ -789,16 +789,13 @@ $router->get('/prebook(/\d+)?', function ($id = null) {
 
     $response_structure = array(
         "id" => "prebook_id",
-        "user_id" => "prebook_user_id",
         "begin" => "prebook_begin",
         "end" => "prebook_end",
-        "firstname" => "user_firstname",
-        "lastname" => "user_lastname",
+        "user_id" => "prebook_user_id",
     );
 
     $table = [
         ["table" => "prebook"],
-        ["table" => "user", "join" => ["user.user_id", "prebook.prebook_user_id"]]
     ];
 
     $options = ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy];
@@ -952,7 +949,7 @@ $router->post('/token/create', function () {
     Response::success(Response::SUCCESS, ["token_id" => $id]);
 });
 
-$router->post('/prebook/book', function () {
+$router->post('/prebook/create', function () {
     require_once 'classes/prebook.class.php';
     $token = authorize("prebook", function () {
         return authorize("CRUD_prebook");
