@@ -1,7 +1,8 @@
 <?php
 require_once 'config.php';
 
-class Prebook {
+class Prebook
+{
     /**
      * @param int $user_id The id of the user who wants to prebook
      * @param int $device_amount The amount of devices the user wants to prebook
@@ -11,37 +12,33 @@ class Prebook {
      * @return int The prebook id
      * @throws ResponseException
      */
-    public static function create($device_amount, $booking_begin, $booking_end, $user_id = null, $own_token_id = null) {
+    public static function create($device_amount, $booking_begin, $booking_end, $user_id = null, $own_token_id = null)
+    {
         global $pdo;
 
-        if (!$user_id && !$own_token_id)
-        {
+        if (!$user_id && !$own_token_id) {
             Response::error(array_merge(Response::REQUIRED_DATA_MISSING, ["message" => Response::REQUIRED_DATA_MISSING["message"] . " (user_id)"]), ["user_id"]);
         }
 
-        if ($own_token_id)
-        {
+        if ($own_token_id) {
             // check if the user is allowed to prebook (for himself or for all)
-            $sql = "SELECT * FROM user WHERE user_token_id = :token_id";
+            $sql = "SELECT * FROM token WHERE token_id = :token_id";
             $stmt = $pdo->prepare($sql);
             $stmt->execute(array(
                 "token_id" => $own_token_id
             ));
-            
+
             $token_user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$token_user)
                 Response::error(Response::TOKEN_NOT_FOUND);
             else
-                $token_user = $token_user["user_id"];
-            
-            if ($user_id != null && $user_id != $token_user && !isset(authorize()["permissions"]["CRUD_prebook"]))
-            {
+                $token_user = $token_user["token_user_id"];
+
+            if ($user_id != null && $user_id != $token_user && !isset(authorize()["permissions"]["CRUD_prebook"])) {
                 // user is not allowed to prebook for others
                 Response::error(Response::NOT_ALLOWED);
-            }
-            else
-            {
+            } else {
                 $user_id = $token_user;
             }
         }
@@ -104,7 +101,7 @@ class Prebook {
         } else if ($day_of_booking_begin > $day_of_max) {
             Response::error(Response::PREBOOK_TIME_NOT_ALLOWED, ["begin"], ["max_booking_begin" => $day_of_max]);
         }
-        
+
         // finally create the prebooking
         try {
             $sql = "INSERT INTO prebook (prebook_user_id, prebook_amount, prebook_begin, prebook_end) VALUES (:user_id, :device_amount, :booking_begin, :booking_end)";
@@ -133,7 +130,8 @@ class Prebook {
         return $pdo->lastInsertId();
     }
 
-    public static function availableDevicesForBooking() {
+    public static function availableDevicesForBooking()
+    {
         global $pdo;
 
         // get total amount of devices
@@ -151,7 +149,7 @@ class Prebook {
 
         // Get future prebookings in buffer ($buffer time before the prebook_begin time until prebook_end time)
         $buffer = $_ENV["PREBOOK_BUFFER"]; // in minutes
-        
+
         $sql = "SELECT *, SUM(prebook_amount) AS sum FROM prebook WHERE prebook_begin <= NOW() + INTERVAL $buffer MINUTE AND prebook_end >= NOW()";
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
@@ -192,7 +190,8 @@ class Prebook {
         return $available_devices;
     }
 
-    public static function availableDevicesForPrebooking($prebook_begin, $prebook_end) {
+    public static function availableDevicesForPrebooking($prebook_begin, $prebook_end)
+    {
         global $pdo;
 
         // get total amount of devices
@@ -205,23 +204,22 @@ class Prebook {
         $sql = "SELECT * FROM prebook WHERE prebook_begin < :prebook_end AND prebook_end > :prebook_begin ORDER BY prebook_begin ASC";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array(
-                "prebook_begin" => $prebook_begin,
-                "prebook_end" => $prebook_end
+            "prebook_begin" => $prebook_begin,
+            "prebook_end" => $prebook_end
         ));
         $prebookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $availableDevices = $total_devices;
-        
+
         // get next prebooking, where the sum of needed devices at that time is the highest
         foreach ($prebookings as $prebooking) {
-            
+
             $amount_of_needed_devices = 0;
             $time = strtotime($prebooking["prebook_begin"]);
 
 
-            
-            for ($i = 0; $i < count($prebookings); $i++)
-            {
+
+            for ($i = 0; $i < count($prebookings); $i++) {
                 if (strtotime($prebookings[$i]["prebook_begin"]) <= $time && strtotime($prebookings[$i]["prebook_end"]) >= $time) {
                     $amount_of_needed_devices += $prebookings[$i]["prebook_amount"];
                 }
@@ -233,7 +231,8 @@ class Prebook {
         return $availableDevices;
     }
 
-    public static function maxBookingDuration() {
+    public static function maxBookingDuration()
+    {
         // returns the maximum duration of a booking in minutes before the devices are needed for a prebooking
         global $pdo;
 
@@ -253,29 +252,28 @@ class Prebook {
 
         $buffer = $_ENV["PREBOOK_BUFFER"]; // in minutes
         $max_duration = $_ENV["MAX_BOOKING_DURATION"]; // in minutes
-        
+
         // get upcoming prebookings
         $sql = "SELECT * FROM prebook WHERE prebook_begin > NOW() + INTERVAL $buffer MINUTE ORDER BY prebook_begin ASC";
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         $prebookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        
+
         // get next prebooking, where the sum of needed devices at that time is greater than the amount of available devices
         foreach ($prebookings as $prebooking) {
             // get prebooks at time: $prebooking["prebook_begin"]
             $time_diff = strtotime($prebooking["prebook_begin"]) - time();
             $time_diff = $time_diff / 60;
 
-            
+
             if ($time_diff > $max_duration) {
                 return $max_duration;
             }
-            
+
             $amount_of_needed_devices = 0;
             $time = $prebooking["prebook_begin"];
-            for ($i = 0; $i < count($prebookings); $i++)
-            {
+            for ($i = 0; $i < count($prebookings); $i++) {
                 if ($prebookings[$i]["prebook_begin"] <= $time && $prebookings[$i]["prebook_end"] >= $time) {
                     $amount_of_needed_devices += $prebookings[$i]["prebook_amount"];
                 }
@@ -288,7 +286,7 @@ class Prebook {
             }
         }
 
-        return $max_duration; 
+        return $max_duration;
     }
 }
 

@@ -194,17 +194,18 @@ class Create
             Response::error(Response::USER_NOT_FOUND, ["user_id"]);
 
         try {
-            $sql = "INSERT INTO token (token_id, token_username, token_password, token_last_change) VALUES (NULL, :username, :password, CURRENT_TIMESTAMP)";
+            $sql = "INSERT INTO token (token_id, token_username, token_password, token_last_change, token_user_id) VALUES (NULL, :username, :password, CURRENT_TIMESTAMP, :user_id)";
             $stmt = $pdo->prepare($sql);
             $stmt->execute(array(
                 "username" => $username,
                 "password" => $password_hash,
+                "user_id" => $user_id
             ));
 
             $id = $pdo->lastInsertId();
         } catch (PDOException $th) {
             if ($th->errorInfo[1] == "1062") // check if username/token already exists
-                Response::error(Response::TOKEN_ALREADY_EXISTS, ["username"]);
+                Response::error(Response::TOKEN_ALREADY_EXISTS, ["username", "user_id"]);
             if ($th->errorInfo[1] == "1452") // check if user exists
                 Response::error(Response::USER_NOT_FOUND, ["user_id"]);
 
@@ -218,13 +219,6 @@ class Create
             $stmt = $pdo->prepare($sql);
             $stmt->execute(["token" => $id, "permission" => $permissions[$i]]);
         }
-
-        $sql = "UPDATE user SET user_token_id = :token WHERE user_id = :user_id";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array(
-            "token" => $id,
-            "user_id" => $user_id
-        ));
 
         return $id;
     }
