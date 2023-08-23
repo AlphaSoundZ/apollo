@@ -1113,6 +1113,25 @@ $router->patch('/usercard/change', function () {
     Response::success();
 });
 
+$router->patch('/token/change', function () {
+    require_once "classes/update.class.php";
+    authorize("CRUD_token");
+
+    $data = getData("POST", ["id"]);
+
+    DataUpdate::token(
+        $data["id"],
+        [
+            "token_username" => $data["values"]["username"] ?? null,
+            "token_password" => $data["values"]["password"] ?? null,
+            "token_user_id" => $data["values"]["user_id"] ?? null,
+            "permissions" => $data["values"]["permissions"] ?? null,
+        ]
+    );
+
+    Response::success();
+});
+
 // DELETE
 $router->delete('/user/delete', function () {
     require_once "classes/delete.class.php";
