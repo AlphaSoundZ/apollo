@@ -26,7 +26,7 @@ $router->get('/status', function () {
 // GET
 $router->get('/user/class(/\d+)?', function ($id = null) {
     require_once 'classes/search.class.php';
-    authorize("search");
+    authorize("CRUD_user_class");
 
     $response["message"] = "";
 
@@ -145,7 +145,7 @@ $router->get('/user/class(/\d+)?', function ($id = null) {
 
 $router->get('/user(/[^/]+)?', function ($id = null) {
     require_once 'classes/search.class.php';
-    authorize("search");
+    authorize("CRUD_user");
 
     $response["message"] = "";
 
@@ -240,7 +240,7 @@ $router->get('/user(/[^/]+)?', function ($id = null) {
 
 $router->get('/user(/\d+)/history', function ($id) {
     require_once 'classes/search.class.php';
-    authorize("search");
+    authorize("CRUD_user");
 
     $response["message"] = "";
 
@@ -308,7 +308,7 @@ $router->get('/user(/\d+)/history', function ($id) {
 
 $router->get('/device/type(/\d+)?', function ($id = null) {
     require_once 'classes/search.class.php';
-    authorize("search");
+    authorize("CRUD_device_type");
 
     $response["message"] = "";
 
@@ -370,7 +370,7 @@ $router->get('/device/type(/\d+)?', function ($id = null) {
 
 $router->get('/device(/[^/]+)?', function ($id = null) {
     require_once 'classes/search.class.php';
-    authorize("search");
+    authorize("CRUD_device");
 
     if ($id == null) {
         $id = (isset($_GET["query"])) ? $_GET["query"] : null;
@@ -448,7 +448,7 @@ $router->get('/device(/[^/]+)?', function ($id = null) {
 
 $router->get('/device(/[^/]+)/history', function ($id) {
     require_once 'classes/search.class.php';
-    authorize("search");
+    authorize("CRUD_device");
 
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
@@ -511,7 +511,7 @@ $router->get('/device(/[^/]+)/history', function ($id) {
 
 $router->get('/usercard/type(/\d+)?', function ($id = null) {
     require_once 'classes/search.class.php';
-    authorize("search");
+    authorize("CRUD_usercard_type");
 
     $response["message"] = "";
 
@@ -571,7 +571,7 @@ $router->get('/usercard/type(/\d+)?', function ($id = null) {
 
 $router->get('/usercard(/[^/]+)?', function ($id = null) {
     require_once 'classes/search.class.php';
-    authorize("search");
+    authorize("CRUD_usercard");
 
     if ($id == null) {
         $id = (isset($_GET["query"])) ? $_GET["query"] : null;
@@ -631,7 +631,7 @@ $router->get('/usercard(/[^/]+)?', function ($id = null) {
 
 $router->get('/token(/\d+)?', function ($id = null) {
     require_once 'classes/search.class.php';
-    authorize("search");
+    authorize("CRUD_token");
 
     $response["message"] = "";
 
@@ -722,7 +722,7 @@ $router->get('/token(/\d+)?', function ($id = null) {
 
 $router->get('/token/permission(/\d+)?', function ($id = null) {
     require_once 'classes/search.class.php';
-    authorize("search");
+    authorize("CRUD_token");
 
     $response["message"] = "";
 
@@ -780,7 +780,9 @@ $router->get('/token/permission(/\d+)?', function ($id = null) {
 
 $router->get('/prebook(/\d+)?', function ($id = null) {
     require_once 'classes/search.class.php';
-    $token = authorize("prebook");
+    $token = authorize("prebook", function () {
+        return authorize("CRUD_prebook");
+    });
 
     $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
     $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
