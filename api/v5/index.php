@@ -943,7 +943,7 @@ $router->post('/token/create', function () {
     require_once 'classes/create.class.php';
     authorize("CRUD_token");
 
-    $data = getData("POST", ["username", "password", "permissions", "user_id"]);
+    $data = getData("POST", ["username", "password", "user_id"], ["permissions"]); // permissions as optional so it could be empty if the token should have no permissions
 
     $id = Create::token($data["username"], $data["password"], $data["permissions"], $data["user_id"]);
 

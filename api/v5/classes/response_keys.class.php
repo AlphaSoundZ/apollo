@@ -1,11 +1,13 @@
 <?php
-abstract class BasicEnum {
+abstract class BasicEnum
+{
 	/**
 	 * @param array $response ["status" => "SUCCESS", "message" => "Success", "code" => 200]
 	 * @param array $custom
 	 * @return void
 	 */
-	public static function success($response = ["status" => Response::SUCCESS["status"], "message" => Response::SUCCESS["message"], "code" => Response::SUCCESS["code"]], $custom = []) {
+	public static function success($response = ["status" => Response::SUCCESS["status"], "message" => Response::SUCCESS["message"], "code" => Response::SUCCESS["code"]], $custom = [])
+	{
 		$response_status = $response["status"];
 		$response_code = $response["code"];
 		$message = $response["message"];
@@ -20,8 +22,8 @@ abstract class BasicEnum {
 			"request" => $_SERVER["REQUEST_URI"] ?? "",
 			"method" => $_SERVER["REQUEST_METHOD"] ?? "",
 		];
-		
-		
+
+
 		http_response_code($response_code);
 		echo json_encode(array_merge($payload, $custom), JSON_NUMERIC_CHECK); // JSON_NUMERIC_CHECK converts numeric strings to numbers
 		die;
@@ -32,7 +34,8 @@ abstract class BasicEnum {
 	 * @param array $fields
 	 * @return void
 	 */
-	public static function error($response = ["status" => Response::SUCCESS["status"], "message" => Response::SUCCESS["message"], "code" => Response::SUCCESS["code"]], $fields = [], $custom = []) {
+	public static function error($response = ["status" => Response::SUCCESS["status"], "message" => Response::SUCCESS["message"], "code" => Response::SUCCESS["code"]], $fields = [], $custom = [])
+	{
 		$response_status = $response["status"];
 		$response_code = $response["code"];
 		$message = $response["message"];
@@ -48,12 +51,13 @@ abstract class BasicEnum {
 			"request" => $_SERVER["REQUEST_URI"] ?? "",
 			"method" => $_SERVER["REQUEST_METHOD"] ?? "",
 		];
-		
+
 		throw new ResponseException(array_merge($payload, $custom), $payload["code"]);
 	}
 }
 
-abstract class Response extends BasicEnum {
+abstract class Response extends BasicEnum
+{
 	const UNEXPECTED_ERROR = ["status" => "UNEXPECTED_ERROR", "message" => "Internal Server Error: ", "code" => 500]; // Default error message
 	const PAGE_NOT_FOUND = ["status" => "PAGE_NOT_FOUND", "message" => "Page Not Found", "code" => 404]; // Page does not exist (404 error)
 	const ROUTE_NOT_DEFINED = ["status" => "ROUTE_NOT_DEFINED", "message" => "Route Not Defined", "code" => 404]; // Route does not exist (404 error)
@@ -111,4 +115,5 @@ abstract class Response extends BasicEnum {
 	const PREBOOK_TIME_NOT_ALLOWED = ["status" => "PREBOOK_TIME_NOT_ALLOWED", "message" => "Ausleihe in dieser Zeit nicht erlaubt", "code" => 409]; // Prebook not allowed at that time
 	const PREBOOK_DURATION_NOT_ALLOWED = ["status" => "PREBOOK_DURATION_NOT_ALLOWED", "message" => "Ausleihe mit dieser Dauer nicht erlaubt", "code" => 409]; // Prebook not allowed with that duration
 	const PREBOOK_NOT_FOUND = ["status" => "PREBOOK_NOT_FOUND", "message" => "Reservierung nicht gefunden", "code" => 404]; // Prebooking not found
+	const USER_ALREADY_HAS_TOKEN = ["status" => "USER_ALREADY_HAS_TOKEN", "message" => "User hat bereits einen Token", "code" => 409]; // User already has a token
 }

@@ -205,7 +205,14 @@ class Create
             $id = $pdo->lastInsertId();
         } catch (PDOException $th) {
             if ($th->errorInfo[1] == "1062") // check if username/token already exists
-                Response::error(Response::TOKEN_ALREADY_EXISTS, ["username", "user_id"]);
+            {
+                $string = $th->getMessage();
+
+                if (str_contains($string, "token_username")) // username already exists
+                    Response::error(Response::TOKEN_ALREADY_EXISTS, ["username"]);
+                if (str_contains($string, "token_user_id")) // user_id already exists
+                    Response::error(Response::USER_ALREADY_HAS_TOKEN, ["user_id"]);
+            }
             if ($th->errorInfo[1] == "1452") // check if user exists
                 Response::error(Response::USER_NOT_FOUND, ["user_id"]);
 
