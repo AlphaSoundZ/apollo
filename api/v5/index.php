@@ -793,6 +793,7 @@ $router->get('/prebook(/\d+)?', function ($id = null) {
         "id" => "prebook_id",
         "begin" => "prebook_begin",
         "end" => "prebook_end",
+        "amount" => "prebook_amount",
         "user_id" => "prebook_user_id",
     );
 

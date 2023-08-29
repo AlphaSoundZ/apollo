@@ -115,7 +115,7 @@ class DataDelete
         self::delete("prebook", $id, Response::PREBOOK_NOT_FOUND, Response::FOREIGN_KEY_ERROR);
     }
 
-    static function reset($table, $reset_id, $condition = null)
+    static function reset($table, bool $reset_primary, $condition = null)
     {
         global $pdo;
         $sql = "SELECT COUNT(1) FROM $table";
@@ -127,10 +127,10 @@ class DataDelete
         $sth = $pdo->query($sql);
         $countAll = $sth->fetchAll();
 
-        $sql = ($reset_id && !$condition) ? "TRUNCATE TABLE $table" : "DELETE FROM $table";
+        $sql = ($reset_primary && !$condition) ? "TRUNCATE TABLE $table" : "DELETE FROM $table";
         $sql .= ($condition) ? " WHERE $condition" : "";
 
-        if ($countCondition[0]["COUNT(1)"] == $countAll[0]["COUNT(1)"] && $reset_id)
+        if ($countCondition[0]["COUNT(1)"] == $countAll[0]["COUNT(1)"] && $reset_primary)
             $sql = "TRUNCATE TABLE $table";
         
         $sth = $pdo->prepare($sql);
