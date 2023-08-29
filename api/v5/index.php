@@ -915,9 +915,9 @@ $router->post('/token/authorize', function () {
 
     // Get user
     $user_raw = Data::select(
-        [["table" => "token"], ["table" => "user", "join" => ["user.user_id", "token.token_user_id"]]],
+        [["table" => "token"], ["table" => "user", "join" => ["user.user_id", "token.token_user_id"]], ["table" => "usercard", "join" => ["usercard.usercard_id", "user.user_usercard_id"]]],
         ["*"],
-        ["id" => "user_id", "firstname" => "user_firstname", "lastname" => "user_lastname", "username" => "token_username", "class_id" => "user_class", "usercard_id" => "user_usercard_id"],
+        ["id" => "user_id", "firstname" => "user_firstname", "lastname" => "user_lastname", "username" => "token_username", "class_id" => "user_class", "usercard" => ["id" => "usercard_id", "uid" => "usercard_uid"]],
         ["where" => "token_id = '" . $token_id . "'"]
     );
     $user = $user_raw["data"][0];
