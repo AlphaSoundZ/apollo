@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 header("Access-Control-Allow-Origin: *");
@@ -29,7 +30,12 @@ $__dsn = "mysql:host=$__host;dbname=$__db;charset=UTF8";
 $jwt_key = $_ENV['JWT_KEY'];
 $authorization_bool = (isset($_ENV['AUTHORIZATION'])) ? $_ENV['AUTHORIZATION'] : 1;
 
-$pdo = new PDO($__dsn, $__username, $__password);
+try {
+	$pdo = new PDO($__dsn, $__username, $__password);
+} catch (\Throwable $th) {
+	Response::error(array_merge(Response::INTERNAL_SERVER_ERROR, ["message" => "Could not connect to database"]));
+}
+
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 function getData($method, array $requirements, array $optional = [])
@@ -38,23 +44,20 @@ function getData($method, array $requirements, array $optional = [])
 		$input = (isset($_POST)) ? json_decode(file_get_contents("php://input"), true) : false;
 	elseif ($method === "GET")
 		$input = (isset($_GET)) ? $_GET : false;
-	
-		
-	if (empty($input))
-	{
+
+
+	if (empty($input)) {
 		$errors_str = implode(", ", $requirements);
 		Response::error(array_merge(Response::REQUIRED_DATA_MISSING, ["message" => Response::REQUIRED_DATA_MISSING["message"] . " ($errors_str)"]), $requirements, ["optional_fields" => $optional]);
 	}
 
-	if (isset($requirements) && $input)
-	{
+	if (isset($requirements) && $input) {
 		$errors = [];
 		foreach ($requirements as $r) {
 			if (!array_key_exists($r, $input) || empty($input[$r]))
 				array_push($errors, $r);
 		}
-		if (!empty($errors))
-		{
+		if (!empty($errors)) {
 			$errors_str = implode(", ", $errors);
 			Response::error(array_merge(Response::REQUIRED_DATA_MISSING, ["message" => Response::REQUIRED_DATA_MISSING["message"] . " ($errors_str)"]), $errors, ["optional_fields" => $optional]);
 		}
@@ -65,24 +68,23 @@ function getData($method, array $requirements, array $optional = [])
 function authorize($permission = null, $callback = null)
 {
 	global $pdo, $jwt_key, $authorization_bool;
-	
-	if (isset($_SERVER["HTTP_AUTHORIZATION"])) 
+
+	if (isset($_SERVER["HTTP_AUTHORIZATION"]))
 		$given_token = $_SERVER["HTTP_AUTHORIZATION"];
 	else if ($authorization_bool != 0)
 		Response::error(Response::NOT_AUTHORIZED);
-	else 
+	else
 		return ["permissions" => [], "id" => null, "username" => null];
-	
+
 	$jwt_raw = explode(" ", $given_token);
 
-	if ((count($jwt_raw) != 2 || $jwt_raw[0] != "Bearer"))
-	{
+	if ((count($jwt_raw) != 2 || $jwt_raw[0] != "Bearer")) {
 		if ($authorization_bool != 0)
 			Response::error(Response::NOT_AUTHORIZED);
 		else
 			return ["permissions" => [], "id" => null, "username" => null];
 	}
-	
+
 	$jwt = $jwt_raw[1];
 
 	$token = Token::validateToken($jwt, $jwt_key);
@@ -90,7 +92,7 @@ function authorize($permission = null, $callback = null)
 
 	if (!$permission || $authorization_bool == 0)
 		return $token;
-	
+
 	// check if token has the right permission:
 	$sql = "SELECT * FROM property_token_permissions WHERE permission_text = '{$permission}'";
 	$sth = $pdo->prepare($sql);
@@ -98,18 +100,14 @@ function authorize($permission = null, $callback = null)
 	$permission_id = $sth->fetch();
 	if ($permissions && $permission_id && in_array($permission_id["permission_id"], $permissions))
 		return $token;
-	else
-	{
+	else {
 		// run callback if given
-		if ($callback)
-		{
+		if ($callback) {
 			if ($callback())
 				return $token;
 			else
 				Response::error(Response::NOT_ALLOWED, [], ["permission" => $permission]);
-		}
-		else
-		{
+		} else {
 			Response::error(Response::NOT_ALLOWED, [], ["permission" => $permission]);
 		}
 	}
