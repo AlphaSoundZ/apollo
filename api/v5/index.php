@@ -801,7 +801,57 @@ $router->get('/prebook(/\d+)?', function ($id = null) {
         ["table" => "prebook"],
     ];
 
+    $results = array();
+    if ($order_by !== null && $order_strategy !== null) {
+        $results["order"]["by"] = $order_by;
+        $results["order"]["strategy"] = $order_strategy;
+
+        $order_by = explode(".", $order_by);
+        $order_by = Data::getValueOfStructure($response_structure, $order_by);
+    }
+
     $options = ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy];
+
+    if ($id) {
+        $response = Data::select($table, ["*"], $response_structure, array_merge($options, ["where" => "user_id = " . $id]));
+    } else {
+        // everything after now
+        $response = Data::select($table, ["*"], $response_structure, array_merge($options, ["where" => "prebook_begin >= NOW()"]));
+    }
+
+    $results["page"] = $response["page"];
+    if ($id !== null) {
+        $results["search"]["id"] = $id;
+    }
+    $results["data"] = $response["data"];
+
+
+    Response::success(Response::SUCCESS, $results);
+});
+
+$router->get('event(/\d+)?', function ($id = null) {
+    require_once 'classes/search.class.php';
+    authorize("CRUD_event", function () {
+        return authorize("book");
+    });
+
+    $size = (isset($_GET["size"]) && $_GET["size"] > 0) ? $_GET["size"] : 0;
+    $page = ($size !== 0 && isset($_GET["page"])) ? $_GET["page"] : 0;
+    $order_by = (isset($_GET["order_by"])) ? $_GET["order_by"] : "multi_booking_id";
+    $order_strategy = (isset($_GET["order_strategy"])) ? $_GET["order_strategy"] : "DESC";
+
+    $response_structure = array(
+        "id" => "event_id",
+        "user_id" => "event_user_id",
+        "begin" => "event_begin",
+        "end" => "event_end",
+        "multi_booking_id" => "event_multi_booking_id",
+        "device_id" => "event_device_id",
+    );
+
+    $table = [
+        ["table" => "event"],
+    ];
 
     $results = array();
     if ($order_by !== null && $order_strategy !== null) {
@@ -812,11 +862,12 @@ $router->get('/prebook(/\d+)?', function ($id = null) {
         $order_by = Data::getValueOfStructure($response_structure, $order_by);
     }
 
+    $options = ["page" => $page, "size" => $size, "order_by" => $order_by, "order_strategy" => $order_strategy];
+
     if ($id) {
-        $response = Data::select($table, ["*"], $response_structure, array_merge($options, ["where" => "user_id = " . $id]));
+        $response = Data::select($table, ["*"], $response_structure, array_merge($options, ["where" => "event_multi_booking_id = " . $id]));
     } else {
-        // everything after now
-        $response = Data::select($table, ["*"], $response_structure, array_merge($options, ["where" => "prebook_begin >= NOW()"]));
+        $response = Data::select($table, ["*"], $response_structure, $options);
     }
 
     $results["page"] = $response["page"];
