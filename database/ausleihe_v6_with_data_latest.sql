@@ -14,6 +14,7 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+SET FOREIGN_KEY_CHECKS=0;
 
 -- Exportiere Datenbank Struktur für ausleihe_v6
 CREATE DATABASE IF NOT EXISTS `ausleihe_v6` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
@@ -573,6 +574,8 @@ INSERT INTO `usercard` (`usercard_id`, `usercard_type`, `usercard_uid`) VALUES
 	(129, 1, '9a34701a'),
 	(130, 1, '884c8c'),
 	(131, 1, '3e553b22');
+
+SET FOREIGN_KEY_CHECKS=1;
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

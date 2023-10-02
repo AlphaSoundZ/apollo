@@ -1,0 +1,67 @@
+openapi: 3.0.0
+info:
+  title: REST API Documentation
+  version: 1.0.0
+paths:
+  /api/v5/user/create:
+    post:
+      summary: Create User
+      description: Creates a new user.
+      parameters:
+        - name: firstname
+          in: query
+          description: The first name of the user.
+          required: true
+          schema:
+            type: string
+        - name: lastname
+          in: query
+          description: The last name of the user.
+          required: true
+          schema:
+            type: string
+        - name: class_id
+          in: query
+          description: The id of the class of the user.
+          required: true
+          schema:
+            type: integer
+        - name: usercard_id
+          in: query
+          description: The id of the usercard of the user.
+          required: false
+          schema:
+            type: integer
+        - name: token_id
+          in: query
+          description: The id of the token of the user.
+          required: false
+          schema:
+            type: integer
+        - name: ignore_duplicates
+          in: query
+          description: If set to true, the user will be created even if a user with the same first and last name already exists.
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: The user was created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: string
+                    description: The id of the created user.
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message.
