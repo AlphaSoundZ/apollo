@@ -23,7 +23,7 @@ class Booking
     $sql = "SELECT * FROM devices LEFT JOIN property_device_type ON devices.device_type = property_device_type.device_type_id WHERE devices.device_uid = '$this->uid_1'";
     $device_1 = $pdo->query($sql)->fetch();
 
-    // Fetch first device with $this->uid_1
+    // Fetch first usercard with $this->uid_1
     $sql = "SELECT * FROM usercard WHERE usercard.usercard_uid = '$this->uid_1'";
     $usercard = $pdo->query($sql)->fetch();
 
@@ -99,13 +99,6 @@ class Booking
       // Input $this->uid_1 is empty
       Response::error(Response::DEVICE_NOT_FOUND, ["uid_1"]);
     }
-  }
-
-  public function fetchUserData()
-  {
-    if ($this->data)
-      return $this->data;
-    return [];
   }
 
   private function lend($user_id, $device_id)

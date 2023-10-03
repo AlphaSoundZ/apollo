@@ -1421,7 +1421,7 @@ $router->post('/booking', function () {
 
     $booking = new Booking($data["uid_1"], $uid_2);
     $response_type = $booking->execute();
-    $response["data"] = $booking->fetchUserData();
+    $response["data"] = $booking->data;
 
     Response::success($response_type, $response);
 });

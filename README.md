@@ -162,7 +162,7 @@ link to the api documentation
 
 ## Status Codes
 
-Defined in file [/api/v5/classes/response_keys.class.php](/api/v5/classes/response_keys.class.php)
+Defined in file [/api/v5/classes/response.class.php](/api/v5/classes/response.class.php)
 
 | Status                     | Message                                              | Code  |
 |----------------------------|------------------------------------------------------|-------|
@@ -245,19 +245,99 @@ Defined in file [/api/v5/classes/response_keys.class.php](/api/v5/classes/respon
 
 The .env file contains all the environment variables that are needed for the API to work. You can find an example file ```.env.example``` in the root directory of the project.
 
-| Variable Name | Description                                                                                     |
-| ------------- | ----------------------------------------------------------------------------------------------- |
-| HOST          | The host of the MySql Server                                                                    |
-| DB            | The name of the database                                                                        |
-| USERNAME      | The username of the MySql Server                                                                |
-| PASSWORD      | The password of the MySql Server                                                                |
-| JWT_SECRET    | The secret for the JWT token (you can generate a secret [here](https://www.grc.com/passwords.htm)) |
+| Variable Name | Description                                                                                             |
+| ------------- | ------------------------------------------------------------------------------------------------------- |
+| HOST          | The host of the MySql Server                                                                            |
+| DB            | The name of the database                                                                                |
+| USERNAME      | The username of the MySql Server                                                                        |
+| PASSWORD      | The password of the MySql Server                                                                        |
+| JWT_SECRET    | The secret for the JWT token (you can generate a secret [here](https://www.grc.com/passwords.htm))      |
 | AUTHORIZATION | If set to 1, authorization is enabled. If set to 0, authorization is disabled. It is enabled by default |
-| PREBOOK_BUFFER| The time in minutes that a device can be prebooked before the actual booking time. |
-| MIN_BOOKING_DURATION| The minimum prebooking time in minutes. |
-| MAX_BOOKING_DURATION| The maximum prebooking time in minutes. |
-| MIN_PREBOOK_TIME_DISTANCE| The minimum time in days between now and the prebooking. |
-| MAX_PREBOOK_TIME_DISTANCE| The maximum time in days between now and the prebooking. |
+| PREBOOK_BUFFER| The time in minutes that a device can be prebooked before the actual booking time.                      |
+| MIN_BOOKING_DURATION| The minimum prebooking time in minutes.                                                           |
+| MAX_BOOKING_DURATION| The maximum prebooking time in minutes.                                                           |
+| MIN_PREBOOK_TIME_DISTANCE| The minimum time in days between now and the prebooking.                                     |
+| MAX_PREBOOK_TIME_DISTANCE| The maximum time in days between now and the prebooking.                                     |
 ## Database Structure
 
 ![Alt text](docs/v5/database_design.png)
+
+### Tables
+
+| Table Name             | Description                                                                                 |
+| ---------------------- | ------------------------------------------------------------------------------------------- |
+| user                   | Contains all users                                                                          |
+| usercard               | Contains all usercards                                                                      |
+| devices                | Contains all devices; The ```device_lend_user_id``` is used with the event table in parallel to quickly identify the user who currently lends the device |
+| token                  | Contains all tokens/accounts                                                                |
+| property_device_type   | Contains all device types                                                                   |
+| property_usercard_type | Contains all usercard types                                                                 |
+| property_class         | Contains all classes; The ```multi_booking``` boolean is used to determine if a user can book multiple devices at the same time |
+| property_token_pemissions | Contains all permissions a token can have                                                |
+| token_link_permissions | Junction table between token and permissions                                                |
+| prebook                | Contains all prebookings                                                                    |
+| events                 | Contains all booking events; The ```multi_booking_id``` is used to identify a set of bookings that belong together (e.g. a user books 3 devices at the same time) |
+
+## Code Structure
+
+### Booking Class ([booking.class.php](/api/v5/classes/booking.class.php)) | Non-Static
+
+| Method Name | Description                                                                                  | Access Control |
+| ----------- | -------------------------------------------------------------------------------------------- | -------------- |
+| execute     | Executes the booking and decides which action to take (lend, return, user info)              | public         |
+| lend        | Lends the device to the user                                                                 | private        |
+| return      | Returns the device                                                                           | private        |
+| userInfo    | Returns information about the user                                                           | private        |
+| deviceInfo  | Returns information about the device                                                         | private        |
+
+With the booking class you can lend & return a device and get information about a user. The booking class is used by the booking route ```/api/v5/booking```. You can book devices using a usercard uid and the respective device uid. The user linked to the token does not have to be the same as the user on the usercard, but the token must have [book](#permissions)-rights.
+
+### Prebook Class
+
+### Search Class
+
+### Create Class
+
+### Update Class
+
+### Delete Class
+
+### Token Class
+
+### CSV Class ([csv.class.php](/api/v5/classes/csv.class.php)) | Non-Static
+
+| Method Name   | Description                                                                                | Access Control |
+| ------------- | ------------------------------------------------------------------------------------------ | -------------- |
+| add           | Adds a csv file to the database                                                            | public         |
+| addRow        | Adds a row to the database                                                                 | private        |
+| checkForError | Checks if there is an error in the csv file and throws an error if there is one            | private        |
+
+With the CSV class you can import a csv file into the database. The CSV class is used by the csv route ```/api/v5/csv/import```.
+
+### Exception Handler Class ([exception_handler.class.php](/api/v5/classes/exception_handler.class.php)) | Non-Static
+
+Class that handles all exceptions. The exception handler class is used by the ```error()```-method in the [response.class.php](/api/v5/classes/response.class.php) file. If you want to throw an exception, you can do it by calling the ```Response::error()```-method.
+
+### Response Class ([response.class.php](/api/v5/classes/response.class.php)) | Static
+
+| Method Name | Description                                                                                  | Access Control |
+| ----------- | -------------------------------------------------------------------------------------------- | -------------- |
+| error       | Throws an exception and sends a response with details of the error to the client             | public         |
+| success     | Sends a response to the client                                                               | public         |
+
+The file also contains some constants for the status codes and messages. It uses a pseudo-enumeration to define the status codes and messages since PHP does not support enumerations before PHP 8.1.
+
+### Request Processing
+
+- The request is received by the [index.php](/api/v5/index.php) file
+- The [index.php](/api/v5/index.php) file checks if the request is valid and if the route exists
+- The respective route has the following structure: ```/api/v5/{route}```
+  - ```authorize({permission})``` checks if the token has the required permission
+  - ```getData({method}, {required_params}, {optional_params})``` gets the data from the request body and checks the required parameters
+- The route then calls the respective class and method to process the request
+- Errors are handled by the response class (```Response::error()``` is called if an error occurs)
+- ```Response::success()``` sends the response back to the client
+
+## How to use the API with the GHT-Buchungssystem
+
+- create a token for the raspberry pi etc.

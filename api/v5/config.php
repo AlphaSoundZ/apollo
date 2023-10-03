@@ -9,7 +9,7 @@ header("Access-Control-Allow-Methods: DELETE, POST, GET, PATCH, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 
 require_once 'classes/exception_handler.class.php';
-require_once 'classes/response_keys.class.php';
+require_once 'classes/response.class.php';
 require_once 'classes/token.class.php';
 require_once 'vendor/autoload.php';
 

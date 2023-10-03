@@ -1,5 +1,5 @@
 <?php
-abstract class BasicEnum
+abstract class Response extends ResponseCodesEnum
 {
 	/**
 	 * @param array $response ["status" => "SUCCESS", "message" => "Success", "code" => 200]
@@ -56,7 +56,7 @@ abstract class BasicEnum
 	}
 }
 
-abstract class Response extends BasicEnum
+abstract class ResponseCodesEnum
 {
 	const UNEXPECTED_ERROR = ["status" => "UNEXPECTED_ERROR", "message" => "Internal Server Error: ", "code" => 500]; // Default error message
 	const PAGE_NOT_FOUND = ["status" => "PAGE_NOT_FOUND", "message" => "Page Not Found", "code" => 404]; // Page does not exist (404 error)
