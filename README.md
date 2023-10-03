@@ -78,7 +78,7 @@ The response should look something like:
     cd api/v5            # navigate into the api directory
     composer install     # install composer packages
    ```
-3. Configure .env file (in root directory)
+3. Configure [.env](#env-file) file (in the root directory)
    ```sh
     cd ../../            # navigate back to root directory
     cp .env.example .env # copy .env.example to .env
@@ -229,17 +229,17 @@ Defined in file [/api/v5/classes/response_keys.class.php](/api/v5/classes/respon
 
 |permission_id|permission_text|
 |----|----|
-|2|add_csv|
 |1|book|
-|5|CRUD_device|
-|7|CRUD_device_type|
-|11|CRUD_prebook|
-|9|CRUD_token|
+|2|add_csv|
 |3|CRUD_user|
 |4|CRUD_usercard|
-|8|CRUD_usercard_type|
+|5|CRUD_device|
 |6|CRUD_user_class|
+|7|CRUD_device_type|
+|8|CRUD_usercard_type|
+|9|CRUD_token|
 |10|delete_event|
+|11|CRUD_prebook|
 
 ## .env file
 
@@ -258,5 +258,6 @@ The .env file contains all the environment variables that are needed for the API
 | MAX_BOOKING_DURATION| The maximum prebooking time in minutes. |
 | MIN_PREBOOK_TIME_DISTANCE| The minimum time in days between now and the prebooking. |
 | MAX_PREBOOK_TIME_DISTANCE| The maximum time in days between now and the prebooking. |
-
 ## Database Structure
+
+![Alt text](docs/v5/database_design.png)
