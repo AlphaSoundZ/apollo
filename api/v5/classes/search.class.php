@@ -102,16 +102,10 @@ class Data
         $needles = explode(" ", strtolower($needles));
         for ($row = 0; $row < count($haystack); $row++) // loop every row
         {
-            $best = 0;
-            $average = 0;
-            foreach ($needles as $needle) // loop every needle
-            {
-                $last_best = $best;
-
-                $best = self::recursiveSearch($needle, $haystack[$row], $columns);
-
-                $average = ($average !== 0) ? ($best + $last_best) / 2 : $best;
-            }
+            $items = [];
+            $average = array_sum(array_map(function ($needle) use ($haystack, $row, $columns, &$items) {
+                return self::recursiveSearch($needle, $haystack[$row], $columns);
+            }, $needles)) / count($needles);
             if ($strict == false && $average >= 50)
                 array_push($result, ["accordance" => $average, "data" => $haystack[$row]]);
             else if ($average == 100)
