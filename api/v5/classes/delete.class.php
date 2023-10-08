@@ -2,23 +2,6 @@
 require_once 'config.php';
 class DataDelete
 {
-    static function deleteRow($table, $id) // delete row by id in table
-    {
-        global $pdo;
-        $identityColumn = self::getIdentityColumn($table);
-
-        $sql = "SELECT * FROM $table WHERE $identityColumn = '$id'";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute();
-        $row = $stmt->fetch();
-        if ($row == false)
-            Response::error(Response::ID_NOT_FOUND, ["id"]);
-        
-        $sql = "DELETE FROM $table WHERE $identityColumn = '$id'";
-        $sth = $pdo->prepare($sql);
-        $result = $sth->execute();
-    }
-
     static function delete($table, $id, $not_found_errorhandling = Response::ID_NOT_FOUND, $foreign_key_errorhandling = Response::FOREIGN_KEY_ERROR) 
     {
         global $pdo;
