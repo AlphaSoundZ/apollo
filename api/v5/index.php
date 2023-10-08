@@ -1013,7 +1013,7 @@ $router->post('/prebook/create', function () {
         return authorize("CRUD_prebook");
     });
 
-    $data = getData("POST", ["amount", "begin", "end"]);
+    $data = getData("POST", ["amount", "begin", "end"], ["user_id"]);
 
     $user_id = (isset($data["user_id"])) ? $data["user_id"] : null;
 
