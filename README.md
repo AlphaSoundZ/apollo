@@ -114,6 +114,12 @@ The response should look something like:
     }
     ```
 
+Check for errors (Windows Powershell):
+```powershell
+cd api/v5
+Get-ChildItem -Filter *.php -Recurse | ForEach-Object {php -l $_.FullName}
+```
+
 ## Authorization
 
 During development you can disable the authorization in the .env file by setting ```AUTHORIZATION``` to ```0```.
@@ -289,20 +295,78 @@ The .env file contains all the environment variables that are needed for the API
 | return      | Returns the device                                                                           | private        |
 | userInfo    | Returns information about the user                                                           | private        |
 | deviceInfo  | Returns information about the device                                                         | private        |
+| availableDevicesForBooking | Returns the amount of devices that are currently available for booking | public |
+| maxBookingDuration | Return the maximum booking duration in minutes before the devices are needed for a prebooking | public |
 
 With the booking class you can lend & return a device and get information about a user. The booking class is used by the booking route ```/api/v5/booking```. You can book devices using a usercard uid and the respective device uid. The user linked to the token does not have to be the same as the user on the usercard, but the token must have [book](#permissions)-rights.
 
-### Prebook Class
+### Prebook Class ([prebook.class.php](/api/v5/classes/prebook.class.php)) | Static
 
-### Search Class
+| Method Name | Description                                                                                  | Access Control |
+| ----------- | -------------------------------------------------------------------------------------------- | -------------- |
+| create      | Creates a prebooking                                                                         | public         |
+| availableDevicesForPrebooking | Returns the amount of devices that are available for prebooking at the specified time period | public |
 
-### Create Class
+With the prebook class you can make a reservation for an amount of devices in a given period. The prebook class is used by the prebook route ```/api/v5/prebook/create```. You can prebook devices using a user id or using the token's user id (the token's user id is used if the parameter "user_id" is empty). The token must either have [prebook](#permissions)-rights[CRUD_prebook](#permissions)-rights.
 
-### Update Class
+### Search / Data Class ([search.class.php](/api/v5/classes/search.class.php)) | Static
 
-### Delete Class
+| Method Name | Description                                                                                  | Access Control |
+| ----------- | -------------------------------------------------------------------------------------------- | -------------- |
+| select      | Used to select data with a specific response structure                                       | public         |
+| search      | Used to search for data with a specific response structure                                   | public         |
+| searchalgo  | Returns the haystack including the accordance percentage to the needle, used by search()     | public         |
+| recursiveSearch | Searches recursively in an multidimensional array, used by searchalgo()                  | private        |
+| fillResponseStructure | converts the database result to the response structure                             | private        |
+
+With the search/data class you can do any sort of search and selection in the database. The search/data class is used by almost every ```get``` route. Other classes use the standard PDO methods to select data from the database because they don't need the specific response structure.
+
+### Create Class ([create.class.php](/api/v5/classes/create.class.php)) | Static
+
+| Method Name | Description                                                                                  | Access Control |
+| ----------- | -------------------------------------------------------------------------------------------- | -------------- |
+| user        | Creates a new user                                                                           | public         |
+| usercard    | Creates a new usercard                                                                       | public         |
+| device      | Creates a new device                                                                         | public         |
+| property_class | Creates a new class                                                                       | public         |
+| property_device_type | Creates a new device type                                                           | public         |
+| property_usercard_type | Creates a new usercard type                                                       | public         |
+| token       | Creates a new token/account                                                                  | public         |
+
+With the create class you can create a new user, usercard, device, class, device type, usercard type or token. The create class is used by most of the ```post``` routes.
+
+### Update / DataUpdate Class ([update.class.php](/api/v5/classes/update.class.php)) | Static
+
+| Method Name | Description                                                                                  | Access Control |
+| ----------- | -------------------------------------------------------------------------------------------- | -------------- |
+| update      | Modifies a database entry                                                                    | public         |
+| token       | Modifies a token/account                                                                     | public         |
+| getIdentityColumn | Returns the identity column of a table                                                 | private        |
+
+The update class is used by most of the ```patch``` routes and as the name suggests, it is used to update data in the database.
+
+### Delete Class ([delete.class.php](/api/v5/classes/delete.class.php)) | Static
+
+| Method Name | Description                                                                                  | Access Control |
+| ----------- | -------------------------------------------------------------------------------------------- | -------------- |
+| delete      | Deletes a database entry                                                                     | public         |
+| deleteToken | Deletes a token/account                                                                      | public         |
+| deletePrebook | Deletes a prebooking                                                                       | public         |
+| reset       | Deletes all Rows of a table (and optionally resets id)                                       | public         |
+| clearEvent  | Deletes all active events / bookings                                                         | public         |
+| clearUserEvent | Deletes all active events / bookings of a user                                            | public         |
+| getIdentityColumn | Returns the identity column of a table                                                 | private        |
+
+The delete class is used by most of the ```delete``` routes and as the name suggests, it is used to delete data from the database. It also contains some methods to reset tables and user events.
 
 ### Token Class
+
+| Method Name | Description                                                                                  | Access Control |
+| ----------- | -------------------------------------------------------------------------------------------- | -------------- |
+| getToken    | Generates a new token using login data and returns it                                        | public         |
+| validateToken | Validates a token and returns the token data                                               | public         |
+
+The token class is used by the token (authorization and validation) routes ```/api/v5/token``` and used to authorize each route in ```api/v5/config.php```. It is used to generate and validate tokens.
 
 ### CSV Class ([csv.class.php](/api/v5/classes/csv.class.php)) | Non-Static
 
@@ -338,6 +402,54 @@ The file also contains some constants for the status codes and messages. It uses
 - Errors are handled by the response class (```Response::error()``` is called if an error occurs)
 - ```Response::success()``` sends the response back to the client
 
-## How to use the API with the GHT-Buchungssystem
+## Security
 
-- create a token for the raspberry pi etc.
+### Token
+
+The token is generated using the [JWT](https://jwt.io/) standard. The token contains the following data:
+```json
+{
+  "permissions": [ // permission id's of the token
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "sub": 7, // user id of the token
+  "iat": 1696795140 // timestamp of the token creation
+}
+```
+
+The token is signed using the [HMAC](https://en.wikipedia.org/wiki/HMAC) algorithm with the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) hash function. The secret is stored in the [.env](#env-file) file. The token has no expiration date yet. When the user changes his password or username, all tokens are no longer valid.
+
+### Passwords
+
+Passwords are hashed using the [bcrypt](https://en.wikipedia.org/wiki/Bcrypt) algorithm.
+
+## Testing
+
+The testing feature is currently in progress. You can find the tests in the [tests](/tests) directory.
+
+## Authors
+
+- **Jan Jacob Holst | AlphaSoudZ** - *Initial work* - [AlphaSoundZ](https://www.github.com/AlphaSoundZ)
+
+## Dependencies
+
+### Related Projects (using the API)
+
+- [GHT-Buchungssystem](https://github.com/AlphaSoundZ/GHT-Buchungssystem): The booking system for the GHT, a web application for the raspberry pi to book devices, written in TypeScript and Vue.js.
+- [Apollo-Manager](https://github.com/AlphaSoundZ/apollo-manager): The manager for the API, a web and desktop application to manage the Apollo-System, writen in Dart and Flutter.
+
+### Composer
+
+- [firebase/php-jwt](https://github.com/firebase/php-jwt)
+- [vlucas/phpdotenv](https://github.com/vlucas/phpdotenv)
+- [bramus/router](https://github.com/bramus/router)
