@@ -26,18 +26,21 @@ paths:
           required: true
           schema:
             type: integer
+            minimum: 1
         - name: usercard_id
           in: query
           description: The id of the usercard of the user.
           required: false
           schema:
             type: integer
+            minimum: 1
         - name: token_id
           in: query
           description: The id of the token of the user.
           required: false
           schema:
             type: integer
+            minimum: 1
         - name: ignore_duplicates
           in: query
           description: If set to true, the user will be created even if a user with the same first and last name already exists.
@@ -53,7 +56,7 @@ paths:
                 type: object
                 properties:
                   user_id:
-                    type: string
+                    type: integer
                     description: The id of the created user.
         '400':
           description: Bad Request
