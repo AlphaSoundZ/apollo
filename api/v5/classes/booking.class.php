@@ -59,7 +59,8 @@ class Booking
 
           // Ist das Gerät reserviert?
           $max_duration = self::maxBookingDuration();
-          if ($max_duration == 0) {
+
+          if ($max_duration < $_ENV["MIN_BOOKING_DURATION"]) {
             Response::error(Response::CONFLICT_WITH_PREBOOK);
           }
           
@@ -295,7 +296,7 @@ class Booking
         * - get next prebooking (which isn't in buffer right now), where the current amount of available devices is not enough
         *      - at each event, check the amount of needed devices (add amount of every running prebooking)
         * - get the time difference between now and the event_begin time
-        */
+      */
 
       // get amount of available devices
       $available_devices = self::availableDevicesForBooking();
