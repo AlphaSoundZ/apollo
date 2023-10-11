@@ -888,7 +888,7 @@ $router->get('/booking/available', function () {
 
     $result = Booking::availableDevicesForBooking();
 
-    Response::success(Response::SUCCESS, ["amount" => $result]);
+    Response::success(Response::SUCCESS, ["data" => [["amount" => $result]]]);
 });
 
 // POST
