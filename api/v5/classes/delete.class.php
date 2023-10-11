@@ -123,7 +123,7 @@ class DataDelete
         global $pdo;
 
         // set device_lend_user_id to 0 for all devices that are currently lent
-        $sql = "UPDATE devices SET device_lend_user_id = 0 WHERE device_lend_user_id != 0";
+        $sql = "UPDATE devices SET device_lend_user_id = NULL WHERE device_lend_user_id != NULL";
         $sth = $pdo->prepare($sql);
         $sth->execute();
 
