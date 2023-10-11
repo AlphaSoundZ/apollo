@@ -38,7 +38,7 @@ try {
 
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-function getData($method, array $requirements, array $optional = [])
+function getData($method, array $requirements = [], array $optional = [])
 {
 	if ($method === "POST")
 		$input = (isset($_POST)) ? json_decode(file_get_contents("php://input"), true) : false;
@@ -46,7 +46,7 @@ function getData($method, array $requirements, array $optional = [])
 		$input = (isset($_GET)) ? $_GET : false;
 
 
-	if (empty($input)) {
+	if (!empty($requirements) && empty($input)) {
 		$errors_str = implode(", ", $requirements);
 		Response::error(array_merge(Response::REQUIRED_DATA_MISSING, ["message" => Response::REQUIRED_DATA_MISSING["message"] . " ($errors_str)"]), $requirements, ["optional_fields" => $optional]);
 	}

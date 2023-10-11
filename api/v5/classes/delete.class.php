@@ -61,38 +61,35 @@ class DataDelete
         }
     }
 
-    static function deletePrebook($id, $own_token_id = null)
+    static function deletePrebook($id, $own_token_id)
     {
         global $pdo;
 
-        if ($own_token_id == null)
+        // check if user is allowed to delete prebook (user of token is owner of prebook, or user has CRUD_prebook permission)
+        $sql = "SELECT * FROM token WHERE token_id = :token_id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(array(
+            "token_id" => $own_token_id
+        ));
+        $token_user = $stmt->fetch(PDO::FETCH_ASSOC)["token_user_id"];
+
+        // get user_id of prebook
+        $sql = "SELECT * FROM prebook WHERE prebook_id = :id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(array(
+            "id" => $id
+        ));
+        $user_id = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user_id)
+            Response::error(Response::PREBOOK_NOT_FOUND, ["id"]);
+        
+        $user_id = $user_id["prebook_user_id"];
+        
+        if (($user_id != $token_user || authorize()["permissions"]["prebook"]) && !isset(authorize()["permissions"]["CRUD_prebook"]))
         {
-            // check if user is allowed to delete prebook (user of token is owner of prebook, or user has CRUD_prebook permission)
-            $sql = "SELECT * FROM token WHERE token_id = :token_id";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute(array(
-                "token_id" => $own_token_id
-            ));
-            $token_user = $stmt->fetch(PDO::FETCH_ASSOC)["user_id"];
-    
-            // get user_id of prebook
-            $sql = "SELECT * FROM prebook WHERE prebook_id = :id";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute(array(
-                "id" => $id
-            ));
-            $user_id = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-            if (!$user_id)
-                Response::error(Response::PREBOOK_NOT_FOUND, ["id"]);
-            
-            $user_id = $user_id["prebook_user_id"];
-            
-            if ($user_id != $token_user && !isset(authorize()["permissions"]["CRUD_prebook"]))
-            {
-                // user is not allowed to delete prebook for others
-                Response::error(Response::NOT_ALLOWED);
-            }
+            // user is not allowed to delete prebook for others
+            Response::error(Response::NOT_ALLOWED);
         }
         
         self::delete("prebook", $id, Response::PREBOOK_NOT_FOUND, Response::FOREIGN_KEY_ERROR);

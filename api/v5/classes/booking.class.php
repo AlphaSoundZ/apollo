@@ -225,7 +225,7 @@ class Booking
     return Response::INFO_SUCCESS;
   }
 
-  public static function availableDevicesForBooking()
+  public static function availableDevicesForBooking() : int
   {
       global $pdo;
 

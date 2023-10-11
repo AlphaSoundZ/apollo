@@ -815,8 +815,8 @@ $router->get('/prebook(/\d+)?', function ($id = null) {
     if ($id) {
         $response = Data::select($table, ["*"], $response_structure, array_merge($options, ["where" => "user_id = " . $id]));
     } else {
-        // everything after now
-        $response = Data::select($table, ["*"], $response_structure, array_merge($options, ["where" => "prebook_begin >= NOW()"]));
+        // everything which ends in the future
+        $response = Data::select($table, ["*"], $response_structure, array_merge($options, ["where" => "prebook_end >= NOW()"]));
     }
 
     $results["page"] = $response["page"];
@@ -878,6 +878,17 @@ $router->get('event(/\d+)?', function ($id = null) {
 
 
     Response::success(Response::SUCCESS, $results);
+});
+
+$router->get('/booking/available', function () {
+    require_once 'classes/booking.class.php';
+    // authorize();
+
+    $data = getData("GET");
+
+    $result = Booking::availableDevicesForBooking();
+
+    Response::success(Response::SUCCESS, ["amount" => $result]);
 });
 
 // POST
@@ -1018,9 +1029,9 @@ $router->post('/prebook/create', function () {
     $user_id = (isset($data["user_id"])) ? $data["user_id"] : null;
 
     if ($user_id)
-        $id = Prebook::create($data["amount"], $data["begin"], $data["end"], $data["user_id"], $token["id"]);
+        $id = Prebook::create($data["amount"], $data["begin"], $data["end"], $data["user_id"], $token["user_id"]);
     else
-        $id = Prebook::create($data["amount"], $data["begin"], $data["end"], null, $token["id"]);
+        $id = Prebook::create($data["amount"], $data["begin"], $data["end"], null, $token["user_id"]);
 
     Response::success(Response::SUCCESS, ["prebook_id" => $id]);
 });
@@ -1406,7 +1417,7 @@ $router->delete('/prebook/delete', function () {
 
     $data = getData("POST", ["id"]);
 
-    DataDelete::deletePrebook($data["id"], $token["id"]);
+    DataDelete::deletePrebook($data["id"], $token["user_id"]);
 
     Response::success(Response::SUCCESS);
 });
