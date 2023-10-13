@@ -33,6 +33,9 @@ class Booking
         $sql = "SELECT * FROM user LEFT JOIN property_class ON property_class.class_id = user.user_class WHERE user_usercard_id = '{$usercard['usercard_id']}'";
         $user = $pdo->query($sql)->fetch();
         $device_1 = $usercard;
+
+        if (!$user)
+          Response::error(Response::USER_NOT_FOUND, ["uid_1"]);
       }
       
       if (!empty($this->uid_2)) // Ausleihe oder Rückgabe
